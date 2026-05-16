@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Enemies</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="header.css?v=2">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  .section-title.normal { color: var(--text); }
+  .section-title.special { color: #e040fb; }
+  .section-title.miniboss { color: #ff7043; }
+  .section-title.boss { color: #ef5350; }
+
+  .enemy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+
+  .enemy-card {
+    border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-card); overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .enemy-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(76, 175, 80, 0.4);
+  }
+  .enemy-card.special { border-color: rgba(224, 64, 251, 0.3); }
+  .enemy-card.special:hover { border-color: #e040fb; }
+  .enemy-card.miniboss { border-color: rgba(255, 112, 67, 0.3); }
+  .enemy-card.miniboss:hover { border-color: #ff7043; }
+  .enemy-card.boss { border-color: rgba(239, 83, 80, 0.3); }
+  .enemy-card.boss:hover { border-color: #ef5350; }
+  .enemy-card.hidden { display: none; }
+
+  .enemy-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .enemy-icon {
+    width: 48px; height: 48px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); display: flex; align-items: center;
+    justify-content: center; font-size: 1.5em; flex-shrink: 0;
+  }
+  .enemy-card.special .enemy-icon { background: rgba(224, 64, 251, 0.08); }
+  .enemy-card.miniboss .enemy-icon { background: rgba(255, 112, 67, 0.08); }
+  .enemy-card.boss .enemy-icon { background: rgba(239, 83, 80, 0.08); }
+
+  .enemy-title-area { flex: 1; min-width: 0; }
+
+  .enemy-name {
+    font-weight: 700; font-size: 1.1em; line-height: 1.2;
+  }
+  .enemy-card.boss .enemy-name,
+  .enemy-card.miniboss .enemy-name,
+  .enemy-card.special .enemy-name { color: #ffffff; }
+
+  .enemy-type-badge {
+    display: inline-block; font-size: 0.6em; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 6px; border-radius: 3px; margin-top: 3px;
+  }
+  .badge-normal { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+  .badge-special { background: rgba(224, 64, 251, 0.15); color: #e040fb; }
+  .badge-miniboss { background: rgba(255, 112, 67, 0.15); color: #ff7043; }
+  .badge-boss { background: rgba(239, 83, 80, 0.15); color: #ef5350; }
+
+  .enemy-body {
+    padding: 10px 16px 16px;
+  }
+
+  .enemy-stats {
+    display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;
+  }
+  .stat {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(0,0,0,0.2); border-radius: 5px;
+    padding: 5px 10px; font-size: 0.82em; font-weight: 600;
+  }
+  .stat-icon { font-size: 1.1em; }
+  .stat-hp { color: #ef5350; }
+  .stat-atk { color: #ff9800; }
+  .stat-block { color: #42a5f5; }
+
+  .enemy-range {
+    font-size: 0.82em; color: var(--text-dim); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .range-tag {
+    display: inline-block; font-size: 0.85em; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 7px; border-radius: 3px;
+  }
+  .range-melee { background: rgba(255, 152, 0, 0.12); color: #ff9800; }
+  .range-ranged { background: rgba(66, 165, 245, 0.12); color: #42a5f5; }
+  .range-magic { background: rgba(171, 71, 188, 0.12); color: #ab47bc; }
+
+  .enemy-ability {
+    padding: 8px 10px; font-size: 0.88em; line-height: 1.5;
+    color: var(--text); background: rgba(0,0,0,0.15);
+    border-radius: 5px; border-left: 2px solid rgba(255,255,255,0.08);
+    margin-bottom: 5px;
+  }
+  .enemy-card.special .enemy-ability { border-left-color: rgba(224, 64, 251, 0.3); }
+  .enemy-card.miniboss .enemy-ability { border-left-color: rgba(255, 112, 67, 0.3); }
+  .enemy-card.boss .enemy-ability { border-left-color: rgba(239, 83, 80, 0.3); }
+  .enemy-ability:last-child { margin-bottom: 0; }
+
+  .ability-name {
+    font-weight: 700; color: var(--legendary);
+  }
+
+  @media (max-width: 720px) {
+    .enemy-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search enemies... (e.g. Golem, vampiric, boss)">
+  </div>
+</div>
+<script src="header.js?v=3"></script>
+
+<div class="content-area" id="enemy-content"></div>
+<div class="no-results" id="noResults">No enemies match your search.</div>
+
+<script>
+const ENEMIES = {
+  normal: [
+    { name: "Battering Goat", icon: "🐐", hp: 10, atk: 2, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [] },
+    { name: "Chaotic Goat", icon: "🐐", hp: 30, atk: 10, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Healing Blood", desc: "Gives Healing Blood card to its killer upon death" }] },
+    { name: "Corrupted Priest", icon: "⛪", hp: 15, atk: 5, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Rotten", desc: "Returns 2 damage when non-lethally hit" }] },
+    { name: "Fire Imp", icon: "🔥", hp: 4, atk: 1, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Explode", desc: "Deals damage equal to its strength to all heroes when killed in near range" }] },
+    { name: "Flying Wild Hog", icon: "🐗", hp: 2, atk: 1, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Regenerate", desc: "Heals itself at the beginning of a monsters' turn" }, { name: "Rotten", desc: "Returns 1 damage when non-lethally hit" }] },
+    { name: "Glutton", icon: "👹", hp: 20, atk: 3, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Enrage", desc: "Adds +2 to its strength every time it receives damage" }] },
+    { name: "Goatman", icon: "🐐", hp: 10, atk: 6, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [] },
+    { name: "Loony Ghost", icon: "👻", hp: 6, atk: 6, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Cursed", desc: "Adds a negative influence to its killer upon death" }] },
+    { name: "Phantom Beast", icon: "🐾", hp: 20, atk: 5, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Disarm", desc: "Disarms the target" }] },
+    { name: "Puffy Corpse", icon: "🧟", hp: 10, atk: 3, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [{ name: "Rotten", desc: "Returns 1 damage when non-lethally hit" }] },
+    { name: "Skeletomancer", icon: "💀", hp: 15, atk: 5, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [] },
+    { name: "Skeleton Archer", icon: "🏹", hp: 3, atk: 3, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [] },
+    { name: "Skeleton Warrior", icon: "💀", hp: 5, atk: 1, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [] },
+    { name: "Slithering Warrior", icon: "🐍", hp: 7, atk: 10, block: 5, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [] },
+    { name: "Succubus", icon: "😈", hp: 15, atk: 3, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [{ name: "Vampiric", desc: "Gains strength equal to unblocked damage dealt" }] },
+    { name: "Templar", icon: "🛡️", hp: 15, atk: 3, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [] },
+    { name: "Tiny Spectre", icon: "👻", hp: 6, atk: 1, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [] },
+    { name: "Zombie Corpse", icon: "🧟", hp: 3, atk: 1, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Rotten", desc: "Returns 1 damage when non-lethally hit" }] }
+  ],
+  special: [
+    { name: "Demonic Mage", icon: "🧙", hp: 30, atk: 7, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Cursed", desc: "Adds a negative influence to its killer upon death" }] },
+    { name: "Demonic Rogue", icon: "🗡️", hp: 35, atk: 10, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [{ name: "Cursed", desc: "Adds a negative influence to its killer upon death" }] },
+    { name: "Demonic Warrior", icon: "⚔️", hp: 40, atk: 5, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Cursed", desc: "Adds a negative influence to its killer upon death" }] }
+  ],
+  miniboss: [
+    { name: "Devourer", icon: "🦷", hp: 25, atk: 1, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Devour", desc: "Eats wounded monsters with 10 HP or less. Adds 5 HP and 5 strength" }] },
+    { name: "Elder Goatchanter", icon: "🐐", hp: 25, atk: 5, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Goat Chant", desc: "Grants +1 Strength to other monsters" }] },
+    { name: "Golem", icon: "🗿", hp: 50, atk: 15, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Stone Skin", desc: "All monsters' block stays for the next turn" }] },
+    { name: "Mirage Mage", icon: "🔮", hp: 50, atk: 5, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Magic Barrier", desc: "Play other cards before Attack cards" }] },
+    { name: "Skelserker", icon: "💀", hp: 50, atk: 1, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Sharpen Bones All", desc: "+2 Strength / -1 HP to all monsters" }] },
+    { name: "Skull Spook", icon: "💀", hp: 50, atk: null, block: 0, range: "Ranged", rangeDesc: "Attacks only from far range", abilities: [{ name: "Magic Disruption", desc: "Skill (blue) cards cost 1 mana point more" }] },
+    { name: "Slithering Magus", icon: "🐍", hp: 25, atk: 20, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Demonic Revenge", desc: "Every time a hero kills a monster, a random card from their hand is discarded" }] },
+    { name: "Spectral Whopper", icon: "👻", hp: 25, atk: 4, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Arcane Shield", desc: "Never gets more than 4 damage in a single hit. Doesn't apply to influences doing direct damage" }] },
+    { name: "Whopper", icon: "🦴", hp: 30, atk: null, block: 0, range: "Melee", rangeDesc: "Attacks only from near range", abilities: [{ name: "Whopper's Rib", desc: "Spawns a new Skeleton Warrior every time it receives damage" }] }
+  ],
+  boss: [
+    { name: "Antipope", icon: "⛪", hp: 75, atk: 20, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Sinister Revenge", desc: "Restricts the number of cards players can play each turn when working together" }] },
+    { name: "Archdemon", icon: "👿", hp: 150, atk: 15, block: 0, range: "Magic", rangeDesc: "Can attack from both ranges", abilities: [{ name: "Round Robin", desc: "No one can play a card twice in a row as long as 2 or more players are alive" }, { name: "Summon", desc: "Summons one Demonic Mage, one Demonic Rogue, and one Demonic Warrior at battle start" }] },
+    { name: "Cook", icon: "🍳", hp: null, atk: null, block: null, range: null, rangeDesc: null, abilities: [] }
+  ]
+};
+
+const CATEGORY_META = {
+  normal: { label: "Normal Enemies", cls: "normal" },
+  special: { label: "Special Enemies", cls: "special" },
+  miniboss: { label: "Minibosses", cls: "miniboss" },
+  boss: { label: "Bosses", cls: "boss" }
+};
+
+function buildPage() {
+  const container = document.getElementById('enemy-content');
+  let html = '';
+
+  for (const [cat, enemies] of Object.entries(ENEMIES)) {
+    const meta = CATEGORY_META[cat];
+    html += `<h2 class="section-title ${meta.cls}">${meta.label}</h2>`;
+    html += '<div class="enemy-grid">';
+    for (const e of enemies) {
+      html += createEnemyCard(e, cat);
+    }
+    html += '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function createEnemyCard(e, cat) {
+  const badgeCls = 'badge-' + cat;
+  const badgeText = cat.charAt(0).toUpperCase() + cat.slice(1);
+
+  let statsHtml = '';
+  if (e.hp !== null) statsHtml += `<div class="stat"><span class="stat-icon stat-hp">&#10084;</span> ${e.hp} HP</div>`;
+  if (e.atk !== null) statsHtml += `<div class="stat"><span class="stat-icon stat-atk">&#9876;</span> ${e.atk} ATK</div>`;
+  if (e.block) statsHtml += `<div class="stat"><span class="stat-icon stat-block">&#128737;</span> ${e.block} Block</div>`;
+
+  let rangeHtml = '';
+  if (e.range) {
+    const rangeCls = 'range-' + e.range.toLowerCase();
+    rangeHtml = `<div class="enemy-range"><span class="range-tag ${rangeCls}">${e.range}</span> ${e.rangeDesc}</div>`;
+  }
+
+  let abilitiesHtml = '';
+  for (const a of e.abilities) {
+    abilitiesHtml += `<div class="enemy-ability"><span class="ability-name">${a.name}:</span> ${a.desc}</div>`;
+  }
+
+  const searchData = [e.name, e.range, e.rangeDesc, ...e.abilities.map(a => a.name + ' ' + a.desc)].filter(Boolean).join(' ').toLowerCase();
+
+  return `
+    <div class="enemy-card ${cat}" data-name="${e.name.toLowerCase()}" data-search="${searchData}">
+      <div class="enemy-header">
+        <div class="enemy-icon">${e.icon}</div>
+        <div class="enemy-title-area">
+          <div class="enemy-name">${e.name}</div>
+          <span class="enemy-type-badge ${badgeCls}">${badgeText}</span>
+        </div>
+      </div>
+      <div class="enemy-body">
+        <div class="enemy-stats">${statsHtml}</div>
+        ${rangeHtml}
+        ${abilitiesHtml}
+      </div>
+    </div>
+  `;
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const query = this.value.toLowerCase().trim();
+  const allCards = document.querySelectorAll('.enemy-card');
+  const allTitles = document.querySelectorAll('.section-title');
+  let anyVisible = false;
+
+  if (!query) {
+    allCards.forEach(c => c.classList.remove('hidden'));
+    allTitles.forEach(t => t.style.display = '');
+    document.getElementById('noResults').style.display = 'none';
+    return;
+  }
+
+  const catVisible = { normal: false, special: false, miniboss: false, boss: false };
+
+  allCards.forEach(card => {
+    const match = card.dataset.search.includes(query);
+    card.classList.toggle('hidden', !match);
+    if (match) {
+      anyVisible = true;
+      for (const cat of Object.keys(catVisible)) {
+        if (card.classList.contains(cat)) catVisible[cat] = true;
+      }
+    }
+  });
+
+  allTitles.forEach(t => {
+    for (const cat of Object.keys(catVisible)) {
+      if (t.classList.contains(cat)) {
+        t.style.display = catVisible[cat] ? '' : 'none';
+      }
+    }
+  });
+
+  document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+});
+
+buildPage();
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.enemy-card:not(.hidden)'); },
+  matchFn: function(el, query) { return el.dataset.search.includes(query); }
+});
+</script>
+</body>
+</html>

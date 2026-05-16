@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Mage Tree</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg-dark: #0d0d12;
+    --bg-card: #1a1a24;
+    --bg-panel: #14141e;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --attack: #c62828;
+    --attack-bg: #2a1010;
+    --attack-border: #8b1a1a;
+    --skill: #1565c0;
+    --skill-bg: #0d1a2e;
+    --skill-border: #0d47a1;
+    --influence: #2e7d32;
+    --influence-bg: #0d2010;
+    --influence-border: #1b5e20;
+    --starter: #78909c;
+    --common: #9e9e9e;
+    --rare: #7e57c2;
+    --legendary: #4caf50;
+    --summoned: #00acc1;
+    --gold-glow: rgba(76, 175, 80, 0.3);
+    --line-color: #2a2a30;
+    --highlight-line: #4caf50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #0a0a1a 0%, var(--bg-dark) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #388e3c, #4caf50, #388e3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+  }
+
+  header .subtitle { color: var(--text-dim); font-size: 1.1em; margin-top: 8px; font-weight: 300; }
+
+  .legend {
+    display: flex; justify-content: center; gap: 24px; padding: 16px 20px; flex-wrap: wrap;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+  }
+  .legend-group { display: flex; gap: 12px; align-items: center; }
+  .legend-group .label { color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.attack { background: var(--attack); }
+  .legend-dot.skill { background: var(--skill); }
+  .legend-dot.influence { background: var(--influence); }
+  .legend-dot.starter { background: var(--starter); border: 1px solid #aaa; }
+  .legend-dot.common { background: var(--common); }
+  .legend-dot.rare { background: var(--rare); }
+  .legend-dot.legendary { background: var(--legendary); }
+  .legend-dot.summoned { background: var(--summoned); }
+
+  .stats-bar {
+    display: flex; justify-content: center; gap: 30px; padding: 12px 20px;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border); font-size: 0.85em;
+  }
+  .stat-item { display: flex; align-items: center; gap: 6px; }
+  .stat-num { font-weight: 700; font-size: 1.1em; }
+  .stat-label { color: var(--text-dim); }
+
+  .search-bar {
+    display: flex; justify-content: center; padding: 16px 20px; background: var(--bg-panel);
+    position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border);
+  }
+  .search-bar input {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 16px; color: var(--text); font-size: 0.95em; width: 360px;
+    outline: none; font-family: 'Inter', sans-serif;
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  .search-bar input:focus { border-color: var(--legendary); }
+
+  .type-section {
+    padding: 50px 0 10px;
+    border-top: 3px solid var(--border);
+  }
+  .type-section:first-of-type { border-top: none; }
+  .type-section h2 {
+    font-family: 'Cinzel', serif; font-size: 2.2em; text-align: center; margin-bottom: 4px;
+  }
+  .type-section .type-desc { text-align: center; color: var(--text-dim); font-size: 0.95em; margin-bottom: 20px; }
+  .type-section .type-count {
+    text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .tier-label {
+    text-align: center; font-size: 0.7em; text-transform: uppercase;
+    letter-spacing: 2px; font-weight: 700; padding: 8px; margin-bottom: 6px;
+  }
+  .tier-label.starter-tier { color: var(--starter); }
+  .tier-label.common-tier { color: var(--common); }
+  .tier-label.rare-tier { color: var(--rare); }
+  .tier-label.legendary-tier { color: var(--legendary); }
+  .tier-label.summoned-tier { color: var(--summoned); }
+
+  .tree-wrapper { padding: 0 10px 40px; }
+
+  .flat-tree {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    position: relative; padding: 20px 0;
+  }
+  .flat-tier {
+    display: flex; gap: 5px; justify-content: center;
+    position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  .flat-spacer { height: 20px; position: relative; width: 100%; }
+
+  .card-node {
+    position: relative; width: 64px; min-width: 64px; padding: 3px 3px 4px;
+    border-radius: 6px; border: 2px solid var(--border); background: var(--bg-card);
+    cursor: pointer; transition: all 0.25s ease; text-align: center; flex-shrink: 0;
+  }
+  .card-node:hover { transform: translateY(-2px); z-index: 10; }
+
+  .card-node.attack { border-color: var(--attack-border); background: var(--attack-bg); }
+  .card-node.attack:hover { border-color: var(--attack); box-shadow: 0 4px 20px rgba(198,40,40,0.3); }
+  .card-node.skill { border-color: var(--skill-border); background: var(--skill-bg); }
+  .card-node.skill:hover { border-color: var(--skill); box-shadow: 0 4px 20px rgba(21,101,192,0.3); }
+  .card-node.influence { border-color: var(--influence-border); background: var(--influence-bg); }
+  .card-node.influence:hover { border-color: var(--influence); box-shadow: 0 4px 20px rgba(46,125,50,0.3); }
+
+  .card-node.legendary { border-width: 2px; }
+  .card-node.legendary.attack,
+  .card-node.legendary.skill,
+  .card-node.legendary.influence { border-color: var(--legendary); box-shadow: 0 0 8px var(--gold-glow); }
+  .card-node.legendary:hover { box-shadow: 0 4px 25px var(--gold-glow); }
+
+  .card-img { width: 48px; height: 48px; margin: 0 auto 2px; border-radius: 4px; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .card-name { font-weight: 700; font-size: 0.52em; line-height: 1.1; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { display: flex; justify-content: center; gap: 2px; align-items: center; font-size: 0.48em; }
+  .card-cost { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  .card-rarity { text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-size: 0.85em; }
+  .card-rarity.starter { color: var(--starter); }
+  .card-rarity.common { color: var(--common); }
+  .card-rarity.rare { color: var(--rare); }
+  .card-rarity.legendary { color: var(--legendary); }
+  .card-rarity.summoned { color: var(--summoned); }
+
+  .card-node.path-highlight { filter: brightness(1.4); z-index: 5; }
+  .card-node.path-highlight.attack { border-color: #ff5252 !important; box-shadow: 0 0 15px rgba(255,82,82,0.5) !important; }
+  .card-node.path-highlight.skill { border-color: #42a5f5 !important; box-shadow: 0 0 15px rgba(66,165,245,0.5) !important; }
+  .card-node.path-highlight.influence { border-color: #66bb6a !important; box-shadow: 0 0 15px rgba(102,187,106,0.5) !important; }
+  .card-node.path-descendant { filter: brightness(1.2); z-index: 4; }
+  .card-node.path-descendant.attack { border-color: #ef9a9a !important; box-shadow: 0 0 12px rgba(239,154,154,0.4) !important; }
+  .card-node.path-descendant.skill { border-color: #90caf9 !important; box-shadow: 0 0 12px rgba(144,202,249,0.4) !important; }
+  .card-node.path-descendant.influence { border-color: #a5d6a7 !important; box-shadow: 0 0 12px rgba(165,214,167,0.4) !important; }
+  .card-node.dimmed { opacity: 0.12; transition: opacity 0.3s; }
+
+  .tree-svg line { stroke: var(--line-color); stroke-width: 1.5; opacity: 0.15; transition: all 0.3s; }
+  .tree-svg line.line-highlight { stroke: var(--highlight-line); stroke-width: 3; opacity: 1; filter: drop-shadow(0 0 4px var(--gold-glow)); }
+  .tree-svg line.line-descendant { stroke-width: 2.5; opacity: 0.75; }
+  .flat-tree.tree-attack .tree-svg line.line-descendant { stroke: #ef9a9a; filter: drop-shadow(0 0 3px rgba(239,154,154,0.4)); }
+  .flat-tree.tree-skill .tree-svg line.line-descendant { stroke: #90caf9; filter: drop-shadow(0 0 3px rgba(144,202,249,0.4)); }
+  .flat-tree.tree-influence .tree-svg line.line-descendant { stroke: #a5d6a7; filter: drop-shadow(0 0 3px rgba(165,214,167,0.4)); }
+  .tree-svg line.line-dimmed { opacity: 0.04; }
+  .tree-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  .detail-pane {
+    position: fixed; top: 80px; right: 12px; z-index: 1000; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0;
+    width: 364px; overflow: hidden;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .detail-pane.visible { opacity: 1; pointer-events: auto; }
+  .detail-pane .tt-header { display: flex; gap: 12px; padding: 16px; align-items: center; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img { width: 84px; height: 84px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-pane .tt-info { flex: 1; min-width: 0; }
+  .detail-pane .tt-name { font-size: 1.1em; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+  .detail-pane .tt-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .detail-pane .tt-badge { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; }
+  .detail-pane .tt-badge.type-attack { background: rgba(198,40,40,0.2); color: var(--attack); }
+  .detail-pane .tt-badge.type-skill { background: rgba(21,101,192,0.2); color: var(--skill); }
+  .detail-pane .tt-badge.type-influence { background: rgba(46,125,50,0.2); color: var(--influence); }
+  .detail-pane .tt-badge.rarity-starter { background: rgba(120,144,156,0.2); color: var(--starter); }
+  .detail-pane .tt-badge.rarity-common { background: rgba(158,158,158,0.2); color: #9e9e9e; }
+  .detail-pane .tt-badge.rarity-rare { background: rgba(126,87,194,0.2); color: var(--rare); }
+  .detail-pane .tt-badge.rarity-legendary { background: rgba(76,175,80,0.2); color: var(--legendary); }
+  .detail-pane .tt-badge.rarity-summoned { background: rgba(156,39,176,0.2); color: var(--summoned); }
+  .detail-pane .tt-mana { display: flex; align-items: center; gap: 4px; font-size: 0.88em; margin-top: 6px; color: #90caf9; font-weight: 600; }
+  .detail-pane .tt-mana-gem { width: 18px; height: 18px; background: #3366dd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75em; color: #fff; font-weight: 800; }
+  .detail-pane .tt-body { padding: 0 16px 16px; }
+  .detail-pane .tt-effect { font-size: 0.88em; line-height: 1.55; color: var(--text); padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; border-left: 2px solid rgba(76, 175, 80, 0.25); }
+  .detail-pane .tt-transforms { margin-top: 8px; font-size: 0.8em; color: var(--text-dim); line-height: 1.5; }
+  .detail-pane .tt-transforms strong { color: var(--text); }
+  .detail-pane .tt-arrow-up { color: var(--accent); }
+  .detail-pane .tt-arrow-down { color: #ef5350; }
+
+  .card-node.search-match { animation: pulse-highlight 1s ease-in-out 3; }
+  @keyframes pulse-highlight { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>MAGE</h1>
+  <div class="subtitle">Hellcard Evolution Tree &mdash; All Cards &amp; Upgrade Paths</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">120</span><span class="stat-label">Total Cards</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--attack)">41</span><span class="stat-label">Attack</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--skill)">43</span><span class="stat-label">Skill</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--influence)">36</span><span class="stat-label">Influence</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--legendary)">43</span><span class="stat-label">Legendary</span></div>
+</div>
+
+<div class="legend">
+  <div class="legend-group">
+    <span class="label">Type</span>
+    <div class="legend-item"><div class="legend-dot attack"></div> Attack</div>
+    <div class="legend-item"><div class="legend-dot skill"></div> Skill</div>
+    <div class="legend-item"><div class="legend-dot influence"></div> Influence</div>
+  </div>
+  <div class="legend-group">
+    <span class="label">Rarity</span>
+    <div class="legend-item"><div class="legend-dot starter"></div> Starter</div>
+    <div class="legend-item"><div class="legend-dot common"></div> Common</div>
+    <div class="legend-item"><div class="legend-dot rare"></div> Rare</div>
+    <div class="legend-item"><div class="legend-dot legendary"></div> Legendary</div>
+    <div class="legend-item"><div class="legend-dot summoned"></div> Summoned</div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search cards... (e.g. Magic Bolt, Rune, freeze)">
+</div>
+
+<div class="detail-pane" id="detailPane"></div>
+<div id="all-trees"></div>
+
+<script>
+const IMGS = {
+  "aether-splash": "https://static.wikia.nocookie.net/hellcard/images/7/7b/Aether_Splash.png/revision/latest?cb=20230323211626",
+  "amnesia": "https://static.wikia.nocookie.net/hellcard/images/6/60/Amnesia.png/revision/latest?cb=20230323211336",
+  "anamnesis": "https://static.wikia.nocookie.net/hellcard/images/7/70/Anamnesis.png/revision/latest?cb=20230323211614",
+  "arcane-wager": "https://static.wikia.nocookie.net/hellcard/images/f/fe/Arcane_Wager.png/revision/latest?cb=20240914162240",
+  "armageddon": "https://static.wikia.nocookie.net/hellcard/images/6/63/Armageddon.png/revision/latest?cb=20230323210928",
+  "ascendance": "https://static.wikia.nocookie.net/hellcard/images/b/b2/Ascendance.png/revision/latest?cb=20230322020057",
+  "bat-bolt": "https://static.wikia.nocookie.net/hellcard/images/8/8f/Bat_Bolt.png/revision/latest?cb=20230320004557",
+  "big-book": "https://static.wikia.nocookie.net/hellcard/images/9/9a/Big_Book.png/revision/latest?cb=20240906220705",
+  "blood-surge": "https://static.wikia.nocookie.net/hellcard/images/5/55/Blood_Surge.png/revision/latest?cb=20230320004611",
+  "bolt-dance": "https://static.wikia.nocookie.net/hellcard/images/a/a4/Bolt_Dance.png/revision/latest?cb=20230323210953",
+  "bolt-hell": "https://static.wikia.nocookie.net/hellcard/images/8/82/Bolt_Hell.png/revision/latest?cb=20230320004828",
+  "bolt-the-bolted": "https://static.wikia.nocookie.net/hellcard/images/d/df/Bolt_the_Bolted.png/revision/latest?cb=20230322020105",
+  "book-cover": "https://static.wikia.nocookie.net/hellcard/images/b/b4/Book_Cover.png/revision/latest?cb=20240906220824",
+  "book-of-books": "https://static.wikia.nocookie.net/hellcard/images/5/57/Book_of_Books.png/revision/latest?cb=20240906213704",
+  "book-of-fortitude": "https://static.wikia.nocookie.net/hellcard/images/9/9e/Book_of_Fortitude.png/revision/latest?cb=20240906220812",
+  "book-of-the-dead": "https://static.wikia.nocookie.net/hellcard/images/5/5a/Book_of_the_Dead.png/revision/latest?cb=20240906220840",
+  "book-smash": "https://static.wikia.nocookie.net/hellcard/images/b/bd/Book_Smash.png/revision/latest?cb=20240906213704",
+  "book-stack": "https://static.wikia.nocookie.net/hellcard/images/c/cc/Book_Stack.png/revision/latest?cb=20240906220742",
+  "book-worm": "https://static.wikia.nocookie.net/hellcard/images/0/03/Book_Worm.png/revision/latest?cb=20240906220649",
+  "bookmark": "https://static.wikia.nocookie.net/hellcard/images/5/58/Bookmark.png/revision/latest?cb=20230323211558",
+  "botaoshi": "https://static.wikia.nocookie.net/hellcard/images/0/0c/Botaoshi.png/revision/latest?cb=20230322020115",
+  "brand-of-doom": "https://static.wikia.nocookie.net/hellcard/images/0/02/Brand_of_Doom.png/revision/latest?cb=20230322020127",
+  "brutal-thaw": "https://static.wikia.nocookie.net/hellcard/images/7/71/Brutal_Thaw.png/revision/latest?cb=20230323210700",
+  "channel-pain": "https://static.wikia.nocookie.net/hellcard/images/a/a6/Channel_Pain.png/revision/latest?cb=20230320004844",
+  "chaos-rune": "https://static.wikia.nocookie.net/hellcard/images/0/0b/Chaos_Rune.png/revision/latest?cb=20230320004902",
+  "cheat": "https://static.wikia.nocookie.net/hellcard/images/7/70/Cheat.png/revision/latest?cb=20230322020154",
+  "chilly-blow": "https://static.wikia.nocookie.net/hellcard/images/6/67/Chilly_Blow.png/revision/latest?cb=20230322020205",
+  "close-chapter": "https://static.wikia.nocookie.net/hellcard/images/d/d5/Close_Chapter.png/revision/latest?cb=20240906213222",
+  "cocoa-mug": "https://static.wikia.nocookie.net/hellcard/images/b/b9/Cocoa_Mug.png/revision/latest?cb=20240906213703",
+  "cold-arm": "https://static.wikia.nocookie.net/hellcard/images/b/b5/Cold_Arm.png/revision/latest?cb=20230322020029",
+  "comet-rune": "https://static.wikia.nocookie.net/hellcard/images/2/20/Comet_Rune.png/revision/latest?cb=20230318020417",
+  "conduit-aura": "https://static.wikia.nocookie.net/hellcard/images/4/46/Conduit_Aura.png/revision/latest?cb=20230323211010",
+  "crowdsource": "https://static.wikia.nocookie.net/hellcard/images/8/88/Crowdsource.png/revision/latest?cb=20230320004416",
+  "cyclone": "https://static.wikia.nocookie.net/hellcard/images/7/79/Cyclone.png/revision/latest?cb=20230320005105",
+  "dark-pact": "https://static.wikia.nocookie.net/hellcard/images/8/88/Dark_Pact.png/revision/latest?cb=20230323211543",
+  "echo-rune": "https://static.wikia.nocookie.net/hellcard/images/3/37/Echo_Rune.png/revision/latest?cb=20230320004432",
+  "enchant": "https://static.wikia.nocookie.net/hellcard/images/d/d6/Enchant.png/revision/latest?cb=20230323211025",
+  "equilibrium": "https://static.wikia.nocookie.net/hellcard/images/8/81/Equilibrium.png/revision/latest?cb=20230322020216",
+  "erudition": "https://static.wikia.nocookie.net/hellcard/images/d/dd/Erudition.png/revision/latest?cb=20230322020232",
+  "eternal-winter": "https://static.wikia.nocookie.net/hellcard/images/c/cb/Eternal_Winter.png/revision/latest?cb=20230322020245",
+  "ethereal-shield": "https://static.wikia.nocookie.net/hellcard/images/f/fe/Ethereal_Shield.png/revision/latest?cb=20230322020019",
+  "ethernal-return": "https://static.wikia.nocookie.net/hellcard/images/1/1e/Ethernal_Return.png/revision/latest?cb=20230320004919",
+  "excession": "https://static.wikia.nocookie.net/hellcard/images/f/ff/Excession.png/revision/latest?cb=20230322020256",
+  "feedback-loop": "https://static.wikia.nocookie.net/hellcard/images/2/2e/Feedback_Loop.png/revision/latest?cb=20230323211530",
+  "final-word": "https://static.wikia.nocookie.net/hellcard/images/a/a2/Final_Word.png/revision/latest?cb=20230322020307",
+  "flux": "https://static.wikia.nocookie.net/hellcard/images/d/db/Flux.png/revision/latest?cb=20230323211043",
+  "fractal-whip": "https://static.wikia.nocookie.net/hellcard/images/7/78/Fractal_Whip.png/revision/latest?cb=20230320004454",
+  "gallstones": "https://static.wikia.nocookie.net/hellcard/images/7/73/Gallstones.png/revision/latest?cb=20230322020328",
+  "glass-shrike": "https://static.wikia.nocookie.net/hellcard/images/5/56/Glass_Shrike.png/revision/latest?cb=20230320004937",
+  "grimoire": "https://static.wikia.nocookie.net/hellcard/images/2/2a/Grimoire.png/revision/latest?cb=20230322020339",
+  "grit": "https://static.wikia.nocookie.net/hellcard/images/1/17/Grit.png/revision/latest?cb=20230323211518",
+  "harpoon-bolt": "https://static.wikia.nocookie.net/hellcard/images/4/4f/Harpoon_Bolt.png/revision/latest?cb=20230320004633",
+  "hearteater-bolt": "https://static.wikia.nocookie.net/hellcard/images/9/90/Hearteater_Bolt.png/revision/latest?cb=20230320004954",
+  "hellfire-rune": "https://static.wikia.nocookie.net/hellcard/images/1/11/Hellfire_Rune.png/revision/latest?cb=20230320004511",
+  "ice-fort": "https://static.wikia.nocookie.net/hellcard/images/1/19/Ice_Fort.png/revision/latest?cb=20230322020352",
+  "incantation": "https://static.wikia.nocookie.net/hellcard/images/0/08/Incantation.png/revision/latest?cb=20230322020416",
+  "indexed-rules": "https://static.wikia.nocookie.net/hellcard/images/b/b3/Indexed_Rules.png/revision/latest?cb=20240906220630",
+  "inferno": "https://static.wikia.nocookie.net/hellcard/images/b/be/Inferno.png/revision/latest?cb=20230320004652",
+  "infuse": "https://static.wikia.nocookie.net/hellcard/images/b/b1/Infuse.png/revision/latest?cb=20230322020428",
+  "iron-will": "https://static.wikia.nocookie.net/hellcard/images/7/7f/Iron_Will.png/revision/latest?cb=20230322020438",
+  "kugi": "https://static.wikia.nocookie.net/hellcard/images/0/09/Kugi.png/revision/latest?cb=20230322020450",
+  "librarian-hush": "https://static.wikia.nocookie.net/hellcard/images/b/bf/Librarian_Hush.png/revision/latest?cb=20240906210536",
+  "lightning": "https://static.wikia.nocookie.net/hellcard/images/8/86/Lightning.png/revision/latest?cb=20230320004535",
+  "link": "https://static.wikia.nocookie.net/hellcard/images/f/fd/Link.png/revision/latest?cb=20230322020505",
+  "little-red-book": "https://static.wikia.nocookie.net/hellcard/images/1/13/Little_Red_Book.png/revision/latest?cb=20240906213704",
+  "maelstrom": "https://static.wikia.nocookie.net/hellcard/images/1/14/Maelstrom.png/revision/latest?cb=20230320005118",
+  "magic-bolt": "https://static.wikia.nocookie.net/hellcard/images/0/06/Magic_Bolt.png/revision/latest?cb=20230318015257",
+  "magic-marker": "https://static.wikia.nocookie.net/hellcard/images/9/92/Magic_Marker.png/revision/latest?cb=20230322020516",
+  "mana-shield": "https://static.wikia.nocookie.net/hellcard/images/f/fe/Mana_Shield.png/revision/latest?cb=20230322020527",
+  "meditation": "https://static.wikia.nocookie.net/hellcard/images/6/62/Meditation.png/revision/latest?cb=20230323210723",
+  "mend-wounds": "https://static.wikia.nocookie.net/hellcard/images/6/68/Mend_Wounds.png/revision/latest?cb=20230323211059",
+  "mental-wall": "https://static.wikia.nocookie.net/hellcard/images/7/72/Mental_Wall.png/revision/latest?cb=20230322020540",
+  "meteor-rune": "https://static.wikia.nocookie.net/hellcard/images/0/06/Meteor_Rune.png/revision/latest?cb=20240914165249",
+  "meteor-strike": "https://static.wikia.nocookie.net/hellcard/images/6/6d/Meteor_Strike.png/revision/latest?cb=20230320004710",
+  "midnight-oil": "https://static.wikia.nocookie.net/hellcard/images/0/04/Midnight_Oil.png/revision/latest?cb=20230323211502",
+  "mimic": "https://static.wikia.nocookie.net/hellcard/images/a/a8/Mimic.png/revision/latest?cb=20230322020615",
+  "mindset": "https://static.wikia.nocookie.net/hellcard/images/4/42/Mindset.png/revision/latest?cb=20230323211122",
+  "nova": "https://static.wikia.nocookie.net/hellcard/images/0/0b/Nova.png/revision/latest?cb=20230320004322",
+  "obsidian-dust": "https://static.wikia.nocookie.net/hellcard/images/3/36/Obsidian_Dust.png/revision/latest?cb=20230323210739",
+  "occult-ritual": "https://static.wikia.nocookie.net/hellcard/images/c/c8/Occult_Ritual.png/revision/latest?cb=20230323211447",
+  "ostracon": "https://static.wikia.nocookie.net/hellcard/images/0/06/Ostracon.png/revision/latest?cb=20230320005011",
+  "outburst": "https://static.wikia.nocookie.net/hellcard/images/1/13/Outburst.png/revision/latest?cb=20230320005022",
+  "outside-the-box": "https://static.wikia.nocookie.net/hellcard/images/2/2e/Outside_the_Box.png/revision/latest?cb=20230320005035",
+  "page-rip": "https://static.wikia.nocookie.net/hellcard/images/4/4b/Page_Rip.png/revision/latest?cb=20240906213042",
+  "paper-library": "https://static.wikia.nocookie.net/hellcard/images/6/62/Paper_Library.png/revision/latest?cb=20230322020625",
+  "paper-recycle": "https://static.wikia.nocookie.net/hellcard/images/8/8e/Paper_Recycle.png/revision/latest?cb=20230323211434",
+  "power-is-knowledge": "https://static.wikia.nocookie.net/hellcard/images/6/62/Power_is_Knowledge.png/revision/latest?cb=20230323211159",
+  "purify": "https://static.wikia.nocookie.net/hellcard/images/2/22/Purify.png/revision/latest?cb=20230322020637",
+  "reforge-weakness": "https://static.wikia.nocookie.net/hellcard/images/c/c0/Reforge_Weakness.png/revision/latest?cb=20230320004729",
+  "reinvigorate": "https://static.wikia.nocookie.net/hellcard/images/8/8d/Reinvigorate.png/revision/latest?cb=20230323211213",
+  "rewrite": "https://static.wikia.nocookie.net/hellcard/images/a/a3/Rewrite.png/revision/latest?cb=20230322020650",
+  "ritual-channeling": "https://static.wikia.nocookie.net/hellcard/images/e/e2/Ritual_Channeling.png/revision/latest?cb=20230320005133",
+  "rune-of-ice": "https://static.wikia.nocookie.net/hellcard/images/0/0a/Rune_of_Ice.png/revision/latest?cb=20230320004745",
+  "rune-of-thunder": "https://static.wikia.nocookie.net/hellcard/images/5/5f/Rune_of_Thunder.png/revision/latest?cb=20230320004804",
+  "scroll-of-mind": "https://static.wikia.nocookie.net/hellcard/images/0/07/Scroll_of_Mind.png/revision/latest?cb=20230322020710",
+  "scroll-of-thorns": "https://static.wikia.nocookie.net/hellcard/images/4/41/Scroll_of_Thorns.png/revision/latest?cb=20230320005147",
+  "scroll-of-wall": "https://static.wikia.nocookie.net/hellcard/images/7/7f/Scroll_of_Wall.png/revision/latest?cb=20230322020720",
+  "scroll-of-wisdom": "https://static.wikia.nocookie.net/hellcard/images/1/1e/Scroll_of_Wisdom.png/revision/latest?cb=20240914162326",
+  "shatter": "https://static.wikia.nocookie.net/hellcard/images/2/27/Shatter.png/revision/latest?cb=20230320005049",
+  "shuffle": "https://static.wikia.nocookie.net/hellcard/images/e/eb/Shuffle.png/revision/latest?cb=20230322020731",
+  "simulacrum": "https://static.wikia.nocookie.net/hellcard/images/1/17/Simulacrum.png/revision/latest?cb=20230322020742",
+  "snowball": "https://static.wikia.nocookie.net/hellcard/images/0/04/Snowball.png/revision/latest?cb=20230323211230",
+  "speed-reading": "https://static.wikia.nocookie.net/hellcard/images/3/31/Speed_Reading.png/revision/latest?cb=20240906220610",
+  "subzero": "https://static.wikia.nocookie.net/hellcard/images/9/9f/Subzero.png/revision/latest?cb=20230323211354",
+  "sucker-bolt": "https://static.wikia.nocookie.net/hellcard/images/c/c5/Sucker_Bolt.png/revision/latest?cb=20230318020840",
+  "sunray-rune": "https://static.wikia.nocookie.net/hellcard/images/0/08/Sunray_Rune.png/revision/latest?cb=20230320005201",
+  "sweep": "https://static.wikia.nocookie.net/hellcard/images/a/a1/Sweep.png/revision/latest?cb=20230322020757",
+  "swell": "https://static.wikia.nocookie.net/hellcard/images/6/6d/Swell.png/revision/latest?cb=20230323210759",
+  "switcheroo": "https://static.wikia.nocookie.net/hellcard/images/5/5e/Switcheroo.png/revision/latest?cb=20230323211248",
+  "teleport": "https://static.wikia.nocookie.net/hellcard/images/e/e8/Teleport.png/revision/latest?cb=20230322020813",
+  "thriftiness": "https://static.wikia.nocookie.net/hellcard/images/0/04/Thriftiness.png/revision/latest?cb=20230323211303",
+  "thunder": "https://static.wikia.nocookie.net/hellcard/images/3/3d/Thunder.png/revision/latest?cb=20240908174000",
+  "triage": "https://static.wikia.nocookie.net/hellcard/images/9/94/Triage.png/revision/latest?cb=20230322020840",
+  "unpack-the-bag": "https://static.wikia.nocookie.net/hellcard/images/b/ba/Unpack_the_Bag.png/revision/latest?cb=20230322020855",
+  "unstoppable-force": "https://static.wikia.nocookie.net/hellcard/images/5/58/Unstoppable_Force.png/revision/latest?cb=20230323210858",
+  "vitruvian-mage": "https://static.wikia.nocookie.net/hellcard/images/4/4d/Vitruvian_Mage.png/revision/latest?cb=20230320005213",
+  "volcanic-lightning": "https://static.wikia.nocookie.net/hellcard/images/6/60/Volcanic_Lightning.png/revision/latest?cb=20230318020628",
+  "weave-laylines": "https://static.wikia.nocookie.net/hellcard/images/9/97/Weave_Laylines.png/revision/latest?cb=20230322020914",
+  "wind-blast": "https://static.wikia.nocookie.net/hellcard/images/1/15/Wind_Blast.png/revision/latest?cb=20230320005227",
+  "zap": "https://static.wikia.nocookie.net/hellcard/images/0/0b/Zap.png/revision/latest?cb=20230320004814"
+};
+
+const CARDS = {
+  "aether-splash": {
+    "name": "Aether Splash",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Playing a Rune increases bonus damage to Runes by 1. The bonus resets at 10. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Power is Knowledge",
+      "Snowball",
+      "Switcheroo"
+    ]
+  },
+  "amnesia": {
+    "name": "Amnesia",
+    "type": "Skill",
+    "rarity": "Summoned",
+    "cost": 1,
+    "effect": "Can't play Runes when this card is in hand. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "anamnesis": {
+    "name": "Anamnesis",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "If you got damaged last turn, heal all heroes by 20% of Max HP. Exhaust.",
+    "to": [],
+    "from": [
+      "Mend Wounds"
+    ]
+  },
+  "arcane-wager": {
+    "name": "Arcane Wager",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "All heroes draw 4 cards. You get 1 mana point(s) for each card drawn that costs 2 or more.",
+    "to": [],
+    "from": [
+      "Ascendance",
+      "Magic Marker"
+    ]
+  },
+  "armageddon": {
+    "name": "Armageddon",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 3,
+    "effect": "After 3 turns, deal 10 damage to all monsters. Exhaust.",
+    "to": [
+      "Occult Ritual",
+      "Dark Pact"
+    ],
+    "from": [
+      "Obsidian Dust",
+      "Unstoppable Force"
+    ]
+  },
+  "ascendance": {
+    "name": "Ascendance",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "All heroes draw 3 cards.",
+    "to": [
+      "Excession",
+      "Weave Laylines"
+    ],
+    "from": [
+      "Grimoire",
+      "Link",
+      "Unpack the Bag"
+    ]
+  },
+  "bat-bolt": {
+    "name": "Bat Bolt",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 2 damage. If it kills a non-summoned monster, heal yourself 3 HP.",
+    "to": [
+      "Glass Shrike",
+      "Bolt Hell",
+      "Hearteater Bolt"
+    ],
+    "from": [
+      "Fractal Whip",
+      "Sucker Bolt"
+    ]
+  },
+  "big-book": {
+    "name": "Big Book",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 2 turns(s), when a hero kills a non-summoned monster they draw 1 card.",
+    "to": [
+      "Book of the Dead",
+      "Little Red Book",
+      "Book of Books"
+    ],
+    "from": [
+      "Book Worm",
+      "Book Smash",
+      "Book of Fortitude"
+    ]
+  },
+  "blood-surge": {
+    "name": "Blood Surge",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 15 damage to monster and 4 to yourself.",
+    "to": [
+      "Ostracon",
+      "Channel Pain",
+      "Outside the Box"
+    ],
+    "from": [
+      "Fractal Whip",
+      "Sucker Bolt",
+      "Volcanic Lightning"
+    ]
+  },
+  "bolt-dance": {
+    "name": "Bolt Dance",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Your Bolts deal +1 damage per stack.",
+    "to": [
+      "Grit",
+      "Subzero"
+    ],
+    "from": [
+      "Brutal Thaw",
+      "Obsidian Dust"
+    ]
+  },
+  "bolt-hell": {
+    "name": "Bolt Hell",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 3 damage in a medium radius. For each monster killed, heal yourself 1 HP and all heroes draw a card.",
+    "to": [],
+    "from": [
+      "Bat Bolt",
+      "Harpoon Bolt",
+      "Close Chapter"
+    ]
+  },
+  "bolt-the-bolted": {
+    "name": "Bolt the Bolted",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Move monster to a random section and deal 2 damage to all monsters in that section.",
+    "to": [
+      "Botaoshi"
+    ],
+    "from": [
+      "Kugi",
+      "Teleport"
+    ]
+  },
+  "book-cover": {
+    "name": "Book Cover",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 2 turn(s), any hero gains 2 block when they paly a Skill card.",
+    "to": [
+      "Book of the Dead",
+      "Little Red Book",
+      "Book of Books"
+    ],
+    "from": [
+      "Book Worm",
+      "Book Smash",
+      "Book of Fortitude"
+    ]
+  },
+  "book-of-books": {
+    "name": "Book of Books",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 2 turns(s), when a hero kills a non-summoned monster all heroes draw 1 card.",
+    "to": [],
+    "from": [
+      "Big Book",
+      "Book Stack",
+      "Book Cover"
+    ]
+  },
+  "book-of-fortitude": {
+    "name": "Book of Fortitude",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 1 turn(s), you gain 2 block when you play a Skill card.",
+    "to": [
+      "Big Book",
+      "Book Stack",
+      "Book Cover"
+    ],
+    "from": []
+  },
+  "book-of-the-dead": {
+    "name": "Book of the Dead",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 2 turns, any hero gains 4 block when they play a Skill card.",
+    "to": [],
+    "from": [
+      "Big Book",
+      "Book Stack",
+      "Book Cover"
+    ]
+  },
+  "book-smash": {
+    "name": "Book Smash",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 1 turn(s), all your Attack cards deal +2 damage.",
+    "to": [
+      "Big Book",
+      "Book Stack",
+      "Book Cover"
+    ],
+    "from": []
+  },
+  "book-stack": {
+    "name": "Book Stack",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 2 turn(s), Attack cards of all heroes deal +2 damage.",
+    "to": [
+      "Book of the Dead",
+      "Little Red Book",
+      "Book of Books"
+    ],
+    "from": [
+      "Book Worm",
+      "Book Smash",
+      "Book of Fortitude"
+    ]
+  },
+  "book-worm": {
+    "name": "Book Worm",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 1 turn(s), when you kill a non-summoned monster you draw 1 card.",
+    "to": [
+      "Book Cover",
+      "Book Stack",
+      "Big Book"
+    ],
+    "from": []
+  },
+  "bookmark": {
+    "name": "Bookmark",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Your next card is played twice and doesn't add a Status card.",
+    "to": [],
+    "from": [
+      "Enchant",
+      "Flux",
+      "Mindset",
+      "Reinvigorate"
+    ]
+  },
+  "botaoshi": {
+    "name": "Botaoshi",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Move monsters in a small radius to a slice with the lowest number of monsters (preserving their range) and deal 2 damage to all monsters in that section.",
+    "to": [],
+    "from": [
+      "Bolt the Bolted",
+      "Chilly Blow",
+      "Sweep"
+    ]
+  },
+  "brand-of-doom": {
+    "name": "Brand of Doom",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Add 5 mark.",
+    "to": [],
+    "from": [
+      "Magic Marker"
+    ]
+  },
+  "brutal-thaw": {
+    "name": "Brutal Thaw",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Your Bolts deal +1 damage to frozen monsters. Exhaust.",
+    "to": [
+      "Thriftiness",
+      "Bolt Dance",
+      "Snowball"
+    ],
+    "from": []
+  },
+  "channel-pain": {
+    "name": "Channel Pain",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 15 half of your missing HP points damage (total X) to a monster and 4 to yourself.",
+    "to": [],
+    "from": [
+      "Blood Surge",
+      "Reforge Weakness"
+    ]
+  },
+  "chaos-rune": {
+    "name": "Chaos Rune",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 3,
+    "effect": "Randomly distribute 25x1 damage between all monsters. Add 2 Amnesia to the draw pile.",
+    "to": [],
+    "from": [
+      "Rune of Ice",
+      "Meteor Rune"
+    ]
+  },
+  "cheat": {
+    "name": "Cheat",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Lower cost of a random card in hand to 0 mana until it's played or the turn ends.",
+    "to": [
+      "Infuse",
+      "Weave Laylines"
+    ],
+    "from": [
+      "Unpack the Bag"
+    ]
+  },
+  "chilly-blow": {
+    "name": "Chilly Blow",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Freeze in a medium radius.",
+    "to": [
+      "Botaoshi",
+      "Eternal Winter"
+    ],
+    "from": [
+      "Cold Arm",
+      "Teleport"
+    ]
+  },
+  "close-chapter": {
+    "name": "Close Chapter",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Deal 8 damage in a medium radius. All heroes draw 1 card for each active Book.",
+    "to": [
+      "Crowdsource",
+      "Bolt Hell",
+      "Librarian Hush"
+    ],
+    "from": [
+      "Page Rip"
+    ]
+  },
+  "cocoa-mug": {
+    "name": "Cocoa Mug",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "1 random Book in your hand has its Study counter reduced by 2.",
+    "to": [
+      "Equilibrium",
+      "Shuffle",
+      "Speed Reading"
+    ],
+    "from": []
+  },
+  "cold-arm": {
+    "name": "Cold Arm",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Freeze.",
+    "to": [
+      "Sweep",
+      "Ice Fort",
+      "Chilly Blow"
+    ],
+    "from": [
+      "Ethereal Shield"
+    ]
+  },
+  "comet-rune": {
+    "name": "Comet Rune",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 3 damage in a medium radius. Add 1 Amnesia to draw pile.",
+    "to": [
+      "Meteor Rune",
+      "Rune of Ice"
+    ],
+    "from": [
+      "Magic Bolt"
+    ]
+  },
+  "conduit-aura": {
+    "name": "Conduit Aura",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 3 damage to the nearest monster every time you draw a Status card. Strain.",
+    "to": [
+      "Feedback Loop",
+      "Dark Pact",
+      "Grit"
+    ],
+    "from": [
+      "Swell"
+    ]
+  },
+  "crowdsource": {
+    "name": "Crowdsource",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal damage (X) equal to number of monsters in a medium radius.",
+    "to": [],
+    "from": [
+      "Close Chapter",
+      "Nova",
+      "Zap"
+    ]
+  },
+  "cyclone": {
+    "name": "Cyclone",
+    "type": "Attack",
+    "rarity": "Summoned",
+    "cost": 0,
+    "effect": "Deal 10 damage in a medium radius",
+    "to": [],
+    "from": []
+  },
+  "dark-pact": {
+    "name": "Dark Pact",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "All heroes get 5 block, 2 mana, and draw 2 cards. After 3 turns, deal 10 damage to all monsters and yourself. Exhaust.",
+    "to": [],
+    "from": [
+      "Armageddon",
+      "Conduit Aura",
+      "Mend Wounds"
+    ]
+  },
+  "echo-rune": {
+    "name": "Echo Rune",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 5 damage. Add Amnesia to draw pile. take this card to hand when any other Rune was played.",
+    "to": [
+      "Reforge Weakness",
+      "Meteor Rune",
+      "Rune of Ice"
+    ],
+    "from": []
+  },
+  "enchant": {
+    "name": "Enchant",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Your next Rune is played twice and doesn't add a Status card.",
+    "to": [
+      "Occult Ritual",
+      "Bookmark"
+    ],
+    "from": [
+      "Meditation",
+      "Unstoppable Force"
+    ]
+  },
+  "equilibrium": {
+    "name": "Equilibrium",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "All heroes gain 2 mana and draw 2 cards. Strain.",
+    "to": [
+      "Infuse",
+      "Weave Laylines"
+    ],
+    "from": [
+      "Link",
+      "Cocoa Mug"
+    ]
+  },
+  "erudition": {
+    "name": "Erudition",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Give 2 block to all heroes. Give 1 block extra for each Rune in your deck. (X total)",
+    "to": [
+      "Iron Will",
+      "Mental Wall",
+      "Mana Shield"
+    ],
+    "from": [
+      "Ethereal Shield"
+    ]
+  },
+  "eternal-winter": {
+    "name": "Eternal Winter",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Freeze all monsters. Strain.",
+    "to": [],
+    "from": [
+      "Chilly Blow",
+      "Ice Fort"
+    ]
+  },
+  "ethereal-shield": {
+    "name": "Ethereal Shield",
+    "type": "Skill",
+    "rarity": "Starter",
+    "cost": 1,
+    "effect": "Give 1 block to all heroes.",
+    "to": [
+      "Erudition",
+      "Unpack the Bag",
+      "Cold Arm"
+    ],
+    "from": []
+  },
+  "ethernal-return": {
+    "name": "Ethernal Return",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 10 damage to the marker monster. If it kills the target, transfer mark to a random monster.",
+    "to": [],
+    "from": [
+      "Meteor Strike",
+      "Zap"
+    ]
+  },
+  "excession": {
+    "name": "Excession",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "All heroes draw cards until they have their hands full and get 1 mana.",
+    "to": [],
+    "from": [
+      "Ascendance",
+      "Rewrite",
+      "Shuffle",
+      "Speed Reading"
+    ]
+  },
+  "feedback-loop": {
+    "name": "Feedback Loop",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Every time you lose HP, deal twice the same damage to the attacking monster. Exhaust. Unstackable.",
+    "to": [],
+    "from": [
+      "Conduit Aura"
+    ]
+  },
+  "final-word": {
+    "name": "Final Word",
+    "type": "Skill",
+    "rarity": "Summoned",
+    "cost": 1,
+    "effect": "Add Maelstrom to the draw pile. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "flux": {
+    "name": "Flux",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Your next Attack card is played twice.",
+    "to": [
+      "Midnight Oil",
+      "Bookmark"
+    ],
+    "from": [
+      "Unstoppable Force"
+    ]
+  },
+  "fractal-whip": {
+    "name": "Fractal Whip",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "Deal 6 damage. If it kills the monster, reduce future cost by 1.",
+    "to": [
+      "Blood Surge",
+      "Bat Bolt",
+      "Harpoon Bolt"
+    ],
+    "from": []
+  },
+  "gallstones": {
+    "name": "Gallstones",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Add 1 Rune to hand. Exhaust all Status cards from hand and add 1 bonus Rune for each.",
+    "to": [],
+    "from": [
+      "Mana Shield",
+      "Mental Wall",
+      "Shuffle"
+    ]
+  },
+  "glass-shrike": {
+    "name": "Glass Shrike",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Set your HP to 50% max HP. Deal as much damage and gain as much block as twice the HP difference (X).",
+    "to": [],
+    "from": [
+      "Bat Bolt",
+      "Reforge Weakness"
+    ]
+  },
+  "grimoire": {
+    "name": "Grimoire",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Draw 3 cards, discard a random Status card from hand.",
+    "to": [
+      "Rewrite",
+      "Shuffle",
+      "Ascendance"
+    ],
+    "from": []
+  },
+  "grit": {
+    "name": "Grit",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Give all heroes 3 block and deal 1 damage to the nearest monster every time you draw a Status card.",
+    "to": [],
+    "from": [
+      "Bolt Dance",
+      "Conduit Aura",
+      "Mindset"
+    ]
+  },
+  "harpoon-bolt": {
+    "name": "Harpoon Bolt",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 3 damage. If it kills the monster, you get 1 mana and all heroes draw a card.",
+    "to": [
+      "Thunder",
+      "Hearteater Bolt",
+      "Bolt Hell"
+    ],
+    "from": [
+      "Fractal Whip",
+      "Sucker Bolt",
+      "Volcanic Lightning"
+    ]
+  },
+  "hearteater-bolt": {
+    "name": "Hearteater Bolt",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 3 damage. If it kills the monster, add its Strength to the damage value of the next Bolt.",
+    "to": [],
+    "from": [
+      "Bat Bolt",
+      "Harpoon Bolt"
+    ]
+  },
+  "hellfire-rune": {
+    "name": "Hellfire Rune",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 3 damage in a short wide cone. Add 1 Amnesia to the draw pile.",
+    "to": [
+      "Meteor Rune",
+      "Inferno",
+      "Rune of Ice"
+    ],
+    "from": []
+  },
+  "ice-fort": {
+    "name": "Ice Fort",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Give 5 block to the selected hero for every frozen monster.",
+    "to": [
+      "Eternal Winter",
+      "Mimic"
+    ],
+    "from": [
+      "Cold Arm"
+    ]
+  },
+  "incantation": {
+    "name": "Incantation",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Add Final Word to the draw pile. Exhaust.",
+    "to": [
+      "Paper Library"
+    ],
+    "from": []
+  },
+  "indexed-rules": {
+    "name": "Indexed Rules",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 3,
+    "effect": "All Books in your deck have their Study counter reduced by 2.",
+    "to": [],
+    "from": [
+      "Speed Reading"
+    ]
+  },
+  "inferno": {
+    "name": "Inferno",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 3 damage to all monsters in near range. If there are more than 3 monsters, deal +1 damage.",
+    "to": [
+      "Ostracon",
+      "Shatter",
+      "Outburst"
+    ],
+    "from": [
+      "Hellfire Rune"
+    ]
+  },
+  "infuse": {
+    "name": "Infuse",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Give mana for every Status card in your hand but no less than 1.",
+    "to": [],
+    "from": [
+      "Cheat",
+      "Equilibrium"
+    ]
+  },
+  "iron-will": {
+    "name": "Iron Will",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Give 5 block to all heroes that have 5 or more incoming damage, 2 block otherwise.",
+    "to": [
+      "Simulacrum"
+    ],
+    "from": [
+      "Erudition"
+    ]
+  },
+  "kugi": {
+    "name": "Kugi",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Mark a monster with the highest strength.",
+    "to": [
+      "Simulacrum",
+      "Magic Marker",
+      "Bolt the Bolted"
+    ],
+    "from": []
+  },
+  "librarian-hush": {
+    "name": "Librarian Hush",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 10 damage in a large radius. All heroes draw 2 cards for each active Book.",
+    "to": [],
+    "from": [
+      "Close Chapter"
+    ]
+  },
+  "lightning": {
+    "name": "Lightning",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "Deal 3 damage. Deal 1 damage to 2 nearest monsters.",
+    "to": [
+      "Reforge Weakness",
+      "Zap"
+    ],
+    "from": []
+  },
+  "link": {
+    "name": "Link",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Other heroes gain mana equal yours and draw 1 card. Lose all your mana. Get Burnout.",
+    "to": [
+      "Shuffle",
+      "Equilibrium",
+      "Ascendance"
+    ],
+    "from": []
+  },
+  "little-red-book": {
+    "name": "Little Red Book",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Study this Book and return it to your draw pile. Once Studied, for the next 2 turn(s), Attack cards of al heroes deal +4 damage.",
+    "to": [],
+    "from": [
+      "Big Book",
+      "Book Stack",
+      "Book Cover"
+    ]
+  },
+  "maelstrom": {
+    "name": "Maelstrom",
+    "type": "Attack",
+    "rarity": "Summoned",
+    "cost": 1,
+    "effect": "Deal 15 damage and freeze in a large radius. Add Incantation to draw pile. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "magic-bolt": {
+    "name": "Magic Bolt",
+    "type": "Attack",
+    "rarity": "Starter",
+    "cost": 1,
+    "effect": "Deal 1 damage. If it kills the target, get 1 mana and draw 1 card.",
+    "to": [
+      "Comet Rune",
+      "Sucker Bolt",
+      "Volcanic Lightning"
+    ],
+    "from": []
+  },
+  "magic-marker": {
+    "name": "Magic Marker",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Add 2 mark to an already marked monster or to a random one if none is marked.",
+    "to": [
+      "Brand of Doom"
+    ],
+    "from": [
+      "Kugi"
+    ]
+  },
+  "mana-shield": {
+    "name": "Mana Shield",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Give 10 block. Add Arcane Stupor to draw pile.",
+    "to": [
+      "Gallstones",
+      "Mimic",
+      "Iron Will"
+    ],
+    "from": [
+      "Erudition"
+    ]
+  },
+  "meditation": {
+    "name": "Meditation",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 3,
+    "effect": "Gain 1 mana each turn. Focus with cost -1. Exhaust.",
+    "to": [
+      "Enchant",
+      "Reinvigorate"
+    ],
+    "from": []
+  },
+  "mend-wounds": {
+    "name": "Mend Wounds",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "If you got damaged last turn, heal the most wounded hero by 20% of your max HP.",
+    "to": [
+      "Dark Pact",
+      "Anamnesis"
+    ],
+    "from": [
+      "Swell"
+    ]
+  },
+  "mental-wall": {
+    "name": "Mental Wall",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "Give as much block as Status cards in your deck (X).",
+    "to": [
+      "Purify",
+      "Gallstones",
+      "Mimic"
+    ],
+    "from": [
+      "Erudition"
+    ]
+  },
+  "meteor-rune": {
+    "name": "Meteor Rune",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Deal 5 damage in a medium radius. Deal 2 additional damage if you have a Status card in hand. Add 1 Amnesia to the draw pile.",
+    "to": [
+      "Chaos Rune",
+      "Sunray Rune",
+      "Outside the Box"
+    ],
+    "from": [
+      "Comet Rune",
+      "Echo Rune",
+      "Hellfire Rune"
+    ]
+  },
+  "meteor-strike": {
+    "name": "Meteor Strike",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Deal 5 damage in a medium radius. Deal 2 additional damage if you have a Status card in hand.",
+    "to": [
+      "Ethernal Return",
+      "Bolt Hell",
+      "Outside the Box"
+    ],
+    "from": [
+      "Comet Rune",
+      "Crowdsource",
+      "Echo Rune"
+    ]
+  },
+  "midnight-oil": {
+    "name": "Midnight Oil",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Gain 1 mana and draw 1 additional card every turn. Exhaust.",
+    "to": [],
+    "from": [
+      "Flux",
+      "Reinvigorate",
+      "Thriftiness"
+    ]
+  },
+  "mimic": {
+    "name": "Mimic",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Give block to all heroes equal to the monster's block but no less than 5.",
+    "to": [],
+    "from": [
+      "Ice Fort",
+      "Mana Shield",
+      "Mental Wall"
+    ]
+  },
+  "mindset": {
+    "name": "Mindset",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Gain 2 block every time you draw a Status card. Exhaust.",
+    "to": [
+      "Bookmark",
+      "Grit"
+    ],
+    "from": [
+      "Swell"
+    ]
+  },
+  "nova": {
+    "name": "Nova",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 6 damage to all monsters in near range. Add Arcane Stupor to draw pile.",
+    "to": [
+      "Sunray Rune",
+      "Vitruvian Mage",
+      "Outburst"
+    ],
+    "from": [
+      "Crowdsource",
+      "Lightning"
+    ]
+  },
+  "obsidian-dust": {
+    "name": "Obsidian Dust",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "All Bolts get +1 damage for 3 turns.",
+    "to": [
+      "Thriftiness",
+      "Armageddon",
+      "Bolt Dance"
+    ],
+    "from": []
+  },
+  "occult-ritual": {
+    "name": "Occult Ritual",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Charge when you play a card. Add Ritual Channeling to draw pile. Exhaust. Unstackable.",
+    "to": [],
+    "from": [
+      "Armageddon",
+      "Enchant",
+      "Switcheroo"
+    ]
+  },
+  "ostracon": {
+    "name": "Ostracon",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 3,
+    "effect": "Kill all summoned monsters.",
+    "to": [],
+    "from": [
+      "Blood Surge",
+      "Inferno"
+    ]
+  },
+  "outburst": {
+    "name": "Outburst",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 6 damage in near range.",
+    "to": [],
+    "from": [
+      "Inferno",
+      "Nova"
+    ]
+  },
+  "outside-the-box": {
+    "name": "Outside the Box",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Exhaust a random card with the highest cost in hand. Deal twice as much damage.",
+    "to": [],
+    "from": [
+      "Blood Surge",
+      "Meteor Rune"
+    ]
+  },
+  "page-rip": {
+    "name": "Page Rip",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 5 damage in a small radius. Draw 1 card for each active book.",
+    "to": [
+      "Nova",
+      "Harpoon Bolt",
+      "Close Chapter"
+    ],
+    "from": []
+  },
+  "paper-library": {
+    "name": "Paper Library",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Add 2 random Scrolls in hand. Focus with +1 Scroll number. Strain.",
+    "to": [],
+    "from": [
+      "Rewrite"
+    ]
+  },
+  "paper-recycle": {
+    "name": "Paper Recycle",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Add 1 random Scroll and take random Bolt to hand when you kill a monster. Strain",
+    "to": [],
+    "from": [
+      "Power is Knowledge",
+      "Snowball",
+      "Switcheroo",
+      "Thriftiness"
+    ]
+  },
+  "power-is-knowledge": {
+    "name": "Power is Knowledge",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Add 1 random Scroll to hand when you kill a monster. Once per turn. Strain.",
+    "to": [
+      "Aether Splash",
+      "Subzero",
+      "Paper Recycle"
+    ],
+    "from": []
+  },
+  "purify": {
+    "name": "Purify",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Exhaust all Status cards from your deck and heal 1 HP for each (X total).",
+    "to": [],
+    "from": [
+      "Mental Wall"
+    ]
+  },
+  "reforge-weakness": {
+    "name": "Reforge Weakness",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "Deal as much damage as Status cards in your hand.",
+    "to": [
+      "Glass Shrike",
+      "Channel Pain",
+      "Vitruvian Mage"
+    ],
+    "from": [
+      "Echo Rune",
+      "Lightning"
+    ]
+  },
+  "reinvigorate": {
+    "name": "Reinvigorate",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 3,
+    "effect": "Gain 1 mana and draw 1 additional card every turn. Focus with cost -1. Exhaust.",
+    "to": [
+      "Bookmark",
+      "Midnight Oil"
+    ],
+    "from": [
+      "Meditation"
+    ]
+  },
+  "rewrite": {
+    "name": "Rewrite",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Duplicate all Scrolls in your deck (X). if you don't have any, add 2 random Scroll(s) to hand.",
+    "to": [
+      "Excession",
+      "Paper Library"
+    ],
+    "from": [
+      "Grimoire",
+      "Unpack the Bag"
+    ]
+  },
+  "ritual-channeling": {
+    "name": "Ritual Channeling",
+    "type": "Attack",
+    "rarity": "Summoned",
+    "cost": 1,
+    "effect": "Deal damage equal to Occult Ritual influence charge to monsters in a medium radius and reset the counter.",
+    "to": [],
+    "from": []
+  },
+  "rune-of-ice": {
+    "name": "Rune of Ice",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 3 damage and freeze in a medium radius. Add 1 Amnesia to the draw pile.",
+    "to": [
+      "Sunray Rune",
+      "Shatter",
+      "Chaos Rune"
+    ],
+    "from": [
+      "Comet Rune",
+      "Echo Rune",
+      "Hellfire Rune"
+    ]
+  },
+  "rune-of-thunder": {
+    "name": "Rune of Thunder",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Deal 10 damage to one random monster in near range and 8 to one in far range. Add 1 Amnesia to the draw pile.",
+    "to": [
+      "Vitruvian Mage",
+      "Wind Blast",
+      "Chaos Rune"
+    ],
+    "from": [
+      "Comet Rune",
+      "Hellfire Rune",
+      "Lightning"
+    ]
+  },
+  "scroll-of-mind": {
+    "name": "Scroll of Mind",
+    "type": "Skill",
+    "rarity": "Summoned",
+    "cost": 0,
+    "effect": "Give 1 mana. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "scroll-of-thorns": {
+    "name": "Scroll of Thorns",
+    "type": "Attack",
+    "rarity": "Summoned",
+    "cost": 0,
+    "effect": "Give 1 mana. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "scroll-of-wall": {
+    "name": "Scroll of Wall",
+    "type": "Skill",
+    "rarity": "Summoned",
+    "cost": 0,
+    "effect": "Give 5 block. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "scroll-of-wisdom": {
+    "name": "Scroll of Wisdom",
+    "type": "Skill",
+    "rarity": "Summoned",
+    "cost": 0,
+    "effect": "Selected Hero draws a card. Exhaust.",
+    "to": [],
+    "from": []
+  },
+  "shatter": {
+    "name": "Shatter",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 3 damage +1 for every frozen monster and freeze in a medium radius.",
+    "to": [],
+    "from": [
+      "Inferno",
+      "Rune of Ice"
+    ]
+  },
+  "shuffle": {
+    "name": "Shuffle",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Discard hand. Draw as many cards and gain 1 mana.",
+    "to": [
+      "Gallstones",
+      "Excession"
+    ],
+    "from": [
+      "Grimoire",
+      "Incantation",
+      "Link",
+      "Cocoa Mug"
+    ]
+  },
+  "simulacrum": {
+    "name": "Simulacrum",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Double block for all heroes giving them at least 2.",
+    "to": [],
+    "from": [
+      "Iron Will",
+      "Mana Shield"
+    ]
+  },
+  "snowball": {
+    "name": "Snowball",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Your Bolts deal double damage to frozen monsters. Exhaust. Unstackable.",
+    "to": [
+      "Aether Splash",
+      "Paper Recycle",
+      "Subzero"
+    ],
+    "from": [
+      "Brutal Thaw"
+    ]
+  },
+  "speed-reading": {
+    "name": "Speed Reading",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "2 random Books in your deck have their Study counter reduced by 2.",
+    "to": [
+      "Excession",
+      "Weave Laylines",
+      "Indexed Rules"
+    ],
+    "from": [
+      "Cocoa Mug"
+    ]
+  },
+  "subzero": {
+    "name": "Subzero",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Your Bolts deal +2 damage per stack and double damage to frozen monsters.",
+    "to": [],
+    "from": [
+      "Bolt Dance",
+      "Power is Knowledge",
+      "Snowball"
+    ]
+  },
+  "sucker-bolt": {
+    "name": "Sucker Bolt",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 2 damage. If it kills the monster, get 1 mana and draw 1 card.",
+    "to": [
+      "Blood Surge",
+      "Harpoon Bolt",
+      "Bat Bolt"
+    ],
+    "from": [
+      "Magic Bolt"
+    ]
+  },
+  "sunray-rune": {
+    "name": "Sunray Rune",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 5 damage +2 for each Status in your deck in a medium radius. Add 1 Amnesia to draw pile.",
+    "to": [],
+    "from": [
+      "Meteor Rune",
+      "Rune of Ice"
+    ]
+  },
+  "sweep": {
+    "name": "Sweep",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Move monsters in a small radius to a slice with the lowest number of monsters while preserving their ranges.",
+    "to": [
+      "Eternal Winter",
+      "Botaoshi"
+    ],
+    "from": [
+      "Cold Arm",
+      "Teleport"
+    ]
+  },
+  "swell": {
+    "name": "Swell",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "If you got damaged last turn, heal yourself by 20% of your max HP. Exhaust.",
+    "to": [
+      "Conduit Aura",
+      "Mindset",
+      "Mend Wounds"
+    ],
+    "from": []
+  },
+  "switcheroo": {
+    "name": "Switcheroo",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Playing a Rune increases bonus damage to Runes by 1. The bonus resets at 6. Unstackable. Exhaust.",
+    "to": [
+      "Occult Ritual",
+      "Paper Recycle",
+      "Aether Splash"
+    ],
+    "from": []
+  },
+  "teleport": {
+    "name": "Teleport",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Move the target clockwise to the next hero's slice and swap its section. Discard a random card.",
+    "to": [
+      "Bolt the Bolted",
+      "Sweep",
+      "Chilly Blow"
+    ],
+    "from": []
+  },
+  "thriftiness": {
+    "name": "Thriftiness",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Take random Bolt to hand when you kill a monster. Works once per turn per stack.",
+    "to": [
+      "Midnight Oil",
+      "Paper Recycle"
+    ],
+    "from": [
+      "Brutal Thaw",
+      "Obsidian Dust"
+    ]
+  },
+  "thunder": {
+    "name": "Thunder",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 10 damage to a monster. If this doesn't kill it, repeat for the nearest monster. Never hits the same monster twice.",
+    "to": [],
+    "from": [
+      "Harpoon Bolt",
+      "Zap"
+    ]
+  },
+  "triage": {
+    "name": "Triage",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Heal most wounded hero by 3x mana cost of the most expensive card in hand. Exhaust that card.",
+    "to": [],
+    "from": [
+      "Simulacrum"
+    ]
+  },
+  "unpack-the-bag": {
+    "name": "Unpack the Bag",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Add Scroll of Wisdom, Scroll of Mind, Scroll of Wall to draw pile.",
+    "to": [
+      "Rewrite",
+      "Cheat",
+      "Ascendance"
+    ],
+    "from": [
+      "Ethereal Shield"
+    ]
+  },
+  "unstoppable-force": {
+    "name": "Unstoppable Force",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Your next Rune is played twice.",
+    "to": [
+      "Armageddon",
+      "Enchant",
+      "Flux"
+    ],
+    "from": []
+  },
+  "vitruvian-mage": {
+    "name": "Vitruvian Mage",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Deal as much damage as Status cards in your deck (X).",
+    "to": [],
+    "from": [
+      "Nova",
+      "Reforge Weakness"
+    ]
+  },
+  "volcanic-lightning": {
+    "name": "Volcanic Lightning",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 4 damage to a monster in near range. Add Arcane Stupor to draw pile.",
+    "to": [
+      "Blood Surge",
+      "Harpoon Bolt",
+      "Nova"
+    ],
+    "from": [
+      "Magic Bolt"
+    ]
+  },
+  "weave-laylines": {
+    "name": "Weave Laylines",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "All heroes gain 5 mana and draw 2 cards. Exhaust.",
+    "to": [],
+    "from": [
+      "Ascendance",
+      "Cheat",
+      "Equilibrium",
+      "Speed Reading"
+    ]
+  },
+  "wind-blast": {
+    "name": "Wind Blast",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 2 damage. Add a copy of this card to draw pile. Combine 3 Wind Blasts into a Cyclone.",
+    "to": [
+      "Inferno",
+      "Zap",
+      "Nova"
+    ],
+    "from": []
+  },
+  "zap": {
+    "name": "Zap",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Deal 5 damage. Deal one less damage to the nearest monster. Repeat for 3 more monsters.",
+    "to": [
+      "Crowdsource",
+      "Thunder",
+      "Ethernal Return"
+    ],
+    "from": [
+      "Lightning",
+      "Wind Blast"
+    ]
+  }
+};
+
+// Build name->id lookup and backfill from[] using to[]
+const nameToId = {};
+for (const [id, c] of Object.entries(CARDS)) nameToId[c.name] = id;
+for (const [id, c] of Object.entries(CARDS)) {
+  c.to.forEach(targetName => {
+    const tid = nameToId[targetName];
+    if (tid && !CARDS[tid].from.includes(c.name)) CARDS[tid].from.push(c.name);
+  });
+}
+// Starters evolve to all Commons of the same type
+const starters = Object.entries(CARDS).filter(([,c]) => c.rarity === 'Starter');
+for (const [sid, sc] of starters) {
+  Object.entries(CARDS).filter(([,c]) => c.rarity === 'Common' && c.type === sc.type).forEach(([cid, cc]) => {
+    if (!sc.to.includes(cc.name)) sc.to.push(cc.name);
+    if (!cc.from.includes(sc.name)) cc.from.push(sc.name);
+  });
+}
+
+// Build the 3 unified trees from card data
+const RARITY_ORDER = { Starter: 0, Common: 1, Rare: 2, Legendary: 3, Summoned: 4 };
+const TYPE_CONFIG = {
+  Attack:    { color: 'var(--attack)',    desc: 'Deal damage to enemies &mdash; bolts, runes, AoE spells, and elemental strikes', count: 0 },
+  Skill:     { color: 'var(--skill)',     desc: 'Mana, shields, drawing, scrolls, and utility spells', count: 0 },
+  Influence: { color: 'var(--influence)', desc: 'Persistent effects lasting until end of battle &mdash; books, enchantments, and auras', count: 0 }
+};
+
+// Group cards by type and rarity
+const grouped = {};
+for (const type of ['Attack','Skill','Influence']) {
+  grouped[type] = { Starter: [], Common: [], Rare: [], Legendary: [], Summoned: [] };
+}
+for (const [id, c] of Object.entries(CARDS)) {
+  if (!grouped[c.type]) continue;
+  if (!grouped[c.type][c.rarity]) grouped[c.type][c.rarity] = [];
+  grouped[c.type][c.rarity].push(id);
+  TYPE_CONFIG[c.type].count++;
+}
+
+// Sort within each rarity: roots first (no from), then alphabetical
+for (const type of Object.keys(grouped)) {
+  for (const rarity of Object.keys(grouped[type])) {
+    grouped[type][rarity].sort((a, b) => {
+      const ca = CARDS[a], cb = CARDS[b];
+      if (ca.from.length === 0 && cb.from.length > 0) return -1;
+      if (ca.from.length > 0 && cb.from.length === 0) return 1;
+      return ca.name.localeCompare(cb.name);
+    });
+  }
+}
+
+function cardHTML(id) {
+  const c = CARDS[id];
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+  const legendaryClass = c.rarity === 'Legendary' ? ' legendary' : '';
+  const fromIds = c.from.map(n => nameToId[n]).filter(Boolean).join(',');
+  const dataFrom = fromIds ? ` data-from="${fromIds}"` : '';
+  return `<div class="card-node ${typeClass}${legendaryClass}" data-card="${id}"${dataFrom}>
+    <div class="card-img">${img ? `<img src="${img}" alt="${c.name}" loading="lazy">` : ''}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-meta"><span class="card-cost">${c.cost}</span><span class="card-rarity ${rarityClass}">${c.rarity}</span></div>
+  </div>`;
+}
+
+const container = document.getElementById('all-trees');
+let html = '';
+
+for (const type of ['Attack','Skill','Influence']) {
+  const cfg = TYPE_CONFIG[type];
+  const g = grouped[type];
+  const typeClass = type.toLowerCase();
+
+  html += `<div class="type-section">
+    <h2 style="color:${cfg.color}">${type} Cards</h2>
+    <div class="type-count">${cfg.count} cards</div>
+    <p class="type-desc">${cfg.desc}</p>
+  </div>`;
+  html += `<div class="tree-wrapper"><div class="flat-tree tree-${typeClass}">`;
+
+  const tiers = [];
+  if (g.Starter.length) tiers.push({ label:'starter', title:'Starter', star:true, cards:g.Starter });
+  if (g.Common.length)  tiers.push({ label:'common',  title:'Common',  star:false, cards:g.Common });
+  if (g.Rare.length)    tiers.push({ label:'rare',    title:'Rare',    star:false, cards:g.Rare });
+  if (g.Legendary.length) tiers.push({ label:'legendary', title:'Legendary', star:true, cards:g.Legendary });
+  if (g.Summoned && g.Summoned.length) tiers.push({ label:'summoned', title:'Summoned', star:false, cards:g.Summoned });
+
+  tiers.forEach(tier => {
+    html += `<div class="tier-label ${tier.label}-tier">${tier.star ? '\u2605 ' : ''}${tier.title}</div>`;
+    html += `<div class="flat-tier" data-tier="${tier.label}">`;
+    tier.cards.forEach(id => { html += cardHTML(id); });
+    html += `</div><div class="flat-spacer"></div>`;
+  });
+
+  html += `</div></div>`;
+}
+
+container.innerHTML = html;
+
+// Draw connector lines
+function drawConnectors() {
+  document.querySelectorAll('.flat-tree').forEach(tree => {
+    const existing = tree.querySelector('.tree-svg');
+    if (existing) existing.remove();
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('tree-svg');
+    svg.style.width = tree.scrollWidth + 'px';
+    svg.style.height = tree.scrollHeight + 'px';
+
+    const treeRect = tree.getBoundingClientRect();
+    tree.querySelectorAll('.card-node[data-from]').forEach(card => {
+      const fromIds = card.dataset.from.split(',');
+      const cardRect = card.getBoundingClientRect();
+      const toX = cardRect.left + cardRect.width / 2 - treeRect.left + tree.scrollLeft;
+      const toY = cardRect.top - treeRect.top + tree.scrollTop;
+
+      fromIds.forEach(fid => {
+        const fromCard = tree.querySelector(`[data-card="${fid.trim()}"]`);
+        if (!fromCard) return;
+        const fromRect = fromCard.getBoundingClientRect();
+        const fromX = fromRect.left + fromRect.width / 2 - treeRect.left + tree.scrollLeft;
+        const fromY = fromRect.bottom - treeRect.top + tree.scrollTop;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX);
+        line.setAttribute('y2', toY);
+        line.dataset.from = fid.trim();
+        line.dataset.to = card.dataset.card;
+        svg.appendChild(line);
+      });
+    });
+
+    tree.style.position = 'relative';
+    tree.insertBefore(svg, tree.firstChild);
+  });
+}
+
+setTimeout(drawConnectors, 300);
+window.addEventListener('resize', () => setTimeout(drawConnectors, 100));
+
+// Detail pane
+const detailPane = document.getElementById('detailPane');
+
+function showDetail(node) {
+  const id = node.dataset.card;
+  const c = CARDS[id];
+  if (!c) return;
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+
+  let h = `<div class="tt-header">`;
+  h += `<div class="tt-img">${img ? `<img src="${img}" alt="${c.name}">` : ''}</div>`;
+  h += `<div class="tt-info">`;
+  h += `<div class="tt-name" style="color:var(--${typeClass})">${c.name}</div>`;
+  h += `<div class="tt-badges"><span class="tt-badge type-${typeClass}">${c.type}</span><span class="tt-badge rarity-${rarityClass}">${c.rarity}</span></div>`;
+  h += `<div class="tt-mana"><span class="tt-mana-gem">${c.cost}</span> Mana Cost</div>`;
+  h += `</div></div><div class="tt-body">`;
+  h += `<div class="tt-effect" style="border-left-color:var(--${typeClass})">${c.effect}</div>`;
+  if (c.to.length) h += `<div class="tt-transforms"><span class="tt-arrow-up">\u25B2</span> <strong>Evolves to:</strong> ${c.to.join(', ')}</div>`;
+  if (c.from.length) h += `<div class="tt-transforms"><span class="tt-arrow-down">\u25BC</span> <strong>Evolves from:</strong> ${c.from.join(', ')}</div>`;
+  h += `</div>`;
+  detailPane.innerHTML = h;
+  detailPane.classList.add('visible');
+}
+
+// Path highlight: walk up ancestors
+function getAncestors(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const fromStr = cardEl.dataset.from;
+  if (!fromStr) return ids;
+  fromStr.split(',').forEach(fid => {
+    const parent = tree.querySelector(`[data-card="${fid.trim()}"]`);
+    if (parent) getAncestors(tree, parent, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+function getDescendants(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const c = CARDS[cardId];
+  if (!c || !c.to.length) return ids;
+  c.to.forEach(name => {
+    const childId = nameToId[name];
+    if (!childId) return;
+    const child = tree.querySelector(`[data-card="${childId}"]`);
+    if (child) getDescendants(tree, child, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+document.addEventListener('mouseover', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const tree = node.closest('.flat-tree');
+  if (!tree) return;
+
+  const hoveredId = node.dataset.card;
+  const ancestorIds = getAncestors(tree, node);
+  const descendantIds = getDescendants(tree, node);
+
+  tree.querySelectorAll('.card-node').forEach(c => {
+    const id = c.dataset.card;
+    c.classList.remove('path-highlight', 'path-descendant', 'dimmed');
+    if (ancestorIds.has(id)) c.classList.add('path-highlight');
+    else if (descendantIds.has(id)) c.classList.add('path-descendant');
+    else c.classList.add('dimmed');
+  });
+  tree.querySelectorAll('.tree-svg line').forEach(line => {
+    line.classList.remove('line-highlight', 'line-descendant', 'line-dimmed');
+    const f = line.dataset.from, t = line.dataset.to;
+    const fAnc = ancestorIds.has(f), tAnc = ancestorIds.has(t);
+    const fDesc = descendantIds.has(f), tDesc = descendantIds.has(t);
+    if (fAnc && tAnc) line.classList.add('line-highlight');
+    else if (fDesc && tDesc) line.classList.add('line-descendant');
+    else line.classList.add('line-dimmed');
+  });
+  showDetail(node);
+});
+
+document.addEventListener('mouseout', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const related = e.relatedTarget;
+  if (related && related.closest && related.closest('.card-node') === node) return;
+  const tree = node.closest('.flat-tree');
+  if (tree) {
+    tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+    tree.querySelectorAll('.tree-svg line').forEach(l => { l.classList.remove('line-highlight','line-descendant','line-dimmed'); });
+  }
+  detailPane.classList.remove('visible');
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.card-node').forEach(node => {
+    const c = CARDS[node.dataset.card];
+    if (!q) { node.classList.remove('dimmed','search-match'); return; }
+    if (!c) { node.classList.add('dimmed'); return; }
+    const text = `${c.name} ${c.type} ${c.rarity} ${c.effect}`.toLowerCase();
+    if (text.includes(q)) { node.classList.remove('dimmed'); node.classList.add('search-match'); }
+    else { node.classList.add('dimmed'); node.classList.remove('search-match'); }
+  });
+});
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.card-node:not(.dimmed)'); },
+  matchFn: function(el, query) {
+    var c = CARDS[el.dataset.card];
+    if (!c) return false;
+    var text = (c.name + ' ' + c.type + ' ' + c.rarity + ' ' + c.effect).toLowerCase();
+    return text.includes(query);
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Artifacts</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="header.css?v=2">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  :root {
+    --common: #9e9e9e;
+    --rare: #7e57c2;
+  }
+
+  /* === CATEGORY SECTIONS === */
+  .category-section {
+    padding: 32px 24px 16px;
+    max-width: 1300px; margin: 0 auto;
+  }
+  .category-section + .category-section {
+    border-top: 2px solid var(--border);
+  }
+  .category-section h2 {
+    font-size: 1.5em; text-align: center;
+    margin-bottom: 20px; letter-spacing: 1px;
+  }
+  .category-section h2.common-title { color: var(--common); }
+  .category-section h2.rare-title { color: var(--rare); }
+  .category-section h2.legendary-title { color: var(--legendary); }
+  .category-section h2.other-title { color: var(--text-dim); }
+
+  .category-count { display: none; }
+
+  /* === ARTIFACT GRID === */
+  .artifact-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    padding: 0 0 20px;
+  }
+
+  /* === ARTIFACT CARD === */
+  .artifact-card {
+    position: relative; padding: 10px 10px 10px;
+    border-radius: 10px; border: 1px solid var(--border); background: var(--bg-card);
+    cursor: pointer; transition: all 0.2s ease; text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .artifact-card:hover { transform: translateY(-3px); z-index: 10; border-color: rgba(76,175,80,0.4); }
+  .artifact-card.common-card { border-color: rgba(158,158,158,0.25); }
+  .artifact-card.common-card:hover { border-color: var(--common); }
+  .artifact-card.rare-card { border-color: rgba(126,87,194,0.3); }
+  .artifact-card.rare-card:hover { border-color: var(--rare); }
+  .artifact-card.legendary-card { border-color: rgba(76,175,80,0.4); }
+  .artifact-card.legendary-card:hover { border-color: var(--legendary); }
+  .artifact-card.other-card { border-color: rgba(136,136,160,0.2); }
+  .artifact-card.other-card:hover { border-color: var(--text-dim); }
+
+  .artifact-card.dimmed { opacity: 0.12; transition: opacity 0.3s; }
+  .artifact-card.search-match { animation: pulse-highlight 1s ease-in-out 3; }
+  @keyframes pulse-highlight { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
+
+  .artifact-img {
+    width: 120px; height: 120px; margin: 0 auto 8px; border-radius: 8px;
+    overflow: hidden;
+  }
+  .artifact-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .artifact-name {
+    font-weight: 700; font-size: 0.85em; line-height: 1.3; margin-bottom: 4px;
+  }
+  .artifact-meta {
+    display: flex; justify-content: center; gap: 4px; align-items: center; font-size: 0.72em;
+  }
+  .artifact-rarity {
+    text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-size: 0.9em;
+  }
+  .artifact-rarity.common { color: var(--common); }
+  .artifact-rarity.rare { color: var(--rare); }
+  .artifact-rarity.legendary { color: var(--legendary); }
+  .artifact-rarity.other { color: var(--text-dim); }
+
+  /* === DETAIL PANE === */
+  .detail-pane {
+    position: fixed; top: 190px; left: 12px; z-index: 1000; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0;
+    width: 480px; overflow: hidden;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .detail-pane.visible { opacity: 1; pointer-events: auto; }
+  .detail-pane .dp-header {
+    display: flex; gap: 12px; padding: 14px 16px; align-items: center;
+    background: rgba(0,0,0,0.15);
+  }
+  .detail-pane .dp-img {
+    width: 100px; height: 100px; border-radius: 8px; overflow: hidden;
+    flex-shrink: 0; background: rgba(0,0,0,0.15);
+  }
+  .detail-pane .dp-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-pane .dp-info { flex: 1; min-width: 0; }
+  .detail-pane .dp-name {
+    font-size: 1.2em; font-weight: 700;
+    line-height: 1.2; margin-bottom: 6px;
+  }
+  .detail-pane .dp-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .detail-pane .dp-badge {
+    font-size: 0.75em; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px;
+  }
+  .detail-pane .dp-badge.rarity-common { background: rgba(158,158,158,0.2); color: var(--common); }
+  .detail-pane .dp-badge.rarity-rare { background: rgba(126,87,194,0.2); color: var(--rare); }
+  .detail-pane .dp-badge.rarity-legendary { background: rgba(76,175,80,0.2); color: var(--legendary); }
+  .detail-pane .dp-badge.rarity-other { background: rgba(136,136,160,0.15); color: var(--text-dim); }
+  .detail-pane .dp-body { padding: 0 16px 14px; }
+  .detail-pane .dp-effect {
+    font-size: 0.88em; line-height: 1.5; color: var(--text); padding: 10px 12px;
+    background: rgba(0,0,0,0.15); border-radius: 6px;
+    border-left: 2px solid rgba(76, 175, 80, 0.25);
+  }
+
+</style>
+</head>
+<body>
+
+<div id="site-header">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search artifacts... (e.g. Memento, block, mana)">
+  </div>
+</div>
+<script src="header.js?v=3"></script>
+
+<div class="detail-pane" id="detailPane"></div>
+<div id="artifact-content"></div>
+<div class="no-results" id="noResults">No artifacts match your search.</div>
+
+<script src="search-enhance.js"></script>
+<script>
+const ARTIFACT_IMAGES = {
+  "Vicious Hatchet":"https://static.wikia.nocookie.net/hellcard/images/f/ff/Vicious_Hatchet.png/revision/latest?cb=20240918180056",
+  "Tavern Sign":"https://static.wikia.nocookie.net/hellcard/images/4/45/Tavern_Sign.png/revision/latest?cb=20240918175903",
+  "Trowel":"https://static.wikia.nocookie.net/hellcard/images/b/b7/Trowel.png/revision/latest?cb=20240918180035",
+  "Toy Compass":"https://static.wikia.nocookie.net/hellcard/images/7/7d/Toy_Compass.png/revision/latest?cb=20240918180025",
+  "Torn Button":"https://static.wikia.nocookie.net/hellcard/images/8/8d/Torn_Button.png/revision/latest?cb=20240918180012",
+  "Tiny Bamboo":"https://static.wikia.nocookie.net/hellcard/images/c/ce/Tiny_Bamboo.png/revision/latest?cb=20240918180003",
+  "Tilted Cairn":"https://static.wikia.nocookie.net/hellcard/images/b/b8/Tilted_Cairn.png/revision/latest?cb=20240918175942",
+  "Thumb Lancet":"https://static.wikia.nocookie.net/hellcard/images/8/8f/Thumb_Lancet.png/revision/latest?cb=20240918175927",
+  "Silver Mirror":"https://static.wikia.nocookie.net/hellcard/images/8/84/Silver_Mirror.png/revision/latest?cb=20240918175802",
+  "Silver Spoon":"https://static.wikia.nocookie.net/hellcard/images/c/cd/Silver_Spoon.png/revision/latest?cb=20240918175811",
+  "Nekomata":"https://static.wikia.nocookie.net/hellcard/images/7/77/Nekomata.png/revision/latest?cb=20240918175647",
+  "Sharp Throne":"https://static.wikia.nocookie.net/hellcard/images/0/00/Sharp_Throne.png/revision/latest?cb=20240918175752",
+  "Ripe Tomato":"https://static.wikia.nocookie.net/hellcard/images/9/98/Ripe_Tomato.png/revision/latest?cb=20240918175738",
+  "Paperclip":"https://static.wikia.nocookie.net/hellcard/images/3/35/Paperclip.png/revision/latest?cb=20240918175656",
+  "Quartz Lens":"https://static.wikia.nocookie.net/hellcard/images/a/ae/Quartz_Lens.png/revision/latest?cb=20240918175713",
+  "Porcelain Skull":"https://static.wikia.nocookie.net/hellcard/images/b/b4/Porcelain_Skull.png/revision/latest?cb=20240918175709",
+  "Loot Crate":"https://static.wikia.nocookie.net/hellcard/images/e/ec/Loot_Crate.png/revision/latest?cb=20240918175606",
+  "Kielbasa":"https://static.wikia.nocookie.net/hellcard/images/7/72/Kielbasa.png/revision/latest?cb=20240918175554",
+  "Homicidal Organ":"https://static.wikia.nocookie.net/hellcard/images/e/e4/Homicidal_Organ.png/revision/latest?cb=20240918175509",
+  "Flambeau":"https://static.wikia.nocookie.net/hellcard/images/a/a6/Flambeau.png/revision/latest?cb=20240918175411",
+  "Evergreen Leaf":"https://static.wikia.nocookie.net/hellcard/images/4/4a/Evergreen_Leaf.png/revision/latest?cb=20240918175339",
+  "Crane":"https://static.wikia.nocookie.net/hellcard/images/2/20/Crane.png/revision/latest?cb=20240918175307",
+  "Bottle of Miasma":"https://static.wikia.nocookie.net/hellcard/images/3/34/Bottle_of_Miasma.png/revision/latest?cb=20240918175211",
+  "Bloody Grail":"https://static.wikia.nocookie.net/hellcard/images/0/0d/Bloody_Grail.png/revision/latest?cb=20240918175200",
+  "Bandaid":"https://static.wikia.nocookie.net/hellcard/images/4/43/Bandaid.png/revision/latest?cb=20240918175137",
+  "Best Pal":"https://static.wikia.nocookie.net/hellcard/images/6/6d/Best_Pal.png/revision/latest?cb=20240918175148",
+  "Clam":"https://static.wikia.nocookie.net/hellcard/images/e/ed/Clam.png/revision/latest?cb=20240918175259",
+  "Dice":"https://static.wikia.nocookie.net/hellcard/images/4/4c/Dice.png/revision/latest?cb=20240918175314",
+  "Duck Collar":"https://static.wikia.nocookie.net/hellcard/images/9/91/Duck_Collar.png/revision/latest?cb=20240918175324",
+  "Explosive Eyeball":"https://static.wikia.nocookie.net/hellcard/images/b/b9/Explosive_Eyeball.png/revision/latest?cb=20240918175351",
+  "First Blood":"https://static.wikia.nocookie.net/hellcard/images/4/45/First_Blood.png/revision/latest?cb=20240918175406",
+  "Friendly Toad":"https://static.wikia.nocookie.net/hellcard/images/e/e0/Friendly_Toad.png/revision/latest?cb=20240918175432",
+  "Glass Caltrop":"https://static.wikia.nocookie.net/hellcard/images/6/63/Glass_Caltrops.png/revision/latest?cb=20230320194759",
+  "Golden Ticket":"https://static.wikia.nocookie.net/hellcard/images/c/cf/Golden_Ticket.png/revision/latest?cb=20240918175448",
+  "Iron Snowflake":"https://static.wikia.nocookie.net/hellcard/images/b/b3/Iron_Snowflake.png/revision/latest?cb=20240918175534",
+  "Jar of Pickles":"https://static.wikia.nocookie.net/hellcard/images/5/59/Jar_of_Pickles.png/revision/latest?cb=20240918175544",
+  "Lump of Coal":"https://static.wikia.nocookie.net/hellcard/images/f/f1/Lump_of_Coal.png/revision/latest?cb=20230320195754",
+  "Memento":"https://static.wikia.nocookie.net/hellcard/images/2/20/Memento.png/revision/latest?cb=20240918175618",
+  "Moka Pot":"https://static.wikia.nocookie.net/hellcard/images/d/d3/Moka_Pot.png/revision/latest?cb=20240918175638",
+  "Red Cap":"https://static.wikia.nocookie.net/hellcard/images/0/0f/Red_Cap.png/revision/latest?cb=20240918175730",
+  "Spring":"https://static.wikia.nocookie.net/hellcard/images/9/9c/Spring.png/revision/latest?cb=20240918175828",
+  "Star":"https://static.wikia.nocookie.net/hellcard/images/2/2e/Star.png/revision/latest?cb=20240918175844",
+  "Tiny Anchor":"https://static.wikia.nocookie.net/hellcard/images/8/80/Tiny_Anchor.png/revision/latest?cb=20240918175953",
+  "Tsantsa":"https://static.wikia.nocookie.net/hellcard/images/a/ac/Tsantsa.png/revision/latest?cb=20240918180044",
+  "Wooden Bowl":"https://static.wikia.nocookie.net/hellcard/images/2/2f/Wooden_Bowl.png/revision/latest?cb=20240918180118",
+  "Hourglass":"https://static.wikia.nocookie.net/hellcard/images/1/11/Hourglass.png/revision/latest?cb=20240918175518",
+  "Feather":"https://static.wikia.nocookie.net/hellcard/images/3/33/Feather.png/revision/latest?cb=20240918175359",
+  "Dusty Sandals":"https://static.wikia.nocookie.net/hellcard/images/3/39/Dusty_Sandals.png/revision/latest?cb=20240918175332",
+  "Brick":"https://static.wikia.nocookie.net/hellcard/images/5/58/Brick.png/revision/latest?cb=20240918175230",
+  "Torque Wrench":"https://static.wikia.nocookie.net/hellcard/images/0/0a/Torque_Wrench.png/revision/latest?cb=20240918180018",
+  "Spectacles":"https://static.wikia.nocookie.net/hellcard/images/3/3d/Spectacles.png/revision/latest?cb=20240918175822",
+  "Stamp":"https://static.wikia.nocookie.net/hellcard/images/9/98/Stamp.png/revision/latest?cb=20240918175835",
+  "Sharpener":"https://static.wikia.nocookie.net/hellcard/images/8/85/Sharpener.png/revision/latest?cb=20240918175756",
+  "Runic Board":"https://static.wikia.nocookie.net/hellcard/images/6/62/Runic_Board.png/revision/latest?cb=20240918175742",
+  "Burrito":"https://static.wikia.nocookie.net/hellcard/images/e/e0/Burrito.png/revision/latest?cb=20240918175236",
+  "Can of Beans":"https://static.wikia.nocookie.net/hellcard/images/4/4b/Can_of_Beans.png/revision/latest?cb=20240918175246",
+  "Flawed Ruby":"https://static.wikia.nocookie.net/hellcard/images/e/ef/Flawed_Ruby.png/revision/latest?cb=20240918175418",
+  "Goldfish":"https://static.wikia.nocookie.net/hellcard/images/0/02/Goldfish.png/revision/latest?cb=20240918175501",
+  "Iron Pan":"https://static.wikia.nocookie.net/hellcard/images/1/15/Iron_Pan.png/revision/latest?cb=20240918175524",
+  "Miniature Chair":"https://static.wikia.nocookie.net/hellcard/images/c/cf/Miniature_Chair.png/revision/latest?cb=20240918175628",
+  "Pawn":"https://static.wikia.nocookie.net/hellcard/images/f/f4/Pawn.png/revision/latest?cb=20240918175701",
+  "Rage Cage":"https://static.wikia.nocookie.net/hellcard/images/d/dc/Rage_Cage.png/revision/latest?cb=20240918175719",
+  "Three Seashells":"https://static.wikia.nocookie.net/hellcard/images/f/fb/Three_Seashells.png/revision/latest?cb=20240915204818",
+  "Whale Figurine":"https://static.wikia.nocookie.net/hellcard/images/f/f0/Whale_Figurine.png/revision/latest?cb=20240918180106",
+  "Stone Mask":"https://static.wikia.nocookie.net/hellcard/images/8/86/Stone_Mask.png/revision/latest?cb=20240918175856",
+  "Tessenjutsu":"https://static.wikia.nocookie.net/hellcard/images/6/62/Tessenjutsu.png/revision/latest?cb=20240918175910",
+  "Sticky Finger":"https://static.wikia.nocookie.net/hellcard/images/7/7d/Sticky_Finger.png/revision/latest?cb=20240918175852",
+  "Salt Lamp":"https://static.wikia.nocookie.net/hellcard/images/c/c4/Salt_Lamp.png/revision/latest?cb=20240918175746",
+  "Other Shoe":"https://static.wikia.nocookie.net/hellcard/images/0/07/Other_Shoe.png/revision/latest?cb=20240918175651",
+  "Bow Tie":"https://static.wikia.nocookie.net/hellcard/images/e/e1/Bow_Tie.png/revision/latest?cb=20240918175223",
+  "Tinker":"https://static.wikia.nocookie.net/hellcard/images/6/62/Tinker2.png/revision/latest?cb=20240920005221",
+  "The Art of War":"https://static.wikia.nocookie.net/hellcard/images/b/ba/The_Art_of_War.png/revision/latest?cb=20240920005152",
+  "Evoke Entity":"https://static.wikia.nocookie.net/hellcard/images/1/12/Evoke_Entity.png/revision/latest?cb=20240920005152",
+  "Give Blood":"https://static.wikia.nocookie.net/hellcard/images/6/62/Give_Blood.png/revision/latest?cb=20240920005152",
+  "Glowing Crystal":"https://static.wikia.nocookie.net/hellcard/images/a/a3/Glowing_Crystal.png/revision/latest?cb=20240920005152",
+  "Cracked Helmet":"https://static.wikia.nocookie.net/hellcard/images/6/6c/Cracked_Helmet.png/revision/latest?cb=20240920005152",
+  "Fanny Pack":"https://static.wikia.nocookie.net/hellcard/images/8/87/Fanny_Pack.png/revision/latest?cb=20240920205516"
+};
+
+const ARTIFACTS = {
+  common: [
+    {name:"Vicious Hatchet", effect:"Upon pickup get 2 random Attack (red) cards."},
+    {name:"Tavern Sign", effect:"Gain 1 block for every monster in your slice with an attack intent at the beginning of your turn."},
+    {name:"Trowel", effect:"Gain 2 block when you exhaust a card."},
+    {name:"Toy Compass", effect:"Get 1 mana each time you play 5 Skill (blue) cards in a single turn."},
+    {name:"Torn Button", effect:"Gain +8 max HP."},
+    {name:"Tiny Bamboo", effect:"On future Card Reward screens you have 1 additional card to choose from."},
+    {name:"Tilted Cairn", effect:"Gain 5 block at the end of your turn if you haven't used any Attack (red) cards this turn."},
+    {name:"Thumb Lancet", effect:"If you don't have enough gemstones to take the selected action, you can do it by losing 5 HP for each missing gemstone (as long as it won't kill you)."},
+    {name:"Silver Mirror", effect:"Every time someone gives you block, they get half that."},
+    {name:"Silver Spoon", effect:"Get 3 gemstones."},
+    {name:"Nekomata", effect:"Every 10th attack is played twice."},
+    {name:"Sharp Throne", effect:"Gain 5 block after using 3 swords in one turn."},
+    {name:"Ripe Tomato", effect:"Start each battle with 10 block."},
+    {name:"Paperclip", effect:"Gain 1 mana when your deck is shuffled for the first time during each battle."},
+    {name:"Quartz Lens", effect:"Your attacks deal +1 damage in the Near Range and -1 damage in the far range (but no less than 1)."},
+    {name:"Porcelain Skull", effect:"Gain 5 block after using 5 Arrows in one turn."},
+    {name:"Loot Crate", effect:"Draw 1 additional card and get 1 mana after you kill your first monster in each battle."},
+    {name:"Kielbasa", effect:"One random card from your starting hand has cost reduced to 0."},
+    {name:"Homicidal Organ", effect:"Your attacks deal +1 damage if you have no Skill (blue) cards in your hand."},
+    {name:"Flambeau", effect:"Every 3rd exhausted card heals you 1 HP."},
+    {name:"Evergreen Leaf", effect:"Get healed 1 HP every time another hero is healed during the battle."},
+    {name:"Crane", effect:"Give 3 Block to all heroes if you haven't used any Attack cards this turn."},
+    {name:"Bottle of Miasma", effect:"Deals 20 damage randomly distributed among monsters at the beginning of the battle."},
+    {name:"Bloody Grail", effect:"A random player gets a Healing Blood at the beginning of the battle."},
+    {name:"Bandaid", effect:"Heal 3 HP after each battle you survive."}
+  ],
+  rare: [
+    {name:"Best Pal", effect:"Deal +2 damage when you have no incoming damage."},
+    {name:"Clam", effect:"You get 1 gemstone after picking a Card Reward. You can no longer skip Card Rewards."},
+    {name:"Dice", effect:"Number of mana points is randomized each turn (between 1 and 8)."},
+    {name:"Duck Collar", effect:"At the start of your turn add 1 mark to the marked monster."},
+    {name:"Explosive Eyeball", effect:"When you die, deal 20 damage to all monsters in near range and 10 in far range."},
+    {name:"First Blood", effect:"Heal yourself for 5HP after killing your first monster in battle."},
+    {name:"Friendly Toad", effect:"Reduces the card reward options after completed floors by one, but also heals the holder by 10 HP if they do not take a new card."},
+    {name:"Glass Caltrop", effect:"After monster's turn, distribute all of your block as damage to random monsters."},
+    {name:"Golden Ticket", effect:"Your prices in future locations YOU ADD are lowered to 1 gemstone."},
+    {name:"Iron Snowflake", effect:"Start your next turn with block equal to double the amount of damage you take this turn."},
+    {name:"Jar of Pickles", effect:"Get 1 mana point when you deal at least 15 damage total. Once per turn."},
+    {name:"Lump of Coal", effect:"Increase rarity of one of the cards when picking a Card Reward."},
+    {name:"Memento", effect:"Draw an additional card (+1) at the beginning of your turn."},
+    {name:"Moka Pot", effect:"You can use 2 options in each future location."},
+    {name:"Red Cap", effect:"Heal 15 HP at the beginning of a boss battle."},
+    {name:"Spring", effect:"Gain 1 additional mana if the sum of incoming damage at the beginning of your turn is higher than 15."},
+    {name:"Star", effect:"You get 1 additional mana when fighting bosses."},
+    {name:"Tiny Anchor", effect:"Heals the holder to 66% of their max HP if they survive a battle where they ended with 33% or less of max HP."},
+    {name:"Tsantsa", effect:"If the holder takes more than 5 damage from a single attack, the Tsantsa reflects half of it back to the attacker."},
+    {name:"Wooden Bowl", effect:"Reduces the holder's Gems to 1 at the beginning of each battle and heals the holder by 10 HP for each Gem that was removed."},
+    {name:"Hourglass", effect:"(No effect listed)"},
+    {name:"Feather", effect:"(No effect listed)"},
+    {name:"Dusty Sandals", effect:"(No effect listed)"},
+    {name:"Brick", effect:"(No effect listed)"},
+    {name:"Torque Wrench", effect:"(No effect listed)"},
+    {name:"Spectacles", effect:"(No effect listed)"},
+    {name:"Stamp", effect:"(No effect listed)"},
+    {name:"Sharpener", effect:"(No effect listed)"},
+    {name:"Runic Board", effect:"(No effect listed)"}
+  ],
+  legendary: [
+    {name:"Burrito", effect:"Allows the holder to use HP to play additional cards once they are out of mana points."},
+    {name:"Can of Beans", effect:"Randomizes the prices in future reward locations for the holder between zero and their cost increased by 1 Gem."},
+    {name:"Flawed Ruby", effect:"Get 3 additional mana on the first turn and get 1 mana less on later turns."},
+    {name:"Goldfish", effect:"If another hero starts a turn with 10 HP or less, transfer half of your HP to them; then heal up to 10 HP."},
+    {name:"Iron Pan", effect:"Completely immune to non-magic ranged attacks."},
+    {name:"Miniature Chair", effect:"Keep unspent mana points between turns."},
+    {name:"Pawn", effect:"Don't discard the cards in your hand at the end of your turn."},
+    {name:"Rage Cage", effect:"All attack deal +2 damage. You can no longer block yourself."},
+    {name:"Three Seashells", effect:"Each time you are damaged in combat, other players are healed for the same amount."},
+    {name:"Whale Figurine", effect:"Gain 1 extra Gem after each completed battle."},
+    {name:"Stone Mask", effect:"(No effect listed)"},
+    {name:"Tessenjutsu", effect:"(No effect listed)"},
+    {name:"Sticky Finger", effect:"When your hand is empty during your turn, draw a card."},
+    {name:"Salt Lamp", effect:"(No effect listed)"},
+    {name:"Other Shoe", effect:"(No effect listed)"},
+    {name:"Bow Tie", effect:"(No effect listed)"}
+  ],
+  other: [
+    {name:"Tinker", effect:"You start your next battle with an active influence randomly chosen from all the influence cards available for your class."},
+    {name:"The Art of War", effect:"Draw additional card each turn in the next battle."},
+    {name:"Evoke Entity", effect:"When out of mana, use 2HP per missing Mana."},
+    {name:"Give Blood", effect:"Gain 5 block at the start of your turn in the next battle."},
+    {name:"Glowing Crystal", effect:"+1 mana points in the next battle."},
+    {name:"Cracked Helmet", effect:"Gain 2 block at the start of your turn in the next battle."},
+    {name:"Fanny Pack", effect:"Select a card to be part of your starting hand in the next battles."}
+  ]
+};
+
+function getImg(name) {
+  return ARTIFACT_IMAGES[name] || '';
+}
+
+function createCard(artifact, rarity) {
+  const card = document.createElement('div');
+  card.className = `artifact-card ${rarity}-card`;
+  card.dataset.name = artifact.name.toLowerCase();
+  card.dataset.effect = artifact.effect.toLowerCase();
+  card.dataset.rarity = rarity;
+
+  const img = getImg(artifact.name);
+  card.innerHTML = `
+    <div class="artifact-img">${img ? `<img src="${img}" alt="${artifact.name}" loading="lazy">` : ''}</div>
+    <div class="artifact-name">${artifact.name}</div>
+    <div class="artifact-meta">
+      <span class="artifact-rarity ${rarity}">${rarity}</span>
+    </div>
+  `;
+
+  card.addEventListener('mouseenter', () => showDetail(artifact, rarity));
+  card.addEventListener('mouseleave', hideDetail);
+  return card;
+}
+
+function showDetail(artifact, rarity) {
+  const pane = document.getElementById('detailPane');
+  const img = getImg(artifact.name);
+  let badges = `<span class="dp-badge rarity-${rarity}">${rarity}</span>`;
+
+  pane.innerHTML = `
+    <div class="dp-header">
+      <div class="dp-img">${img ? `<img src="${img}" alt="${artifact.name}">` : ''}</div>
+      <div class="dp-info">
+        <div class="dp-name">${artifact.name}</div>
+        <div class="dp-badges">${badges}</div>
+      </div>
+    </div>
+    <div class="dp-body">
+      <div class="dp-effect">${artifact.effect}</div>
+    </div>
+  `;
+  pane.classList.add('visible');
+}
+
+function hideDetail() {
+  document.getElementById('detailPane').classList.remove('visible');
+}
+
+function buildPage() {
+  const container = document.getElementById('artifact-content');
+  let html = '';
+
+  // Common
+  html += `<div class="category-section" data-category="common">
+    <h2 class="common-title">Common Artifacts</h2>
+    <div class="category-count">${ARTIFACTS.common.length} artifacts</div>
+    <div class="artifact-grid" id="grid-common"></div>
+  </div>`;
+
+  // Rare
+  html += `<div class="category-section" data-category="rare">
+    <h2 class="rare-title">Rare Artifacts</h2>
+    <div class="category-count">${ARTIFACTS.rare.length} artifacts</div>
+    <div class="artifact-grid" id="grid-rare"></div>
+  </div>`;
+
+  // Legendary
+  html += `<div class="category-section" data-category="legendary">
+    <h2 class="legendary-title">Legendary Artifacts</h2>
+    <div class="category-count">${ARTIFACTS.legendary.length} artifacts</div>
+    <div class="artifact-grid" id="grid-legendary"></div>
+  </div>`;
+
+  // Other
+  html += `<div class="category-section" data-category="other">
+    <h2 class="other-title">Other Artifacts</h2>
+    <div class="category-count">${ARTIFACTS.other.length} artifacts</div>
+    <div class="artifact-grid" id="grid-other"></div>
+  </div>`;
+
+  container.innerHTML = html;
+
+  // Populate grids
+  const commonGrid = document.getElementById('grid-common');
+  for (const a of ARTIFACTS.common) commonGrid.appendChild(createCard(a, 'common'));
+  const rareGrid = document.getElementById('grid-rare');
+  for (const a of ARTIFACTS.rare) rareGrid.appendChild(createCard(a, 'rare'));
+  const legendaryGrid = document.getElementById('grid-legendary');
+  for (const a of ARTIFACTS.legendary) legendaryGrid.appendChild(createCard(a, 'legendary'));
+  const otherGrid = document.getElementById('grid-other');
+  for (const a of ARTIFACTS.other) otherGrid.appendChild(createCard(a, 'other'));
+}
+
+buildPage();
+
+// Enhanced search
+const searcher = createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.artifact-card'); },
+  matchFn: function(el, q) {
+    return el.dataset.name.includes(q) || el.dataset.effect.includes(q);
+  }
+});
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const query = this.value.toLowerCase().trim();
+  const allCards = document.querySelectorAll('.artifact-card');
+  const allSections = document.querySelectorAll('.category-section');
+
+  if (!query) {
+    allCards.forEach(c => { c.classList.remove('dimmed','search-match'); });
+    allSections.forEach(s => s.style.display = '');
+    document.getElementById('noResults').style.display = 'none';
+    return;
+  }
+
+  let anyVisible = false;
+  allCards.forEach(card => {
+    const match = card.dataset.name.includes(query) || card.dataset.effect.includes(query);
+    card.classList.toggle('dimmed', !match);
+    if (match) { card.classList.add('search-match'); anyVisible = true; }
+    else { card.classList.remove('search-match'); }
+  });
+
+  allSections.forEach(sec => {
+    const hasVisible = sec.querySelector('.artifact-card:not(.dimmed)');
+    sec.style.display = hasVisible ? '' : 'none';
+  });
+
+  document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+});
+</script>
+</body>
+</html>

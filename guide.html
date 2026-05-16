@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Guide</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="header.css?v=2">
+<style>
+  .content-area { max-width: 860px; }
+
+  .guide-section {
+    margin-bottom: 36px;
+  }
+  .guide-section h2 {
+    font-size: 1.3em; font-weight: 700; color: var(--accent);
+    margin-bottom: 14px; padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  .guide-section h3 {
+    font-size: 1.05em; font-weight: 600; color: var(--text);
+    margin: 18px 0 8px;
+  }
+  .guide-section p {
+    line-height: 1.7; color: var(--text); margin-bottom: 10px;
+  }
+  .guide-section ul {
+    list-style: none; padding: 0; margin-bottom: 12px;
+  }
+  .guide-section li {
+    padding: 6px 0 6px 18px; position: relative; line-height: 1.6;
+  }
+  .guide-section li::before {
+    content: ''; position: absolute; left: 0; top: 14px;
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  }
+
+  .tip-box {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 8px;
+    padding: 14px 18px; margin: 14px 0;
+  }
+  .tip-box .tip-label {
+    font-size: 0.8em; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--accent); margin-bottom: 6px;
+  }
+  .tip-box p { margin-bottom: 0; }
+
+  .page-list {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px; margin: 14px 0;
+  }
+  .page-item {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px;
+  }
+  .page-item a {
+    font-weight: 700; color: var(--accent); text-decoration: none;
+    font-size: 0.95em;
+  }
+  .page-item a:hover { text-decoration: underline; }
+  .page-item p {
+    font-size: 0.88em; color: var(--text-dim); margin: 4px 0 0;
+  }
+
+  .class-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px; margin: 14px 0;
+  }
+  .class-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; text-align: center;
+  }
+  .class-card .class-name {
+    font-weight: 700; font-size: 1em; margin-bottom: 4px;
+  }
+  .class-card .class-role {
+    font-size: 0.82em; color: var(--text-dim);
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<div class="content-area">
+
+  <div class="guide-section">
+    <h2>What is Hellcard?</h2>
+    <p>Hellcard is a cooperative roguelike deckbuilder where up to 3 players descend into procedurally generated dungeons. You build a deck of cards, collect artifacts, and fight enemies in turn-based combat. Each run is different: random encounters, card choices, and artifacts make every playthrough unique.</p>
+  </div>
+
+  <div class="guide-section">
+    <h2>The Five Classes</h2>
+    <p>Each class has a unique set of Attack, Skill, and Influence cards that evolve through Starter, Common, Rare, and Legendary tiers.</p>
+    <div class="class-grid">
+      <div class="class-card">
+        <div class="class-name">Warrior</div>
+        <div class="class-role">Melee damage & block — uses Stamina for powerful combos</div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Bruja</div>
+        <div class="class-role">Blood magic & curses — trades HP for devastating effects</div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Tinkerer</div>
+        <div class="class-role">Contraptions & traps — builds machines and uses Screws/Cores</div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Rogue</div>
+        <div class="class-role">Stealth & precision — bombs, poisons, and critical hits</div>
+      </div>
+      <div class="class-card">
+        <div class="class-name">Mage</div>
+        <div class="class-role">Spells & elements — summons, scrolls, and elemental magic</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="guide-section">
+    <h2>Core Mechanics</h2>
+
+    <h3>Cards</h3>
+    <p>Your deck is your main weapon. Each turn you draw cards and spend mana to play them. Cards come in three types:</p>
+    <ul>
+      <li><strong>Attack</strong> cards deal damage to enemies</li>
+      <li><strong>Skill</strong> cards provide block, healing, and buffs</li>
+      <li><strong>Influence</strong> cards give strategic effects like drawing cards or manipulating your deck</li>
+    </ul>
+
+    <h3>Card Evolution</h3>
+    <p>Cards exist in four rarity tiers: Starter, Common, Rare, and Legendary. At certain locations you can upgrade cards to higher tiers, unlocking stronger versions with improved effects.</p>
+
+    <h3>Artifacts</h3>
+    <p>Artifacts are passive items that modify your abilities for the rest of the run. Each class starts with a unique starter artifact, and you can find more at locations like the Vault and Library. Artifacts stack, so building synergies between your artifacts and deck is key to surviving deeper floors.</p>
+
+    <h3>Combat</h3>
+    <p>Fights are turn-based. At the start of each turn you see what enemies intend to do (attack, block, buff, etc.). You then play cards from your hand to deal damage or gain block before the enemies act. Block resets each turn, so you need to rebuild your defenses every round.</p>
+    <ul>
+      <li>Enemies have HP, Attack, and sometimes Block values</li>
+      <li>Some enemies are Melee, Ranged, or Magic with different targeting rules</li>
+      <li>Minibosses and Bosses have special abilities that change the fight dynamics</li>
+    </ul>
+
+    <h3>Locations</h3>
+    <p>Between fights you choose which location to visit. Each location offers different benefits:</p>
+    <ul>
+      <li><strong>Smithy</strong> to upgrade cards</li>
+      <li><strong>Vault</strong> to get new artifacts</li>
+      <li><strong>Library</strong> to trade artifacts</li>
+      <li><strong>Camp</strong> to heal and gain max HP</li>
+      <li><strong>Armory</strong> to gain block and upgrade cards</li>
+    </ul>
+
+    <h3>Deck Builder</h3>
+    <p>The deck builder lets you plan your builds before a run. Select a class, choose a starter artifact, pick cards, and add artifacts. Your builds are saved locally in your browser — they persist between sessions. You can export builds as JSON files to share with friends, or import builds others have shared.</p>
+
+    <div class="tip-box">
+      <div class="tip-label">Tip</div>
+      <p>Don't skip locations. Visiting the right location at the right time can make or break a run. Prioritize upgrading key cards early and building artifact synergies.</p>
+    </div>
+
+    <div class="tip-box">
+      <div class="tip-label">Multiplayer Tip</div>
+      <p>In co-op, coordinate your location visits. Some locations like the Armory let you heal other players. Communication about who needs upgrades vs. healing can be the difference between a successful run and a wipe.</p>
+    </div>
+
+    <h3>Gemstones</h3>
+    <p>Gemstones are the currency you spend at locations between battles. You earn gemstones by defeating enemies. Each location option costs a certain number of gemstones — cheaper options give smaller benefits, while expensive ones offer powerful rewards. Managing your gemstones wisely is crucial for long-term success.</p>
+  </div>
+
+  <div class="guide-section">
+    <h2>Using This Almanac</h2>
+    <p>This site is a community reference for Hellcard. Here's what each page offers:</p>
+
+    <div class="page-list">
+      <div class="page-item">
+        <a href="home.html">Home</a>
+        <p>Landing page with quick links to all sections.</p>
+      </div>
+      <div class="page-item">
+        <a href="index.html">Evolutions</a>
+        <p>Browse all card evolution trees per class.</p>
+      </div>
+      <div class="page-item">
+        <a href="starter_artifacts.html">Starters</a>
+        <p>Starting artifact choices for each class.</p>
+      </div>
+      <div class="page-item">
+        <a href="cards.html">Cards</a>
+        <p>Searchable card database with filters and sorting.</p>
+      </div>
+      <div class="page-item">
+        <a href="artifacts.html">Artifacts</a>
+        <p>All artifacts sorted by rarity.</p>
+      </div>
+      <div class="page-item">
+        <a href="enemies.html">Enemies</a>
+        <p>Stats and abilities for every enemy type.</p>
+      </div>
+      <div class="page-item">
+        <a href="locations.html">Locations</a>
+        <p>Dungeon locations and their gem costs.</p>
+      </div>
+      <div class="page-item">
+        <a href="deckbuilder.html">Builder</a>
+        <p>Build decks, save locally, and export/import as JSON.</p>
+      </div>
+      <div class="page-item">
+        <a href="guide.html">Guide</a>
+        <p>This page — beginner tips and site overview.</p>
+      </div>
+    </div>
+
+    <h3>Search</h3>
+    <p>Most pages have a search bar at the top. Type any keyword to instantly filter the content. Use the prev/next buttons or Enter/Shift+Enter to jump between results.</p>
+
+    <h3>Navigation</h3>
+    <p>Use the navigation bar at the top to switch between pages. Pages with class-specific content (Evolutions, Starters, Cards) show a class selector bar below the navigation.</p>
+
+    <div class="tip-box">
+      <div class="tip-label">Tip</div>
+      <p>Use this almanac between runs to plan your card upgrade paths and artifact combos. Knowing which Legendary cards are available for your class helps you make better upgrade decisions during a run.</p>
+    </div>
+  </div>
+
+</div>
+
+<script src="header.js?v=3"></script>
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Tinkerer Tree</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg-dark: #0d0d12;
+    --bg-card: #1a1a24;
+    --bg-panel: #14141e;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --attack: #c62828;
+    --attack-bg: #2a1010;
+    --attack-border: #8b1a1a;
+    --skill: #1565c0;
+    --skill-bg: #0d1a2e;
+    --skill-border: #0d47a1;
+    --influence: #2e7d32;
+    --influence-bg: #0d2010;
+    --influence-border: #1b5e20;
+    --starter: #78909c;
+    --common: #9e9e9e;
+    --rare: #7e57c2;
+    --legendary: #4caf50;
+    --gold-glow: rgba(76, 175, 80, 0.3);
+    --line-color: #2a2a30;
+    --highlight-line: #4caf50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #1a1208 0%, var(--bg-dark) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #2e7d32, #4caf50, #388e3c, #66bb6a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+  }
+
+  header .subtitle { color: var(--text-dim); font-size: 1.1em; margin-top: 8px; font-weight: 300; }
+
+  .legend {
+    display: flex; justify-content: center; gap: 24px; padding: 16px 20px; flex-wrap: wrap;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+  }
+  .legend-group { display: flex; gap: 12px; align-items: center; }
+  .legend-group .label { color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.attack { background: var(--attack); }
+  .legend-dot.skill { background: var(--skill); }
+  .legend-dot.influence { background: var(--influence); }
+  .legend-dot.starter { background: var(--starter); border: 1px solid #aaa; }
+  .legend-dot.common { background: var(--common); }
+  .legend-dot.rare { background: var(--rare); }
+  .legend-dot.legendary { background: var(--legendary); }
+
+  .stats-bar {
+    display: flex; justify-content: center; gap: 30px; padding: 12px 20px;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border); font-size: 0.85em;
+  }
+  .stat-item { display: flex; align-items: center; gap: 6px; }
+  .stat-num { font-weight: 700; font-size: 1.1em; }
+  .stat-label { color: var(--text-dim); }
+
+  .search-bar {
+    display: flex; justify-content: center; padding: 16px 20px; background: var(--bg-panel);
+    position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border);
+  }
+  .search-bar input {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 16px; color: var(--text); font-size: 0.95em; width: 360px;
+    outline: none; font-family: 'Inter', sans-serif;
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  .search-bar input:focus { border-color: var(--legendary); }
+
+  .type-section {
+    padding: 50px 0 10px;
+    border-top: 3px solid var(--border);
+  }
+  .type-section:first-of-type { border-top: none; }
+  .type-section h2 {
+    font-family: 'Cinzel', serif; font-size: 2.2em; text-align: center; margin-bottom: 4px;
+  }
+  .type-section .type-desc { text-align: center; color: var(--text-dim); font-size: 0.95em; margin-bottom: 20px; }
+  .type-section .type-count {
+    text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .tier-label {
+    text-align: center; font-size: 0.7em; text-transform: uppercase;
+    letter-spacing: 2px; font-weight: 700; padding: 8px; margin-bottom: 6px;
+  }
+  .tier-label.starter-tier { color: var(--starter); }
+  .tier-label.common-tier { color: var(--common); }
+  .tier-label.rare-tier { color: var(--rare); }
+  .tier-label.legendary-tier { color: var(--legendary); }
+
+  .tree-wrapper { padding: 0 10px 40px; }
+
+  .flat-tree {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    position: relative; padding: 20px 0;
+  }
+  .flat-tier {
+    display: flex; gap: 5px; justify-content: center;
+    position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  .flat-spacer { height: 20px; position: relative; width: 100%; }
+
+  .card-node {
+    position: relative; width: 64px; min-width: 64px; padding: 3px 3px 4px;
+    border-radius: 6px; border: 2px solid var(--border); background: var(--bg-card);
+    cursor: pointer; transition: all 0.25s ease; text-align: center; flex-shrink: 0;
+  }
+  .card-node:hover { transform: translateY(-2px); z-index: 10; }
+
+  .card-node.attack { border-color: var(--attack-border); background: var(--attack-bg); }
+  .card-node.attack:hover { border-color: var(--attack); box-shadow: 0 4px 20px rgba(198,40,40,0.3); }
+  .card-node.skill { border-color: var(--skill-border); background: var(--skill-bg); }
+  .card-node.skill:hover { border-color: var(--skill); box-shadow: 0 4px 20px rgba(21,101,192,0.3); }
+  .card-node.influence { border-color: var(--influence-border); background: var(--influence-bg); }
+  .card-node.influence:hover { border-color: var(--influence); box-shadow: 0 4px 20px rgba(46,125,50,0.3); }
+
+  .card-node.legendary { border-width: 2px; }
+  .card-node.legendary.attack,
+  .card-node.legendary.skill,
+  .card-node.legendary.influence { border-color: var(--legendary); box-shadow: 0 0 8px var(--gold-glow); }
+  .card-node.legendary:hover { box-shadow: 0 4px 25px var(--gold-glow); }
+
+  .card-img { width: 48px; height: 48px; margin: 0 auto 2px; border-radius: 4px; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .card-name { font-weight: 700; font-size: 0.52em; line-height: 1.1; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { display: flex; justify-content: center; gap: 2px; align-items: center; font-size: 0.48em; }
+  .card-cost { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  .card-rarity { text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-size: 0.85em; }
+  .card-rarity.starter { color: var(--starter); }
+  .card-rarity.common { color: var(--common); }
+  .card-rarity.rare { color: var(--rare); }
+  .card-rarity.legendary { color: var(--legendary); }
+
+  .card-node.path-highlight { filter: brightness(1.4); z-index: 5; }
+  .card-node.path-highlight.attack { border-color: #ff5252 !important; box-shadow: 0 0 15px rgba(255,82,82,0.5) !important; }
+  .card-node.path-highlight.skill { border-color: #42a5f5 !important; box-shadow: 0 0 15px rgba(66,165,245,0.5) !important; }
+  .card-node.path-highlight.influence { border-color: #66bb6a !important; box-shadow: 0 0 15px rgba(102,187,106,0.5) !important; }
+  .card-node.path-descendant { filter: brightness(1.2); z-index: 4; }
+  .card-node.path-descendant.attack { border-color: #ef9a9a !important; box-shadow: 0 0 12px rgba(239,154,154,0.4) !important; }
+  .card-node.path-descendant.skill { border-color: #90caf9 !important; box-shadow: 0 0 12px rgba(144,202,249,0.4) !important; }
+  .card-node.path-descendant.influence { border-color: #a5d6a7 !important; box-shadow: 0 0 12px rgba(165,214,167,0.4) !important; }
+  .card-node.dimmed { opacity: 0.12; transition: opacity 0.3s; }
+
+  .tree-svg line { stroke: var(--line-color); stroke-width: 1.5; opacity: 0.15; transition: all 0.3s; }
+  .tree-svg line.line-highlight { stroke: var(--highlight-line); stroke-width: 3; opacity: 1; filter: drop-shadow(0 0 4px var(--gold-glow)); }
+  .tree-svg line.line-descendant { stroke-width: 2.5; opacity: 0.75; }
+  .flat-tree.tree-attack .tree-svg line.line-descendant { stroke: #ef9a9a; filter: drop-shadow(0 0 3px rgba(239,154,154,0.4)); }
+  .flat-tree.tree-skill .tree-svg line.line-descendant { stroke: #90caf9; filter: drop-shadow(0 0 3px rgba(144,202,249,0.4)); }
+  .flat-tree.tree-influence .tree-svg line.line-descendant { stroke: #a5d6a7; filter: drop-shadow(0 0 3px rgba(165,214,167,0.4)); }
+  .tree-svg line.line-dimmed { opacity: 0.04; }
+  .tree-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  .detail-pane {
+    position: fixed; top: 80px; right: 12px; z-index: 1000; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0;
+    width: 364px; overflow: hidden;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .detail-pane.visible { opacity: 1; pointer-events: auto; }
+  .detail-pane .tt-header { display: flex; gap: 12px; padding: 16px; align-items: center; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img { width: 84px; height: 84px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-pane .tt-info { flex: 1; min-width: 0; }
+  .detail-pane .tt-name { font-size: 1.1em; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+  .detail-pane .tt-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .detail-pane .tt-badge { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; }
+  .detail-pane .tt-badge.type-attack { background: rgba(198,40,40,0.2); color: var(--attack); }
+  .detail-pane .tt-badge.type-skill { background: rgba(21,101,192,0.2); color: var(--skill); }
+  .detail-pane .tt-badge.type-influence { background: rgba(46,125,50,0.2); color: var(--influence); }
+  .detail-pane .tt-badge.rarity-starter { background: rgba(120,144,156,0.2); color: var(--starter); }
+  .detail-pane .tt-badge.rarity-common { background: rgba(158,158,158,0.2); color: #9e9e9e; }
+  .detail-pane .tt-badge.rarity-rare { background: rgba(126,87,194,0.2); color: var(--rare); }
+  .detail-pane .tt-badge.rarity-legendary { background: rgba(76,175,80,0.2); color: var(--legendary); }
+  .detail-pane .tt-mana { display: flex; align-items: center; gap: 4px; font-size: 0.88em; margin-top: 6px; color: #90caf9; font-weight: 600; }
+  .detail-pane .tt-mana-gem { width: 18px; height: 18px; background: #3366dd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75em; color: #fff; font-weight: 800; }
+  .detail-pane .tt-body { padding: 0 16px 16px; }
+  .detail-pane .tt-effect { font-size: 0.88em; line-height: 1.55; color: var(--text); padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; border-left: 2px solid rgba(76, 175, 80, 0.25); }
+  .detail-pane .tt-transforms { margin-top: 8px; font-size: 0.8em; color: var(--text-dim); line-height: 1.5; }
+  .detail-pane .tt-transforms strong { color: var(--text); }
+  .detail-pane .tt-arrow-up { color: var(--accent); }
+  .detail-pane .tt-arrow-down { color: #ef5350; }
+
+  .card-node.search-match { animation: pulse-highlight 1s ease-in-out 3; }
+  @keyframes pulse-highlight { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>TINKERER</h1>
+  <div class="subtitle">Hellcard Evolution Tree &mdash; All Cards & Upgrade Paths</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">108</span><span class="stat-label">Total Cards</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--attack)">32</span><span class="stat-label">Attack</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--skill)">42</span><span class="stat-label">Skill</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--influence)">34</span><span class="stat-label">Influence</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--legendary)">37</span><span class="stat-label">Legendary</span></div>
+</div>
+
+<div class="legend">
+  <div class="legend-group">
+    <span class="label">Type</span>
+    <div class="legend-item"><div class="legend-dot attack"></div> Attack</div>
+    <div class="legend-item"><div class="legend-dot skill"></div> Skill</div>
+    <div class="legend-item"><div class="legend-dot influence"></div> Influence</div>
+  </div>
+  <div class="legend-group">
+    <span class="label">Rarity</span>
+    <div class="legend-item"><div class="legend-dot starter"></div> Starter</div>
+    <div class="legend-item"><div class="legend-dot common"></div> Common</div>
+    <div class="legend-item"><div class="legend-dot rare"></div> Rare</div>
+    <div class="legend-item"><div class="legend-dot legendary"></div> Legendary</div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search cards... (e.g. Coil, Battery, Contraption)">
+</div>
+
+<div class="detail-pane" id="detailPane"></div>
+<div id="all-trees"></div>
+
+<script>
+const IMGS = {
+  "acid-trap":"https://static.wikia.nocookie.net/hellcard/images/5/52/Acid_Trap.png/revision/latest?cb=20240907231538",
+  "backpack-ballista":"https://static.wikia.nocookie.net/hellcard/images/a/ae/Backpack_Ballista.png/revision/latest?cb=20240908025903",
+  "battery":"https://static.wikia.nocookie.net/hellcard/images/6/6d/Battery.png/revision/latest?cb=20240908025423",
+  "bespoke":"https://static.wikia.nocookie.net/hellcard/images/2/22/Bespoke.png/revision/latest?cb=20240908025403",
+  "boom-bird":"https://static.wikia.nocookie.net/hellcard/images/9/9c/Boom_Bird.png/revision/latest?cb=20240908024934",
+  "boom-box":"https://static.wikia.nocookie.net/hellcard/images/7/7a/Boom_Box.png/revision/latest?cb=20240908025007",
+  "boomstick":"https://static.wikia.nocookie.net/hellcard/images/e/e1/Boomstick.png/revision/latest?cb=20240908024938",
+  "booster-boots":"https://static.wikia.nocookie.net/hellcard/images/e/e2/Booster_Boots.png/revision/latest?cb=20240908025234",
+  "brilliance":"https://static.wikia.nocookie.net/hellcard/images/b/b8/Brilliance.png/revision/latest?cb=20240908025912",
+  "cannibalize":"https://static.wikia.nocookie.net/hellcard/images/2/28/Cannibalize.png/revision/latest?cb=20240908025331",
+  "capacitor":"https://static.wikia.nocookie.net/hellcard/images/b/b5/Capacitor.png/revision/latest?cb=20240908025441",
+  "carpet-bombing":"https://static.wikia.nocookie.net/hellcard/images/4/48/Carpet_Bombing.png/revision/latest?cb=20240908025220",
+  "chill":"https://static.wikia.nocookie.net/hellcard/images/7/7b/Chill.png/revision/latest?cb=20240908025526",
+  "classic-trap":"https://static.wikia.nocookie.net/hellcard/images/0/05/Classic_Trap.png/revision/latest?cb=20240907232255",
+  "coil":"https://static.wikia.nocookie.net/hellcard/images/e/e4/Coil.png/revision/latest?cb=20240908024958",
+  "compact-catapult":"https://static.wikia.nocookie.net/hellcard/images/2/28/Compact_Catapult.png/revision/latest?cb=20240908025653",
+  "converter":"https://static.wikia.nocookie.net/hellcard/images/3/35/Converter.png/revision/latest?cb=20240908025705",
+  "cookie-cutter":"https://static.wikia.nocookie.net/hellcard/images/a/a4/Cookie_Cutter.png/revision/latest?cb=20240908025406",
+  "core-dump":"https://static.wikia.nocookie.net/hellcard/images/1/10/Core_Dump.png/revision/latest?cb=20240908025224",
+  "dazzle":"https://static.wikia.nocookie.net/hellcard/images/7/74/Dazzle.png/revision/latest?cb=20240908025433",
+  "deflector":"https://static.wikia.nocookie.net/hellcard/images/f/fc/Deflector.png/revision/latest?cb=20240908025033",
+  "discharge":"https://static.wikia.nocookie.net/hellcard/images/c/c8/Discharge.png/revision/latest?cb=20240908011612",
+  "duct-tape":"https://static.wikia.nocookie.net/hellcard/images/4/4e/Duct_Tape.png/revision/latest?cb=20240908025856",
+  "electrolysis":"https://static.wikia.nocookie.net/hellcard/images/2/28/Electrolysis.png/revision/latest?cb=20240908025849",
+  "engage":"https://static.wikia.nocookie.net/hellcard/images/a/a4/Engage.png/revision/latest?cb=20240908025446",
+  "eureka":"https://static.wikia.nocookie.net/hellcard/images/a/a9/Eureka%21.png/revision/latest?cb=20240908025518",
+  "feathertouch":"https://static.wikia.nocookie.net/hellcard/images/0/00/Feathertouch.png/revision/latest?cb=20240907232519",
+  "field-flux":"https://static.wikia.nocookie.net/hellcard/images/3/37/Field_Flux.png/revision/latest?cb=20240908025320",
+  "field-repairs":"https://static.wikia.nocookie.net/hellcard/images/4/4a/Field_Repairs.png/revision/latest?cb=20240908025249",
+  "fire-sprinkler":"https://static.wikia.nocookie.net/hellcard/images/0/06/Fire_Sprinkler.png/revision/latest?cb=20240908025657",
+  "flare":"https://static.wikia.nocookie.net/hellcard/images/5/54/Flare.png/revision/latest?cb=20240908025701",
+  "flywheel":"https://static.wikia.nocookie.net/hellcard/images/b/b7/Flywheel.png/revision/latest?cb=20240908025316",
+  "force-multiplayer":"https://static.wikia.nocookie.net/hellcard/images/6/65/Force_Multiplayer.png/revision/latest?cb=20240907232508",
+  "fruits-of-labor":"https://static.wikia.nocookie.net/hellcard/images/9/95/Fruits_of_Labor.png/revision/latest?cb=20240908025920",
+  "gauntlet":"https://static.wikia.nocookie.net/hellcard/images/7/71/Gauntlet.png/revision/latest?cb=20240908025355",
+  "gear-up":"https://static.wikia.nocookie.net/hellcard/images/a/ae/Gear_Up.png/revision/latest?cb=20240908025239",
+  "grid-strike":"https://static.wikia.nocookie.net/hellcard/images/a/a3/Grid_Strike.png/revision/latest?cb=20240907232530",
+  "gumption":"https://static.wikia.nocookie.net/hellcard/images/5/59/Gumption.png/revision/latest?cb=20240908025547",
+  "hammer-throw":"https://static.wikia.nocookie.net/hellcard/images/a/a6/Hammer_Throw.png/revision/latest?cb=20240908011601",
+  "hammer-time":"https://static.wikia.nocookie.net/hellcard/images/7/76/Hammer_Time.png/revision/latest?cb=20240908024946",
+  "hidden-variable":"https://static.wikia.nocookie.net/hellcard/images/7/74/Hidden_Variable.png/revision/latest?cb=20240908025428",
+  "home-alone":"https://static.wikia.nocookie.net/hellcard/images/5/52/Home_Alone.png/revision/latest?cb=20240907232514",
+  "illuminator":"https://static.wikia.nocookie.net/hellcard/images/c/cf/Illuminator.png/revision/latest?cb=20240908025842",
+  "ingenuity":"https://static.wikia.nocookie.net/hellcard/images/e/eb/Ingenuity.png/revision/latest?cb=20240908025522",
+  "iron-rain":"https://static.wikia.nocookie.net/hellcard/images/8/8c/Iron_Rain.png/revision/latest?cb=20240908024942",
+  "jack-trap":"https://static.wikia.nocookie.net/hellcard/images/d/d7/Jack_Trap.png/revision/latest?cb=20240907231538",
+  "jump-start":"https://static.wikia.nocookie.net/hellcard/images/d/d2/Jump_Start.png/revision/latest?cb=20240908025334",
+  "junk-drawer":"https://static.wikia.nocookie.net/hellcard/images/e/e4/Junk_Drawer.png/revision/latest?cb=20240908025307",
+  "junk-mail":"https://static.wikia.nocookie.net/hellcard/images/5/5e/Junk_Mail.png/revision/latest?cb=20240908025358",
+  "junk-trap":"https://static.wikia.nocookie.net/hellcard/images/5/53/Junk_Trap.png/revision/latest?cb=20240907232500",
+  "kill-zone-trap":"https://static.wikia.nocookie.net/hellcard/images/9/92/Kill_Zone_Trap.png/revision/latest?cb=20240907231537",
+  "lathe":"https://static.wikia.nocookie.net/hellcard/images/4/44/Lathe.png/revision/latest?cb=20240908025507",
+  "long-shadow":"https://static.wikia.nocookie.net/hellcard/images/c/ce/Long_Shadow.png/revision/latest?cb=20240908025416",
+  "magnet":"https://static.wikia.nocookie.net/hellcard/images/8/8c/Magnet.png/revision/latest?cb=20240908010937",
+  "magnet-trap":"https://static.wikia.nocookie.net/hellcard/images/5/5a/Magnet_Trap.png/revision/latest?cb=20240907231538",
+  "mass-production":"https://static.wikia.nocookie.net/hellcard/images/8/88/Mass_Production.png/revision/latest?cb=20240908025917",
+  "means-of-production":"https://static.wikia.nocookie.net/hellcard/images/3/38/Means_of_Production.png/revision/latest?cb=20240908025846",
+  "mechamimic":"https://static.wikia.nocookie.net/hellcard/images/c/c6/Mechamimic.png/revision/latest?cb=20240908025544",
+  "mental-fulcrum":"https://static.wikia.nocookie.net/hellcard/images/9/97/Mental_Fulcrum.png/revision/latest?cb=20240908025710",
+  "metalworks":"https://static.wikia.nocookie.net/hellcard/images/0/07/Metalworks.png/revision/latest?cb=20240908025351",
+  "muon-box":"https://static.wikia.nocookie.net/hellcard/images/8/8d/Muon_Box.png/revision/latest?cb=20240908025003",
+  "organize":"https://static.wikia.nocookie.net/hellcard/images/2/26/Organize.png/revision/latest?cb=20240908025450",
+  "overpressure":"https://static.wikia.nocookie.net/hellcard/images/e/e2/Overpressure.png/revision/latest?cb=20240908025908",
+  "paint-trap":"https://static.wikia.nocookie.net/hellcard/images/1/19/Paint_Trap.png/revision/latest?cb=20240907232255",
+  "pavise":"https://static.wikia.nocookie.net/hellcard/images/7/70/Pavise.png/revision/latest?cb=20240908025504",
+  "percussive-maintenance":"https://static.wikia.nocookie.net/hellcard/images/c/c1/Percussive_Maintenance.png/revision/latest?cb=20240908011607",
+  "pinata":"https://static.wikia.nocookie.net/hellcard/images/8/86/Pinata.png/revision/latest?cb=20240908011015",
+  "plasma-globe":"https://static.wikia.nocookie.net/hellcard/images/1/1d/Plasma_Globe.png/revision/latest?cb=20240908025029",
+  "pop-up-shield":"https://static.wikia.nocookie.net/hellcard/images/0/0b/Pop-up_Shield.png/revision/latest?cb=20240908025714",
+  "popping-wrist":"https://static.wikia.nocookie.net/hellcard/images/6/6a/Popping_Wrist.png/revision/latest?cb=20240908025649",
+  "potato":"https://static.wikia.nocookie.net/hellcard/images/c/c2/Potato.png/revision/latest?cb=20240908025324",
+  "power-drill":"https://static.wikia.nocookie.net/hellcard/images/e/e5/Power_Drill.png/revision/latest?cb=20240908025025",
+  "prototype":"https://static.wikia.nocookie.net/hellcard/images/3/31/Prototype.png/revision/latest?cb=20240908025644",
+  "quake":"https://static.wikia.nocookie.net/hellcard/images/b/b4/Quake.png/revision/latest?cb=20240908025011",
+  "quantum-flow":"https://static.wikia.nocookie.net/hellcard/images/e/e3/Quantum_Flow.png/revision/latest?cb=20240908025420",
+  "rapid-disassembly":"https://static.wikia.nocookie.net/hellcard/images/b/b8/Rapid_Disassembly.png/revision/latest?cb=20240908024954",
+  "redesign":"https://static.wikia.nocookie.net/hellcard/images/a/af/Redesign.png/revision/latest?cb=20240908025437",
+  "redox-reaction":"https://static.wikia.nocookie.net/hellcard/images/1/19/Redox_Reaction.png/revision/latest?cb=20240908025838",
+  "reuse":"https://static.wikia.nocookie.net/hellcard/images/7/78/Reuse.png/revision/latest?cb=20240908025540",
+  "rewire":"https://static.wikia.nocookie.net/hellcard/images/5/5e/Rewire.png/revision/latest?cb=20240908025339",
+  "ribauldequin":"https://static.wikia.nocookie.net/hellcard/images/e/ed/Ribauldequin.png/revision/latest?cb=20240908024930",
+  "rolodex":"https://static.wikia.nocookie.net/hellcard/images/c/c9/Rolodex.png/revision/latest?cb=20240908025410",
+  "science":"https://static.wikia.nocookie.net/hellcard/images/2/2d/Science%21.png/revision/latest?cb=20240908025245",
+  "screw-shot":"https://static.wikia.nocookie.net/hellcard/images/1/12/Screw_Shot.png/revision/latest?cb=20240908010915",
+  "screwdriver":"https://static.wikia.nocookie.net/hellcard/images/1/1d/Screwdriver.png/revision/latest?cb=20240908024950",
+  "screwnado":"https://static.wikia.nocookie.net/hellcard/images/b/bb/Screwnado.png/revision/latest?cb=20240908114448",
+  "sharp-matter":"https://static.wikia.nocookie.net/hellcard/images/d/db/Sharp_Matter.png/revision/latest?cb=20240908025928",
+  "shoulder-cannon":"https://static.wikia.nocookie.net/hellcard/images/e/e2/Shoulder_Cannon.png/revision/latest?cb=20240908025828",
+  "singularity":"https://static.wikia.nocookie.net/hellcard/images/d/d0/Singularity.png/revision/latest?cb=20240908025537",
+  "smoke-screen":"https://static.wikia.nocookie.net/hellcard/images/e/e5/Smoke_Screen.png/revision/latest?cb=20240908025328",
+  "solidarity":"https://static.wikia.nocookie.net/hellcard/images/9/98/Solidarity.png/revision/latest?cb=20240908025924",
+  "solidification":"https://static.wikia.nocookie.net/hellcard/images/9/91/Solidification.png/revision/latest?cb=20240908025500",
+  "spider-gun":"https://static.wikia.nocookie.net/hellcard/images/0/0e/Spider_Gun.png/revision/latest?cb=20240908025900",
+  "spring-blade":"https://static.wikia.nocookie.net/hellcard/images/e/ea/Spring_Blade.png/revision/latest?cb=20240907232534",
+  "stable-influx":"https://static.wikia.nocookie.net/hellcard/images/2/25/Stable_Influx.png/revision/latest?cb=20240908025530",
+  "stimulate":"https://static.wikia.nocookie.net/hellcard/images/e/e4/Stimulate.png/revision/latest?cb=20240908025457",
+  "strike-the-earth":"https://static.wikia.nocookie.net/hellcard/images/3/33/Strike_the_Earth.png/revision/latest?cb=20240908025019",
+  "sugar-rush":"https://static.wikia.nocookie.net/hellcard/images/2/2d/Sugar_Rush.png/revision/latest?cb=20240908025342",
+  "tabletop-trebuchet":"https://static.wikia.nocookie.net/hellcard/images/7/78/Tabletop_Trebuchet.png/revision/latest?cb=20240908025834",
+  "terminate":"https://static.wikia.nocookie.net/hellcard/images/a/a2/Terminate.png/revision/latest?cb=20240908025453",
+  "tesseract":"https://static.wikia.nocookie.net/hellcard/images/8/80/Tesseract.png/revision/latest?cb=20240908025533",
+  "tough-tabard":"https://static.wikia.nocookie.net/hellcard/images/2/23/Tough_Tabard.png/revision/latest?cb=20240908025932",
+  "trapper-delight":"https://static.wikia.nocookie.net/hellcard/images/4/48/Trapper_Delight.png/revision/latest?cb=20240907232524",
+  "tripwire-trap":"https://static.wikia.nocookie.net/hellcard/images/4/48/Tripwire_Trap.png/revision/latest?cb=20240907232254",
+  "trojan-trap":"https://static.wikia.nocookie.net/hellcard/images/e/e4/Trojan_Trap.png/revision/latest?cb=20240907232255",
+  "unionize":"https://static.wikia.nocookie.net/hellcard/images/9/95/Unionize.png/revision/latest?cb=20240908025853",
+  "whirligig":"https://static.wikia.nocookie.net/hellcard/images/5/5f/Whirligig.png/revision/latest?cb=20240908025259",
+  "zap-zap":"https://static.wikia.nocookie.net/hellcard/images/3/35/Zap_Zap.png/revision/latest?cb=20240908010923"
+};
+
+const CARDS = {
+  "acid-trap":{name:"Acid Trap",type:"Influence",rarity:"Rare",cost:0,effect:"Trap. At the start of your turn, remove 5 block from all monsters in this section.",to:["Classic Trap","Jack Trap","Kill Zone Trap"],from:["Force Multiplayer","Tripwire Trap","Magnet Trap"]},
+  "backpack-ballista":{name:"Backpack Ballista",type:"Influence",rarity:"Legendary",cost:0,effect:"Contraption. At the end of the monster's turn, use 1 Screw(s) to deal 12 splash damage in a medium radius around 1 random monster.",to:[],from:["Shoulder Cannon","Tabletop Trebuchet","Redox Reaction"]},
+  "battery":{name:"Battery",type:"Skill",rarity:"Rare",cost:0,effect:"Gain 2 Core(s). Increase the cost by 1 Screws.",to:["Chill","Stable Influx","Tesseract"],from:["Field Flux","Potato"]},
+  "bespoke":{name:"Bespoke",type:"Skill",rarity:"Rare",cost:1,effect:"Gain 1 Screw(s) for every 2 points of block you have.",to:["Reuse","Lathe","Solidification"],from:["Field Repairs","Junk Drawer"]},
+  "boom-bird":{name:"Boom Bird",type:"Attack",rarity:"Common",cost:0,effect:"Deal 15 damage. Exhaust.",to:["Rapid Disassembly","Coil","Boom Box"],from:["Zap Zap"]},
+  "boom-box":{name:"Boom Box",type:"Attack",rarity:"Rare",cost:0,effect:"Deal 20 splash damage in a medium radius. Remove 1 copy of the first Contraption or Exhaust.",to:["Booster Boots","Core Dump","Carpet Bombing"],from:["Discharge","Boom Bird"]},
+  "boomstick":{name:"Boomstick",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 4 damage. Gain 3 Screw(s). If you have any Cores, do it twice.",to:["Booster Boots","Core Dump","Quake"],from:["Magnet","Pinata","Percussive Maintenance"]},
+  "booster-boots":{name:"Booster Boots",type:"Attack",rarity:"Legendary",cost:0,effect:"Use all your Cores. Attack 2 random monsters for each Core spent. Deal 20 damage to each.",to:[],from:["Boomstick","Coil","Boom Box"]},
+  "brilliance":{name:"Brilliance",type:"Influence",rarity:"Legendary",cost:0,effect:"Contraption. At the start of your turn, stun 2 monsters with Attack intent and deal 8 unblockable damage to monsters with immunity.",to:[],from:["Tabletop Trebuchet","Redox Reaction","Illuminator"]},
+  "cannibalize":{name:"Cannibalize",type:"Skill",rarity:"Common",cost:0,effect:"Remove 1 copy of the first Contraption to gain 4 Screw(s).",to:["Organize","Capacitor","Redesign"],from:[]},
+  "capacitor":{name:"Capacitor",type:"Skill",rarity:"Rare",cost:1,effect:"Activate the first and the last Contraption once.",to:["Gumption","Reuse","Engage"],from:["Cannibalize","Jump Start","Rewire"]},
+  "carpet-bombing":{name:"Carpet Bombing",type:"Attack",rarity:"Legendary",cost:0,effect:"Deal 35 splash damage in a medium radius around 2 random monsters. Remove the first Contraption or Exhaust.",to:[],from:["Iron Rain","Muon Box","Boom Box"]},
+  "chill":{name:"Chill",type:"Skill",rarity:"Legendary",cost:0,effect:"Add 1 Cold Fusion to your hand.",to:[],from:["Rolodex","Long Shadow","Battery"]},
+  "classic-trap":{name:"Classic Trap",type:"Influence",rarity:"Legendary",cost:0,effect:"Trap. If no monster is marked, add 5 mark to the first monster entering this section. When any monster enters this section, use 1 Screw(s) to stun and deal 5 damage to it.",to:[],from:["Trojan Trap","Paint Trap","Acid Trap"]},
+  "coil":{name:"Coil",type:"Attack",rarity:"Rare",cost:0,effect:"Deal 8 splash damage in a medium radius. Return this card to your hand.",to:["Core Dump","Booster Boots","Plasma Globe"],from:["Magnet","Discharge","Boom Bird"]},
+  "compact-catapult":{name:"Compact Catapult",type:"Influence",rarity:"Common",cost:0,effect:"Contraption. At the end of the monster's turn, deal 3 splash damage in a small radius around 1 random monster.",to:["Tabletop Trebuchet","Redox Reaction","Illuminator"],from:["Prototype"]},
+  "converter":{name:"Converter",type:"Influence",rarity:"Common",cost:0,effect:"Contraption. At the end of your turn, gain 1 Screw(s) for every Influence in your hand.",to:["Unionize","Means of Production","Electrolysis"],from:[]},
+  "cookie-cutter":{name:"Cookie Cutter",type:"Skill",rarity:"Rare",cost:1,effect:"Add 4 Cookie to your draw pile.",to:["Mechamimic","Lathe","Gumption"],from:[]},
+  "core-dump":{name:"Core Dump",type:"Attack",rarity:"Legendary",cost:0,effect:"Remove all your Contraptions and deal 10 damage, or 25 damage if you use 4 Core(s), to all monsters for each type of Contraption removed. Exhaust.",to:[],from:["Boomstick","Coil","Boom Box"]},
+  "dazzle":{name:"Dazzle",type:"Skill",rarity:"Rare",cost:0,effect:"Stun monsters with Attack intent in a long wide cone. Return this card to your hand.",to:["Mechamimic","Eureka!","Singularity"],from:["Smoke Screen","Rewire"]},
+  "deflector":{name:"Deflector",type:"Attack",rarity:"Legendary",cost:0,effect:"Deal 10 unblockable damage to all monsters. Use 1 Core(s) to stun all with Attack intent.",to:[],from:["Screwdriver","Muon Box","Home Alone"]},
+  "discharge":{name:"Discharge",type:"Attack",rarity:"Common",cost:1,effect:"Deal 5 splash damage in a small radius. Return this card to your hand.",to:["Boom Box","Muon Box","Coil"],from:["Zap Zap"]},
+  "duct-tape":{name:"Duct Tape",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the start of your turn, gain 2 block. If you have any Cores, make it 5.",to:["Sharp Matter","Solidarity","Tough Tabard"],from:["Mental Fulcrum","Pop-up Shield"]},
+  "electrolysis":{name:"Electrolysis",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the start of your turn, use 2 Screw(s) to gain 1 Cores.",to:["Mass Production","Fruits of Labor","Sharp Matter"],from:["Converter"]},
+  "engage":{name:"Engage",type:"Skill",rarity:"Legendary",cost:2,effect:"Activate all your Contraptions once.",to:[],from:["Long Shadow","Capacitor"]},
+  "eureka":{name:"Eureka!",type:"Skill",rarity:"Legendary",cost:0,effect:"Add 1 Idea to your draw pile. Focus with -1 Screw(s) cost.",to:[],from:["Gauntlet","Junk Mail","Dazzle"]},
+  "feathertouch":{name:"Feathertouch",type:"Attack",rarity:"Common",cost:0,effect:"Deal 2 damage and stun all monsters in a section with a Trap. Remove that Trap.",to:["Muon Box","Home Alone","Grid Strike"],from:[]},
+  "field-flux":{name:"Field Flux",type:"Skill",rarity:"Common",cost:0,effect:"Gain 1 Core(s). If you had Cores, Strain.",to:["Battery","Hidden Variable","Quantum Flow"],from:["Science!"]},
+  "field-repairs":{name:"Field Repairs",type:"Skill",rarity:"Common",cost:1,effect:"Give 3 block. Gain 3 Screw(s).",to:["Metalworks","Bespoke","Junk Mail"],from:["Gear Up"]},
+  "fire-sprinkler":{name:"Fire Sprinkler",type:"Influence",rarity:"Common",cost:0,effect:"Contraption. At the end of the monster's turn, deal 2 unblockable damage in a long medium cone towards the nearest monster. Use 1 Core to make it 6.",to:["Shoulder Cannon","Unionize","Redox Reaction"],from:["Prototype"]},
+  "flare":{name:"Flare",type:"Influence",rarity:"Common",cost:0,effect:"Contraption. At the start of your turn, stun 1 monster with Attack intent.",to:["Tabletop Trebuchet","Redox Reaction","Illuminator"],from:[]},
+  "flywheel":{name:"Flywheel",type:"Skill",rarity:"Common",cost:0,effect:"Draw 1 card. Use 1 Core(s) to draw 1 more card and gain 1 mana.",to:["Quantum Flow","Rolodex","Long Shadow"],from:[]},
+  "force-multiplayer":{name:"Force Multiplayer",type:"Attack",rarity:"Legendary",cost:0,effect:"Deal 4 damage and stun all monsters in each section with a Trap. Remove all Traps.",to:[],from:["Grid Strike","Home Alone"]},
+  "fruits-of-labor":{name:"Fruits of Labor",type:"Influence",rarity:"Legendary",cost:0,effect:"At the end of your turn, if you have no mana, next turn, each hero gets +1 mana.",to:[],from:["Means of Production","Electrolysis","Unionize"]},
+  "gauntlet":{name:"Gauntlet",type:"Skill",rarity:"Rare",cost:0,effect:"Use all your Screws. All heroes gain 2 block for each Screw spent. Use 1 Core to make it 4.",to:["Lathe","Eureka!","Pavise"],from:["Whirligig","Smoke Screen"]},
+  "gear-up":{name:"Gear Up",type:"Skill",rarity:"Starter",cost:1,effect:"Give 2 block. Gain 1 Screw(s).",to:["Whirligig","Field Repairs","Junk Drawer"],from:[]},
+  "grid-strike":{name:"Grid Strike",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 1 damage. If it's a section with a Trap, deal 1 damage to each monster for each monster in this section instead. Strain.",to:["Screwnado","Force Multiplayer","Trapper Delight"],from:["Spring Blade","Feathertouch"]},
+  "gumption":{name:"Gumption",type:"Skill",rarity:"Legendary",cost:1,effect:"Gain 3 Screw(s). Add 1 Quicksort and 1 Capacitor to your hand.",to:[],from:["Cookie Cutter","Redesign","Capacitor","Organize"]},
+  "hammer-throw":{name:"Hammer Throw",type:"Attack",rarity:"Common",cost:1,effect:"Deal 2 damage to the first monster in a long medium cone for each Screw you have.",to:["Iron Rain","Screwdriver","Hammer Time"],from:[]},
+  "hammer-time":{name:"Hammer Time",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 2 damage in a long medium cone for each Screw you have. Strain.",to:["Quake","Power Drill","Strike the Earth"],from:["Hammer Throw","Percussive Maintenance"]},
+  "hidden-variable":{name:"Hidden Variable",type:"Skill",rarity:"Rare",cost:0,effect:"Discard 1 random card to gain 1 Core.",to:["Ingenuity","Tesseract","Stable Influx"],from:["Field Flux","Potato","Sugar Rush"]},
+  "home-alone":{name:"Home Alone",type:"Attack",rarity:"Rare",cost:0,effect:"Deal 3 damage and stun all monsters in a section with a Trap. Remove that Trap and return this card to your hand.",to:["Deflector","Force Multiplayer","Trapper Delight"],from:["Spring Blade","Feathertouch"]},
+  "illuminator":{name:"Illuminator",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the start of your turn, stun a random monster with Attack intent or deal 5 damage if it is immune.",to:["Spider Gun","Overpressure","Brilliance"],from:["Popping Wrist","Compact Catapult","Flare"]},
+  "ingenuity":{name:"Ingenuity",type:"Skill",rarity:"Legendary",cost:0,effect:"Add 1 Exponentiation to your hand. Exhaust.",to:[],from:["Rolodex","Quantum Flow","Hidden Variable"]},
+  "iron-rain":{name:"Iron Rain",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 2 damage in a large radius. Gain 2 Screw(s) for each monster killed.",to:["Plasma Globe","Carpet Bombing","Screwnado"],from:["Pinata","Hammer Throw","Ribauldequin"]},
+  "jack-trap":{name:"Jack Trap",type:"Influence",rarity:"Legendary",cost:0,effect:"Trap. At the start of your turn, stun and move 1 random monster from this section to a random section. Remove block from all other monsters in the new section.",to:[],from:["Trojan Trap","Paint Trap","Acid Trap"]},
+  "jump-start":{name:"Jump Start",type:"Skill",rarity:"Common",cost:1,effect:"Activate the first Contraption.",to:["Capacitor","Organize","Redesign"],from:[]},
+  "junk-drawer":{name:"Junk Drawer",type:"Skill",rarity:"Common",cost:0,effect:"Draw 2 cards.",to:["Rolodex","Bespoke","Long Shadow"],from:["Gear Up"]},
+  "junk-mail":{name:"Junk Mail",type:"Skill",rarity:"Rare",cost:1,effect:"Gain 1 block for every Screw you have.",to:["Pavise","Eureka!","Solidification"],from:["Field Repairs","Whirligig"]},
+  "junk-trap":{name:"Junk Trap",type:"Influence",rarity:"Common",cost:0,effect:"Trap. Gain 1 Screw(s) for each non-summoned monster killed in this section.",to:["Acid Trap","Paint Trap","Trojan Trap"],from:[]},
+  "kill-zone-trap":{name:"Kill Zone Trap",type:"Influence",rarity:"Legendary",cost:0,effect:"Trap. All attacks deal +2 damage to monsters in this section. Gain 1 Screw(s) for each non-summoned monster killed in this section.",to:[],from:["Trojan Trap","Paint Trap","Acid Trap"]},
+  "lathe":{name:"Lathe",type:"Skill",rarity:"Legendary",cost:0,effect:"Add 1 Clippings to your hand. Exhaust. At the start of your turn, gain 2 Screw(s) for each Clippings in your deck. Unstackable.",to:[],from:["Metalworks","Gauntlet","Bespoke","Cookie Cutter"]},
+  "long-shadow":{name:"Long Shadow",type:"Skill",rarity:"Rare",cost:0,effect:"Draw 1 card. Use 1 Core(s) to draw 2 more cards and gain 1 mana.",to:["Engage","Stimulate","Chill"],from:["Junk Drawer","Flywheel","Sugar Rush"]},
+  "magnet":{name:"Magnet",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage. Gain 2 Screw(s). If you have any Cores, gain 2 more Screw(s).",to:["Coil","Rapid Disassembly","Boomstick"],from:["Screw Shot"]},
+  "magnet-trap":{name:"Magnet Trap",type:"Influence",rarity:"Common",cost:0,effect:"Trap. At the start of your turn, remove 3 block from all monsters in this section.",to:["Acid Trap","Paint Trap","Trojan Trap"],from:[]},
+  "mass-production":{name:"Mass Production",type:"Influence",rarity:"Legendary",cost:0,effect:"Contraption. At the end of your turn, gain 3 Screw(s). Gain 2 more if you have 0 mana. Increase the cost by 1 Cores.",to:[],from:["Means of Production","Electrolysis"]},
+  "means-of-production":{name:"Means of Production",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the end of your turn, gain 1 Screw(s). Gain 1 more if you have 0 mana. Increase the cost by 1 Cores.",to:["Tough Tabard","Fruits of Labor","Mass Production"],from:["Converter","Pop-up Shield"]},
+  "mechamimic":{name:"Mechamimic",type:"Skill",rarity:"Legendary",cost:1,effect:"Draw 2 cards and gain 4 Screw(s) for each type of Contraption you have active. Strain.",to:[],from:["Metalworks","Cookie Cutter","Dazzle","Redesign"]},
+  "mental-fulcrum":{name:"Mental Fulcrum",type:"Influence",rarity:"Common",cost:0,effect:"All your Attack cards deal +1 damage. Increase the cost by 1 Screw(s).",to:["Shoulder Cannon","Duct Tape","Unionize"],from:[]},
+  "metalworks":{name:"Metalworks",type:"Skill",rarity:"Rare",cost:1,effect:"Give 5 block. Gain 4 Screw(s).",to:["Mechamimic","Lathe","Solidification"],from:["Field Repairs","Smoke Screen"]},
+  "muon-box":{name:"Muon Box",type:"Attack",rarity:"Rare",cost:0,effect:"Deal 6 unblockable damage in a large radius and stun 3 of the monsters in the radius.",to:["Carpet Bombing","Power Drill","Deflector"],from:["Discharge","Ribauldequin","Feathertouch"]},
+  "organize":{name:"Organize",type:"Skill",rarity:"Rare",cost:0,effect:"Gain 1 Screw(s) and draw a card. Add 2 Quicksort to your hand.",to:["Singularity","Reuse","Gumption"],from:["Cannibalize","Jump Start","Rewire"]},
+  "overpressure":{name:"Overpressure",type:"Influence",rarity:"Legendary",cost:0,effect:"Contraption. At the end of the monster's turn, use 1 Core(s) to deal 10 unblockable damage in a long medium cone towards the 3 nearest monsters.",to:[],from:["Tabletop Trebuchet","Redox Reaction","Illuminator"]},
+  "paint-trap":{name:"Paint Trap",type:"Influence",rarity:"Rare",cost:0,effect:"Trap. If no monster is marked, add 5 mark to the first monster entering this section. Use 1 Screw(s) to stun it.",to:["Classic Trap","Jack Trap","Kill Zone Trap"],from:["Force Multiplayer","Tripwire Trap","Magnet Trap"]},
+  "pavise":{name:"Pavise",type:"Skill",rarity:"Legendary",cost:0,effect:"Use all your Screw(s). All heroes gain 3 block for each Screw spent. Use 1 Core to make it 5.",to:[],from:["Gauntlet","Junk Mail"]},
+  "percussive-maintenance":{name:"Percussive Maintenance",type:"Attack",rarity:"Common",cost:1,effect:"Deal 4 damage. Use 1 Screw(s) to stun.",to:["Boomstick","Screwdriver","Hammer Time"],from:["Screw Shot"]},
+  "pinata":{name:"Pinata",type:"Attack",rarity:"Common",cost:0,effect:"Deal 1 damage. If it kills a monster, gain 5 Screw(s).",to:["Boomstick","Rapid Disassembly","Iron Rain"],from:["Screw Shot"]},
+  "plasma-globe":{name:"Plasma Globe",type:"Attack",rarity:"Legendary",cost:0,effect:"Deal 9 splash damage in a medium radius around 4 random monsters. Return this card to your hand.",to:[],from:["Coil","Iron Rain"]},
+  "pop-up-shield":{name:"Pop-up Shield",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the start of your turn, gain 1 block. If you have any Cores, make it 3.",to:["Means of Production","Unionize","Duct Tape"],from:[]},
+  "popping-wrist":{name:"Popping Wrist",type:"Influence",rarity:"Common",cost:0,effect:"Contraption. Use 1 Core to play it twice. At the end of monsters' turn, deal 3 damage to the 2 nearest monsters.",to:["Tabletop Trebuchet","Illuminator","Shoulder Cannon"],from:["Prototype"]},
+  "potato":{name:"Potato",type:"Skill",rarity:"Common",cost:0,effect:"Gain 1 Core(s). Increase the cost by 1 Screw(s).",to:["Hidden Variable","Quantum Flow","Battery"],from:["Science!"]},
+  "power-drill":{name:"Power Drill",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 10 damage. Use 1 Core(s) to make it unblockable splash damage in a medium radius and stun all monsters in the radius.",to:[],from:["Hammer Time","Screwdriver","Muon Box"]},
+  "prototype":{name:"Prototype",type:"Influence",rarity:"Starter",cost:0,effect:"Contraption. Use 1 Core to play it twice. At the end of monsters' turn, deal 3 damage to the nearest monster.",to:["Fire Sprinkler","Popping Wrist","Compact Catapult"],from:[]},
+  "quake":{name:"Quake",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 10 damage and gain 5 Screws. If you have 2 or more Core(s), deal 40 damage and gain 10 Screw(s) instead.",to:[],from:["Boomstick","Hammer Time","Rapid Disassembly"]},
+  "quantum-flow":{name:"Quantum Flow",type:"Skill",rarity:"Rare",cost:1,effect:"Gain 1 Core(s), give 1 mana and draw 1 Contraption. If you had 2 or more Cores, Strain.",to:["Tesseract","Ingenuity","Stable Influx"],from:["Flywheel","Field Flux","Potato"]},
+  "rapid-disassembly":{name:"Rapid Disassembly",type:"Attack",rarity:"Rare",cost:1,effect:"Discard all cards. Deal 3 damage in a medium radius and gain 2 Screw(s) for each discarded card.",to:["Screwnado","Quake","Strike the Earth"],from:["Magnet","Pinata","Boom Bird"]},
+  "redesign":{name:"Redesign",type:"Skill",rarity:"Rare",cost:1,effect:"Remove the first Contraption completely to gain 10 Screw(s) and 1 Cores.",to:["Mechamimic","Gumption","Reuse"],from:["Cannibalize","Jump Start"]},
+  "redox-reaction":{name:"Redox Reaction",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the end of the monster's turn, deal 4 unblockable damage in a long medium cone towards the nearest 2 monsters. Use 1 Core to make it 6.",to:["Backpack Ballista","Brilliance","Overpressure"],from:["Compact Catapult","Fire Sprinkler","Flare"]},
+  "reuse":{name:"Reuse",type:"Skill",rarity:"Legendary",cost:1,effect:"Activate the first Contraption, then remove it completely to gain 10 Screw(s) and 2 Core(s).",to:[],from:["Bespoke","Redesign","Capacitor","Organize"]},
+  "rewire":{name:"Rewire",type:"Skill",rarity:"Common",cost:0,effect:"Move the first Contraption to the last position. Draw a card.",to:["Dazzle","Capacitor","Organize"],from:[]},
+  "ribauldequin":{name:"Ribauldequin",type:"Attack",rarity:"Common",cost:0,effect:"Deal 2 unblockable splash damage in a medium radius and stun 1 of the monsters in the radius.",to:["Screwdriver","Iron Rain","Muon Box"],from:["Zap Zap"]},
+  "rolodex":{name:"Rolodex",type:"Skill",rarity:"Rare",cost:0,effect:"All heroes draw 2 cards.",to:["Stimulate","Chill","Ingenuity"],from:["Whirligig","Junk Drawer","Flywheel"]},
+  "science":{name:"Science!",type:"Skill",rarity:"Starter",cost:1,effect:"Gain 1 Core(s). If you had Cores, discard 1 random card(s) and Strain.",to:["Field Flux","Sugar Rush","Potato"],from:[]},
+  "screw-shot":{name:"Screw Shot",type:"Attack",rarity:"Starter",cost:1,effect:"Deal 1 damage. Gain 1 Screw(s).",to:["Magnet","Pinata","Percussive Maintenance"],from:[]},
+  "screwdriver":{name:"Screwdriver",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 6 damage. Use 1 Screw(s) to make it unblockable and to stun.",to:["Deflector","Screwnado","Power Drill"],from:["Hammer Throw","Percussive Maintenance","Ribauldequin"]},
+  "screwnado":{name:"Screwnado",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 7 damage in a large radius and swap the monsters' sections. Gain 1 Screw(s) for each non-summoned monster in the radius.",to:[],from:["Iron Rain","Screwdriver","Rapid Disassembly","Grid Strike"]},
+  "sharp-matter":{name:"Sharp Matter",type:"Influence",rarity:"Legendary",cost:0,effect:"Every time you kill a non-summoned monster, gain 3 Screw(s) and 1 Core(s).",to:[],from:["Electrolysis","Duct Tape"]},
+  "shoulder-cannon":{name:"Shoulder Cannon",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. Use 1 Core to play it twice. At the end of the monster's turn, deal 10 damage to 2 nearest monsters.",to:["Spider Gun","Backpack Ballista","Tough Tabard"],from:["Popping Wrist","Fire Sprinkler","Mental Fulcrum"]},
+  "singularity":{name:"Singularity",type:"Skill",rarity:"Legendary",cost:0,effect:"Stun all monsters. Use 1 Core to make every hero draw a card.",to:[],from:["Dazzle","Organize","Terminate"]},
+  "smoke-screen":{name:"Smoke Screen",type:"Skill",rarity:"Common",cost:0,effect:"Stun the nearest unstunned monster. Return this card to your hand.",to:["Metalworks","Gauntlet","Dazzle"],from:[]},
+  "solidarity":{name:"Solidarity",type:"Influence",rarity:"Legendary",cost:0,effect:"If you have any Cores, attack cards of every hero deal +3 damage. Increase the cost by 4 Screw(s).",to:[],from:["Unionize","Duct Tape"]},
+  "solidification":{name:"Solidification",type:"Skill",rarity:"Legendary",cost:2,effect:"All Heroes gain 10 block. Gain 5 Screw(s).",to:[],from:["Metalworks","Junk Mail","Bespoke"]},
+  "spider-gun":{name:"Spider Gun",type:"Influence",rarity:"Legendary",cost:0,effect:"Contraption. Use 2 Cores to play it twice. At the end of the monsters' turn, use 1 Screw(s) to deal 15 damage to the 3 nearest monsters.",to:[],from:["Shoulder Cannon","Illuminator","Unionize"]},
+  "spring-blade":{name:"Spring Blade",type:"Attack",rarity:"Common",cost:1,effect:"Deal 1 damage. If it's a section with a Trap, deal 1 damage to each monster for every 2 monsters in this section instead. Strain.",to:["Iron Rain","Home Alone","Grid Strike"],from:[]},
+  "stable-influx":{name:"Stable Influx",type:"Skill",rarity:"Legendary",cost:1,effect:"Gain 1 Core(s), give 2 mana and draw 2 Contraptions. If you had 2 or more Cores, Strain.",to:[],from:["Quantum Flow","Battery","Hidden Variable","Terminate"]},
+  "stimulate":{name:"Stimulate",type:"Skill",rarity:"Legendary",cost:0,effect:"Add 1 Furor Divinus to your hand. Exhaust.",to:[],from:["Rolodex","Long Shadow","Terminate"]},
+  "strike-the-earth":{name:"Strike the Earth",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 3 damage in a medium cone for each Screw you have. Strain.",to:[],from:["Hammer Time","Rapid Disassembly"]},
+  "sugar-rush":{name:"Sugar Rush",type:"Skill",rarity:"Common",cost:0,effect:"Use all mana. Other heroes draw 1 card(s) for every 1 mana you use. Don't discard cards at the end of this turn.",to:["Hidden Variable","Long Shadow","Terminate"],from:["Science!"]},
+  "tabletop-trebuchet":{name:"Tabletop Trebuchet",type:"Influence",rarity:"Rare",cost:0,effect:"Contraption. At the end of the monster's turn, deal 6 splash damage in a small radius around 1 random monster.",to:["Brilliance","Overpressure","Backpack Ballista"],from:["Popping Wrist","Compact Catapult","Flare"]},
+  "terminate":{name:"Terminate",type:"Skill",rarity:"Rare",cost:0,effect:"Use all mana. All heroes draw 1 card for every 1 mana you use. Gain 2 Screw(s) and don't discard cards at the end of this turn.",to:["Singularity","Stimulate","Stable Influx"],from:["Sugar Rush"]},
+  "tesseract":{name:"Tesseract",type:"Skill",rarity:"Legendary",cost:0,effect:"Gain 3 Core(s). Increase the cost by 1 Screw(s).",to:[],from:["Quantum Flow","Battery","Hidden Variable"]},
+  "tough-tabard":{name:"Tough Tabard",type:"Influence",rarity:"Legendary",cost:0,effect:"Contraption. At the start of your turn, use 1 Core(s) to gain 20 block.",to:[],from:["Shoulder Cannon","Means of Production","Duct Tape"]},
+  "trapper-delight":{name:"Trapper Delight",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 1 damage. If it's a section with a Trap, deal 1 damage to each monster for each monster in this section instead. Strain.",to:[],from:["Grid Strike","Home Alone"]},
+  "tripwire-trap":{name:"Tripwire Trap",type:"Influence",rarity:"Common",cost:0,effect:"Trap. If no monster is marked, add 3 mark to the monster entering this section.",to:["Acid Trap","Paint Trap","Trojan Trap"],from:[]},
+  "trojan-trap":{name:"Trojan Trap",type:"Influence",rarity:"Rare",cost:0,effect:"Trap. All attacks deal +1 damage to monsters in this section. Gain 1 Screw(s) for each non-summoned monster killed in this section.",to:["Classic Trap","Jack Trap","Kill Zone Trap"],from:["Force Multiplayer","Tripwire Trap","Magnet Trap"]},
+  "unionize":{name:"Unionize",type:"Influence",rarity:"Rare",cost:0,effect:"If you have any Cores, attack cards of every hero deal +1 damage. Increase the cost by 2 Screw(s).",to:["Fruits of Labor","Spider Gun","Solidarity"],from:["Fire Sprinkler","Converter","Mental Fulcrum","Pop-up Shield"]},
+  "whirligig":{name:"Whirligig",type:"Skill",rarity:"Common",cost:0,effect:"Use all your Screws. All heroes gain 1 block for each Screw spent. Use 1 Core to make it 3.",to:["Rolodex","Gauntlet","Junk Mail"],from:["Gear Up"]},
+  "zap-zap":{name:"Zap Zap",type:"Attack",rarity:"Starter",cost:1,effect:"Deal 2 splash damage in a small radius. Return this card to your hand.",to:["Discharge","Boom Bird","Ribauldequin"],from:[]}
+};
+
+// Build name->id lookup and backfill from[] using to[]
+const nameToId = {};
+for (const [id, c] of Object.entries(CARDS)) nameToId[c.name] = id;
+for (const [id, c] of Object.entries(CARDS)) {
+  c.to.forEach(targetName => {
+    const tid = nameToId[targetName];
+    if (tid && !CARDS[tid].from.includes(c.name)) CARDS[tid].from.push(c.name);
+  });
+}
+// Starters evolve to all Commons of the same type
+const starters = Object.entries(CARDS).filter(([,c]) => c.rarity === 'Starter');
+for (const [sid, sc] of starters) {
+  Object.entries(CARDS).filter(([,c]) => c.rarity === 'Common' && c.type === sc.type).forEach(([cid, cc]) => {
+    if (!sc.to.includes(cc.name)) sc.to.push(cc.name);
+    if (!cc.from.includes(sc.name)) cc.from.push(sc.name);
+  });
+}
+
+// Build the 3 unified trees from card data
+const RARITY_ORDER = { Starter: 0, Common: 1, Rare: 2, Legendary: 3 };
+const TYPE_CONFIG = {
+  Attack:    { color: 'var(--attack)',    desc: 'Deal damage to enemies — explosions, screws, traps, and contraption combos', count: 0 },
+  Skill:     { color: 'var(--skill)',     desc: 'Block, draw, screws, cores, and contraption manipulation', count: 0 },
+  Influence: { color: 'var(--influence)', desc: 'Persistent contraptions, traps, and ongoing effects', count: 0 }
+};
+
+// Group cards by type and rarity
+const grouped = {};
+for (const type of ['Attack','Skill','Influence']) {
+  grouped[type] = { Starter: [], Common: [], Rare: [], Legendary: [] };
+}
+for (const [id, c] of Object.entries(CARDS)) {
+  grouped[c.type][c.rarity].push(id);
+  TYPE_CONFIG[c.type].count++;
+}
+
+// Sort within each rarity: roots first (no from), then alphabetical
+for (const type of Object.keys(grouped)) {
+  for (const rarity of Object.keys(grouped[type])) {
+    grouped[type][rarity].sort((a, b) => {
+      const ca = CARDS[a], cb = CARDS[b];
+      if (ca.from.length === 0 && cb.from.length > 0) return -1;
+      if (ca.from.length > 0 && cb.from.length === 0) return 1;
+      return ca.name.localeCompare(cb.name);
+    });
+  }
+}
+
+function cardHTML(id) {
+  const c = CARDS[id];
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+  const legendaryClass = c.rarity === 'Legendary' ? ' legendary' : '';
+  const fromIds = c.from.map(n => nameToId[n]).filter(Boolean).join(',');
+  const dataFrom = fromIds ? ` data-from="${fromIds}"` : '';
+  return `<div class="card-node ${typeClass}${legendaryClass}" data-card="${id}"${dataFrom}>
+    <div class="card-img">${img ? `<img src="${img}" alt="${c.name}" loading="lazy">` : ''}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-meta"><span class="card-cost">${c.cost}</span><span class="card-rarity ${rarityClass}">${c.rarity}</span></div>
+  </div>`;
+}
+
+const container = document.getElementById('all-trees');
+let html = '';
+
+for (const type of ['Attack','Skill','Influence']) {
+  const cfg = TYPE_CONFIG[type];
+  const g = grouped[type];
+  const typeClass = type.toLowerCase();
+
+  html += `<div class="type-section">
+    <h2 style="color:${cfg.color}">${type} Cards</h2>
+    <div class="type-count">${cfg.count} cards</div>
+    <p class="type-desc">${cfg.desc}</p>
+  </div>`;
+  html += `<div class="tree-wrapper"><div class="flat-tree tree-${typeClass}">`;
+
+  const tiers = [];
+  if (g.Starter.length) tiers.push({ label:'starter', title:'Starter', star:true, cards:g.Starter });
+  if (g.Common.length)  tiers.push({ label:'common',  title:'Common',  star:false, cards:g.Common });
+  if (g.Rare.length)    tiers.push({ label:'rare',    title:'Rare',    star:false, cards:g.Rare });
+  if (g.Legendary.length) tiers.push({ label:'legendary', title:'Legendary', star:true, cards:g.Legendary });
+
+  tiers.forEach(tier => {
+    html += `<div class="tier-label ${tier.label}-tier">${tier.star ? '★ ' : ''}${tier.title}</div>`;
+    html += `<div class="flat-tier" data-tier="${tier.label}">`;
+    tier.cards.forEach(id => { html += cardHTML(id); });
+    html += `</div><div class="flat-spacer"></div>`;
+  });
+
+  html += `</div></div>`;
+}
+
+container.innerHTML = html;
+
+// Draw connector lines
+function drawConnectors() {
+  document.querySelectorAll('.flat-tree').forEach(tree => {
+    const existing = tree.querySelector('.tree-svg');
+    if (existing) existing.remove();
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('tree-svg');
+    svg.style.width = tree.scrollWidth + 'px';
+    svg.style.height = tree.scrollHeight + 'px';
+
+    const treeRect = tree.getBoundingClientRect();
+    tree.querySelectorAll('.card-node[data-from]').forEach(card => {
+      const fromIds = card.dataset.from.split(',');
+      const cardRect = card.getBoundingClientRect();
+      const toX = cardRect.left + cardRect.width / 2 - treeRect.left + tree.scrollLeft;
+      const toY = cardRect.top - treeRect.top + tree.scrollTop;
+
+      fromIds.forEach(fid => {
+        const fromCard = tree.querySelector(`[data-card="${fid.trim()}"]`);
+        if (!fromCard) return;
+        const fromRect = fromCard.getBoundingClientRect();
+        const fromX = fromRect.left + fromRect.width / 2 - treeRect.left + tree.scrollLeft;
+        const fromY = fromRect.bottom - treeRect.top + tree.scrollTop;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX);
+        line.setAttribute('y2', toY);
+        line.dataset.from = fid.trim();
+        line.dataset.to = card.dataset.card;
+        svg.appendChild(line);
+      });
+    });
+
+    tree.style.position = 'relative';
+    tree.insertBefore(svg, tree.firstChild);
+  });
+}
+
+setTimeout(drawConnectors, 300);
+window.addEventListener('resize', () => setTimeout(drawConnectors, 100));
+
+// Detail pane
+const detailPane = document.getElementById('detailPane');
+
+function showDetail(node) {
+  const id = node.dataset.card;
+  const c = CARDS[id];
+  if (!c) return;
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+
+  let h = `<div class="tt-header">`;
+  h += `<div class="tt-img">${img ? `<img src="${img}" alt="${c.name}">` : ''}</div>`;
+  h += `<div class="tt-info">`;
+  h += `<div class="tt-name" style="color:var(--${typeClass})">${c.name}</div>`;
+  h += `<div class="tt-badges"><span class="tt-badge type-${typeClass}">${c.type}</span><span class="tt-badge rarity-${rarityClass}">${c.rarity}</span></div>`;
+  h += `<div class="tt-mana"><span class="tt-mana-gem">${c.cost}</span> Mana Cost</div>`;
+  h += `</div></div><div class="tt-body">`;
+  h += `<div class="tt-effect" style="border-left-color:var(--${typeClass})">${c.effect}</div>`;
+  if (c.to.length) h += `<div class="tt-transforms"><span class="tt-arrow-up">▲</span> <strong>Evolves to:</strong> ${c.to.join(', ')}</div>`;
+  if (c.from.length) h += `<div class="tt-transforms"><span class="tt-arrow-down">▼</span> <strong>Evolves from:</strong> ${c.from.join(', ')}</div>`;
+  h += `</div>`;
+  detailPane.innerHTML = h;
+  detailPane.classList.add('visible');
+}
+
+// Path highlight: walk up ancestors
+function getAncestors(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const fromStr = cardEl.dataset.from;
+  if (!fromStr) return ids;
+  fromStr.split(',').forEach(fid => {
+    const parent = tree.querySelector(`[data-card="${fid.trim()}"]`);
+    if (parent) getAncestors(tree, parent, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+function getDescendants(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const c = CARDS[cardId];
+  if (!c || !c.to.length) return ids;
+  c.to.forEach(name => {
+    const childId = nameToId[name];
+    if (!childId) return;
+    const child = tree.querySelector(`[data-card="${childId}"]`);
+    if (child) getDescendants(tree, child, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+document.addEventListener('mouseover', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const tree = node.closest('.flat-tree');
+  if (!tree) return;
+
+  const hoveredId = node.dataset.card;
+  const ancestorIds = getAncestors(tree, node);
+  const descendantIds = getDescendants(tree, node);
+
+  tree.querySelectorAll('.card-node').forEach(c => {
+    const id = c.dataset.card;
+    c.classList.remove('path-highlight', 'path-descendant', 'dimmed');
+    if (ancestorIds.has(id)) c.classList.add('path-highlight');
+    else if (descendantIds.has(id)) c.classList.add('path-descendant');
+    else c.classList.add('dimmed');
+  });
+  tree.querySelectorAll('.tree-svg line').forEach(line => {
+    line.classList.remove('line-highlight', 'line-descendant', 'line-dimmed');
+    const f = line.dataset.from, t = line.dataset.to;
+    const fAnc = ancestorIds.has(f), tAnc = ancestorIds.has(t);
+    const fDesc = descendantIds.has(f), tDesc = descendantIds.has(t);
+    if (fAnc && tAnc) line.classList.add('line-highlight');
+    else if (fDesc && tDesc) line.classList.add('line-descendant');
+    else line.classList.add('line-dimmed');
+  });
+  showDetail(node);
+});
+
+document.addEventListener('mouseout', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const related = e.relatedTarget;
+  if (related && related.closest && related.closest('.card-node') === node) return;
+  const tree = node.closest('.flat-tree');
+  if (tree) {
+    tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+    tree.querySelectorAll('.tree-svg line').forEach(l => { l.classList.remove('line-highlight','line-descendant','line-dimmed'); });
+  }
+  detailPane.classList.remove('visible');
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.card-node').forEach(node => {
+    const c = CARDS[node.dataset.card];
+    if (!q) { node.classList.remove('dimmed','search-match'); return; }
+    if (!c) { node.classList.add('dimmed'); return; }
+    const text = `${c.name} ${c.type} ${c.rarity} ${c.effect}`.toLowerCase();
+    if (text.includes(q)) { node.classList.remove('dimmed'); node.classList.add('search-match'); }
+    else { node.classList.add('dimmed'); node.classList.remove('search-match'); }
+  });
+});
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.card-node:not(.dimmed)'); },
+  matchFn: function(el, query) {
+    var c = CARDS[el.dataset.card];
+    if (!c) return false;
+    var text = (c.name + ' ' + c.type + ' ' + c.rarity + ' ' + c.effect).toLowerCase();
+    return text.includes(query);
+  }
+});
+</script>
+</body>
+</html>

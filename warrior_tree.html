@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Warrior Tree</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg-dark: #0d0d12;
+    --bg-card: #1a1a24;
+    --bg-panel: #14141e;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --attack: #c62828;
+    --attack-bg: #2a1010;
+    --attack-border: #8b1a1a;
+    --skill: #1565c0;
+    --skill-bg: #0d1a2e;
+    --skill-border: #0d47a1;
+    --influence: #2e7d32;
+    --influence-bg: #0d2010;
+    --influence-border: #1b5e20;
+    --starter: #78909c;
+    --common: #9e9e9e;
+    --rare: #7e57c2;
+    --legendary: #4caf50;
+    --gold-glow: rgba(76, 175, 80, 0.3);
+    --line-color: #2a2a30;
+    --highlight-line: #4caf50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #1a0a0a 0%, var(--bg-dark) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #388e3c, #4caf50, #388e3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+  }
+
+  header .subtitle { color: var(--text-dim); font-size: 1.1em; margin-top: 8px; font-weight: 300; }
+
+  .legend {
+    display: flex; justify-content: center; gap: 24px; padding: 16px 20px; flex-wrap: wrap;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+  }
+  .legend-group { display: flex; gap: 12px; align-items: center; }
+  .legend-group .label { color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.attack { background: var(--attack); }
+  .legend-dot.skill { background: var(--skill); }
+  .legend-dot.influence { background: var(--influence); }
+  .legend-dot.starter { background: var(--starter); border: 1px solid #aaa; }
+  .legend-dot.common { background: var(--common); }
+  .legend-dot.rare { background: var(--rare); }
+  .legend-dot.legendary { background: var(--legendary); }
+
+  .stats-bar {
+    display: flex; justify-content: center; gap: 30px; padding: 12px 20px;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border); font-size: 0.85em;
+  }
+  .stat-item { display: flex; align-items: center; gap: 6px; }
+  .stat-num { font-weight: 700; font-size: 1.1em; }
+  .stat-label { color: var(--text-dim); }
+
+  .search-bar {
+    display: flex; justify-content: center; padding: 16px 20px; background: var(--bg-panel);
+    position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border);
+  }
+  .search-bar input {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 16px; color: var(--text); font-size: 0.95em; width: 360px;
+    outline: none; font-family: 'Inter', sans-serif;
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  .search-bar input:focus { border-color: var(--legendary); }
+
+  .type-section {
+    padding: 50px 0 10px;
+    border-top: 3px solid var(--border);
+  }
+  .type-section:first-of-type { border-top: none; }
+  .type-section h2 {
+    font-family: 'Cinzel', serif; font-size: 2.2em; text-align: center; margin-bottom: 4px;
+  }
+  .type-section .type-desc { text-align: center; color: var(--text-dim); font-size: 0.95em; margin-bottom: 20px; }
+  .type-section .type-count {
+    text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .tier-label {
+    text-align: center; font-size: 0.7em; text-transform: uppercase;
+    letter-spacing: 2px; font-weight: 700; padding: 8px; margin-bottom: 6px;
+  }
+  .tier-label.starter-tier { color: var(--starter); }
+  .tier-label.common-tier { color: var(--common); }
+  .tier-label.rare-tier { color: var(--rare); }
+  .tier-label.legendary-tier { color: var(--legendary); }
+
+  .tree-wrapper { padding: 0 10px 40px; }
+
+  .flat-tree {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    position: relative; padding: 20px 0;
+  }
+  .flat-tier {
+    display: flex; gap: 5px; justify-content: center;
+    position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  .flat-spacer { height: 20px; position: relative; width: 100%; }
+
+  .card-node {
+    position: relative; width: 64px; min-width: 64px; padding: 3px 3px 4px;
+    border-radius: 6px; border: 2px solid var(--border); background: var(--bg-card);
+    cursor: pointer; transition: all 0.25s ease; text-align: center; flex-shrink: 0;
+  }
+  .card-node:hover { transform: translateY(-2px); z-index: 10; }
+
+  .card-node.attack { border-color: var(--attack-border); background: var(--attack-bg); }
+  .card-node.attack:hover { border-color: var(--attack); box-shadow: 0 4px 20px rgba(198,40,40,0.3); }
+  .card-node.skill { border-color: var(--skill-border); background: var(--skill-bg); }
+  .card-node.skill:hover { border-color: var(--skill); box-shadow: 0 4px 20px rgba(21,101,192,0.3); }
+  .card-node.influence { border-color: var(--influence-border); background: var(--influence-bg); }
+  .card-node.influence:hover { border-color: var(--influence); box-shadow: 0 4px 20px rgba(46,125,50,0.3); }
+
+  .card-node.legendary { border-width: 2px; }
+  .card-node.legendary.attack,
+  .card-node.legendary.skill,
+  .card-node.legendary.influence { border-color: var(--legendary); box-shadow: 0 0 8px var(--gold-glow); }
+  .card-node.legendary:hover { box-shadow: 0 4px 25px var(--gold-glow); }
+
+  .card-img { width: 48px; height: 48px; margin: 0 auto 2px; border-radius: 4px; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .card-name { font-weight: 700; font-size: 0.52em; line-height: 1.1; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { display: flex; justify-content: center; gap: 2px; align-items: center; font-size: 0.48em; }
+  .card-cost { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  .card-rarity { text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-size: 0.85em; }
+  .card-rarity.starter { color: var(--starter); }
+  .card-rarity.common { color: var(--common); }
+  .card-rarity.rare { color: var(--rare); }
+  .card-rarity.legendary { color: var(--legendary); }
+
+  .card-node.path-highlight { filter: brightness(1.4); z-index: 5; }
+  .card-node.path-highlight.attack { border-color: #ff5252 !important; box-shadow: 0 0 15px rgba(255,82,82,0.5) !important; }
+  .card-node.path-highlight.skill { border-color: #42a5f5 !important; box-shadow: 0 0 15px rgba(66,165,245,0.5) !important; }
+  .card-node.path-highlight.influence { border-color: #66bb6a !important; box-shadow: 0 0 15px rgba(102,187,106,0.5) !important; }
+  .card-node.path-descendant { filter: brightness(1.2); z-index: 4; }
+  .card-node.path-descendant.attack { border-color: #ef9a9a !important; box-shadow: 0 0 12px rgba(239,154,154,0.4) !important; }
+  .card-node.path-descendant.skill { border-color: #90caf9 !important; box-shadow: 0 0 12px rgba(144,202,249,0.4) !important; }
+  .card-node.path-descendant.influence { border-color: #a5d6a7 !important; box-shadow: 0 0 12px rgba(165,214,167,0.4) !important; }
+  .card-node.dimmed { opacity: 0.12; transition: opacity 0.3s; }
+
+  .tree-svg line { stroke: var(--line-color); stroke-width: 1.5; opacity: 0.15; transition: all 0.3s; }
+  .tree-svg line.line-highlight { stroke: var(--highlight-line); stroke-width: 3; opacity: 1; filter: drop-shadow(0 0 4px var(--gold-glow)); }
+  .tree-svg line.line-descendant { stroke-width: 2.5; opacity: 0.75; }
+  .flat-tree.tree-attack .tree-svg line.line-descendant { stroke: #ef9a9a; filter: drop-shadow(0 0 3px rgba(239,154,154,0.4)); }
+  .flat-tree.tree-skill .tree-svg line.line-descendant { stroke: #90caf9; filter: drop-shadow(0 0 3px rgba(144,202,249,0.4)); }
+  .flat-tree.tree-influence .tree-svg line.line-descendant { stroke: #a5d6a7; filter: drop-shadow(0 0 3px rgba(165,214,167,0.4)); }
+  .tree-svg line.line-dimmed { opacity: 0.04; }
+  .tree-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  .detail-pane {
+    position: fixed; top: 80px; right: 12px; z-index: 1000; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0;
+    width: 364px; overflow: hidden;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .detail-pane.visible { opacity: 1; pointer-events: auto; }
+  .detail-pane .tt-header { display: flex; gap: 12px; padding: 16px; align-items: center; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img { width: 84px; height: 84px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-pane .tt-info { flex: 1; min-width: 0; }
+  .detail-pane .tt-name { font-size: 1.1em; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+  .detail-pane .tt-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .detail-pane .tt-badge { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; }
+  .detail-pane .tt-badge.type-attack { background: rgba(198,40,40,0.2); color: var(--attack); }
+  .detail-pane .tt-badge.type-skill { background: rgba(21,101,192,0.2); color: var(--skill); }
+  .detail-pane .tt-badge.type-influence { background: rgba(46,125,50,0.2); color: var(--influence); }
+  .detail-pane .tt-badge.rarity-starter { background: rgba(120,144,156,0.2); color: var(--starter); }
+  .detail-pane .tt-badge.rarity-common { background: rgba(158,158,158,0.2); color: #9e9e9e; }
+  .detail-pane .tt-badge.rarity-rare { background: rgba(126,87,194,0.2); color: var(--rare); }
+  .detail-pane .tt-badge.rarity-legendary { background: rgba(76,175,80,0.2); color: var(--legendary); }
+  .detail-pane .tt-mana { display: flex; align-items: center; gap: 4px; font-size: 0.88em; margin-top: 6px; color: #90caf9; font-weight: 600; }
+  .detail-pane .tt-mana-gem { width: 18px; height: 18px; background: #3366dd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75em; color: #fff; font-weight: 800; }
+  .detail-pane .tt-body { padding: 0 16px 16px; }
+  .detail-pane .tt-effect { font-size: 0.88em; line-height: 1.55; color: var(--text); padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; border-left: 2px solid rgba(76, 175, 80, 0.25); }
+  .detail-pane .tt-transforms { margin-top: 8px; font-size: 0.8em; color: var(--text-dim); line-height: 1.5; }
+  .detail-pane .tt-transforms strong { color: var(--text); }
+  .detail-pane .tt-arrow-up { color: var(--accent); }
+  .detail-pane .tt-arrow-down { color: #ef5350; }
+
+  .card-node.search-match { animation: pulse-highlight 1s ease-in-out 3; }
+  @keyframes pulse-highlight { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>WARRIOR</h1>
+  <div class="subtitle">Hellcard Evolution Tree &mdash; All Cards & Upgrade Paths</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">116</span><span class="stat-label">Total Cards</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--attack)">38</span><span class="stat-label">Attack</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--skill)">35</span><span class="stat-label">Skill</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--influence)">26</span><span class="stat-label">Influence</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--legendary)">47</span><span class="stat-label">Legendary</span></div>
+</div>
+
+<div class="legend">
+  <div class="legend-group">
+    <span class="label">Type</span>
+    <div class="legend-item"><div class="legend-dot attack"></div> Attack</div>
+    <div class="legend-item"><div class="legend-dot skill"></div> Skill</div>
+    <div class="legend-item"><div class="legend-dot influence"></div> Influence</div>
+  </div>
+  <div class="legend-group">
+    <span class="label">Rarity</span>
+    <div class="legend-item"><div class="legend-dot starter"></div> Starter</div>
+    <div class="legend-item"><div class="legend-dot common"></div> Common</div>
+    <div class="legend-item"><div class="legend-dot rare"></div> Rare</div>
+    <div class="legend-item"><div class="legend-dot legendary"></div> Legendary</div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search cards... (e.g. Crystal Sword, Stamina, block)">
+</div>
+
+<div class="detail-pane" id="detailPane"></div>
+<div id="all-trees"></div>
+
+<script>
+const IMGS = {
+  "sword-slash":"https://static.wikia.nocookie.net/hellcard/images/8/8d/Sword_Slash.png/revision/latest?cb=20230325232851",
+  "mighty-blow":"https://static.wikia.nocookie.net/hellcard/images/7/70/Mighty_Blow.png/revision/latest?cb=20230325235003",
+  "shield-block":"https://static.wikia.nocookie.net/hellcard/images/1/1b/Shield_Block.png/revision/latest?cb=20230325230021",
+  "slam":"https://static.wikia.nocookie.net/hellcard/images/2/2e/Slam.png/revision/latest?cb=20230325235056",
+  "short-sword":"https://static.wikia.nocookie.net/hellcard/images/c/ca/Short_Sword.png/revision/latest?cb=20230325235034",
+  "heavy-sword":"https://static.wikia.nocookie.net/hellcard/images/8/83/Heavy_Sword.png/revision/latest?cb=20230325233515",
+  "fury":"https://static.wikia.nocookie.net/hellcard/images/4/46/Fury.png/revision/latest?cb=20230325233658",
+  "flurry-of-blows":"https://static.wikia.nocookie.net/hellcard/images/e/e9/Flurry_of_Blows.png/revision/latest?cb=20230325233630",
+  "haymaker":"https://static.wikia.nocookie.net/hellcard/images/1/16/Haymaker.png/revision/latest?cb=20230325233735",
+  "maim":"https://static.wikia.nocookie.net/hellcard/images/f/fe/Maim.png/revision/latest?cb=20230325233801",
+  "deatheater-sword":"https://static.wikia.nocookie.net/hellcard/images/0/06/Deatheater_Sword.png/revision/latest?cb=20230325233612",
+  "offering":"https://static.wikia.nocookie.net/hellcard/images/4/47/Offering.png/revision/latest?cb=20230325233822",
+  "side-sword":"https://static.wikia.nocookie.net/hellcard/images/8/84/Side_Sword.png/revision/latest?cb=20230419225807",
+  "groundbreaker":"https://static.wikia.nocookie.net/hellcard/images/9/9f/Groundbreaker.png/revision/latest?cb=20230325233717",
+  "reckless-charge":"https://static.wikia.nocookie.net/hellcard/images/2/24/Reckless_Charge.png/revision/latest?cb=20230325234203",
+  "mighty-weaponry":"https://static.wikia.nocookie.net/hellcard/images/5/5c/Mighty_Weaponry.png/revision/latest?cb=20230325234028",
+  "furious-cyclone":"https://static.wikia.nocookie.net/hellcard/images/4/4c/Furious_Cyclone.png/revision/latest?cb=20230325233953",
+  "shadow-sword":"https://static.wikia.nocookie.net/hellcard/images/4/47/Shadow_Sword.png/revision/latest?cb=20230325235242",
+  "reverse":"https://static.wikia.nocookie.net/hellcard/images/0/06/Reverse.png/revision/latest?cb=20230325234240",
+  "gut-punch":"https://static.wikia.nocookie.net/hellcard/images/8/8f/Gut_Punch.png/revision/latest?cb=20230325234012",
+  "serrated-blade":"https://static.wikia.nocookie.net/hellcard/images/f/f5/Serrated_Blade.png/revision/latest?cb=20230325235226",
+  "whack-em-all":"https://static.wikia.nocookie.net/hellcard/images/b/bc/Whack_%27em_All.png/revision/latest?cb=20230325235446",
+  "diamond-knife":"https://static.wikia.nocookie.net/hellcard/images/a/a6/Diamond_Knife.png/revision/latest?cb=20230325233914",
+  "storm-of-blades":"https://static.wikia.nocookie.net/hellcard/images/4/4d/Storm_of_Blades.png/revision/latest?cb=20230325235340",
+  "crystal-sword":"https://static.wikia.nocookie.net/hellcard/images/3/3d/Crystal_Sword.png/revision/latest?cb=20230325233859",
+  "double-edged-sword":"https://static.wikia.nocookie.net/hellcard/images/3/37/Double-edged_Sword.png/revision/latest?cb=20230325233934",
+  "unleash":"https://static.wikia.nocookie.net/hellcard/images/4/49/Unleash.png/revision/latest?cb=20230325235432",
+  "starlight-strike":"https://static.wikia.nocookie.net/hellcard/images/1/1d/Starlight_Strike.png/revision/latest?cb=20230325235321",
+  "red-mist":"https://static.wikia.nocookie.net/hellcard/images/c/c3/Red_Mist.png/revision/latest?cb=20230325234222",
+  "breakthrough":"https://static.wikia.nocookie.net/hellcard/images/6/67/Breakthrough.png/revision/latest?cb=20230325233257",
+  "shield-bite":"https://static.wikia.nocookie.net/hellcard/images/3/36/Shield_Bite.png/revision/latest?cb=20230325235259",
+  "safeguard":"https://static.wikia.nocookie.net/hellcard/images/f/f1/Safeguard.png/revision/latest?cb=20230325230507",
+  "heroism":"https://static.wikia.nocookie.net/hellcard/images/f/f1/Heroism.png/revision/latest?cb=20230325230335",
+  "tactics":"https://static.wikia.nocookie.net/hellcard/images/0/0e/Tactics.png/revision/latest?cb=20230325230701",
+  "immutability":"https://static.wikia.nocookie.net/hellcard/images/f/ff/Immutability.png/revision/latest?cb=20230325234336",
+  "knuckle-crack":"https://static.wikia.nocookie.net/hellcard/images/8/80/Knuckle_Crack.png/revision/latest?cb=20230325234356",
+  "pacifist":"https://static.wikia.nocookie.net/hellcard/images/4/4a/Pacifist.png/revision/latest?cb=20230325235518",
+  "barricade":"https://static.wikia.nocookie.net/hellcard/images/1/12/Barricade.png/revision/latest?cb=20230325233208",
+  "second-wind":"https://static.wikia.nocookie.net/hellcard/images/6/62/Second_Wind.png/revision/latest?cb=20230325235549",
+  "arsenal":"https://static.wikia.nocookie.net/hellcard/images/2/22/Arsenal.png/revision/latest?cb=20230325233123",
+  "deep-breath":"https://static.wikia.nocookie.net/hellcard/images/4/4e/Deep_Breath.png/revision/latest?cb=20230325234301",
+  "iron-door":"https://static.wikia.nocookie.net/hellcard/images/1/11/Iron_Door.png/revision/latest?cb=20230325234427",
+  "no-pasaran":"https://static.wikia.nocookie.net/hellcard/images/d/dc/%C2%A1No_Pasar%C3%A1n%21.png/revision/latest?cb=20230325232927",
+  "the-collector":"https://static.wikia.nocookie.net/hellcard/images/3/37/The_Collector.png/revision/latest?cb=20230325235702",
+  "one-for-all":"https://static.wikia.nocookie.net/hellcard/images/d/db/One_For_All.png/revision/latest?cb=20230325234448",
+  "battle-juice":"https://static.wikia.nocookie.net/hellcard/images/1/15/Battle_Juice.png/revision/latest?cb=20230325233227",
+  "readiness":"https://static.wikia.nocookie.net/hellcard/images/1/1e/Readiness.png/revision/latest?cb=20230325234602",
+  "overwhelm":"https://static.wikia.nocookie.net/hellcard/images/c/c7/Overwhelm.png/revision/latest?cb=20230325234541",
+  "turtle-up":"https://static.wikia.nocookie.net/hellcard/images/4/41/Turtle_Up.png/revision/latest?cb=20230325235716",
+  "sacrificial-lunge":"https://static.wikia.nocookie.net/hellcard/images/b/b5/Sacrificial_Lunge.png/revision/latest?cb=20230325235019",
+  "swords-akimbo":"https://static.wikia.nocookie.net/hellcard/images/8/8b/Swords_Akimbo.png/revision/latest?cb=20230325235116",
+  "initiative":"https://static.wikia.nocookie.net/hellcard/images/e/ea/Initiative.png/revision/latest?cb=20230325233536",
+  "boomerang-shield":"https://static.wikia.nocookie.net/hellcard/images/9/90/Boomerang_Shield.png/revision/latest?cb=20230325232954",
+  "ji-poke":"https://static.wikia.nocookie.net/hellcard/images/d/d0/Ji_Poke.png/revision/latest?cb=20240907010408",
+  "all-out-strike":"https://static.wikia.nocookie.net/hellcard/images/c/ce/All_Out_Strike.png/revision/latest?cb=20230325233038",
+  "deathblow":"https://static.wikia.nocookie.net/hellcard/images/b/b1/Deathblow.png/revision/latest?cb=20230325233555",
+  "charge":"https://static.wikia.nocookie.net/hellcard/images/d/db/Charge.png/revision/latest?cb=20230325233354",
+  "sticks-and-stones":"https://static.wikia.nocookie.net/hellcard/images/e/ea/Sticks_and_Stones.png/revision/latest?cb=20230325235139",
+  "whirlwind":"https://static.wikia.nocookie.net/hellcard/images/e/e0/Whirlwind.png/revision/latest?cb=20230325235402",
+  "ground-ji":"https://static.wikia.nocookie.net/hellcard/images/6/60/Ground_Ji.png/revision/latest?cb=20240907012601",
+  "ji-thrust":"https://static.wikia.nocookie.net/hellcard/images/f/f1/Ji_Thrust.png/revision/latest?cb=20240907012534",
+  "scythe":"https://static.wikia.nocookie.net/hellcard/images/c/cd/Scythe.png/revision/latest?cb=20230325235212",
+  "ji-sweep":"https://static.wikia.nocookie.net/hellcard/images/7/7a/Ji_Sweep.png/revision/latest?cb=20240907012623",
+  "sky-ji":"https://static.wikia.nocookie.net/hellcard/images/7/70/Sky_Ji.png/revision/latest?cb=20240907012614",
+  "windmill-ji":"https://static.wikia.nocookie.net/hellcard/images/e/e8/Windmill_Ji.png/revision/latest?cb=20240907012550",
+  "camaraderie":"https://static.wikia.nocookie.net/hellcard/images/7/75/Camaraderie.png/revision/latest?cb=20230325230240",
+  "cross-blades":"https://static.wikia.nocookie.net/hellcard/images/3/3a/Cross_Blades.png/revision/latest?cb=20230325234047",
+  "ploughshares":"https://static.wikia.nocookie.net/hellcard/images/6/66/Ploughshares.png/revision/latest?cb=20230325234132",
+  "preparation":"https://static.wikia.nocookie.net/hellcard/images/a/aa/Preparation.png/revision/latest?cb=20230325230426",
+  "stretch":"https://static.wikia.nocookie.net/hellcard/images/8/8a/Stretch.png/revision/latest?cb=20230325234937",
+  "akanbe":"https://static.wikia.nocookie.net/hellcard/images/9/95/Akanbe.png/revision/latest?cb=20230325233017",
+  "single-out":"https://static.wikia.nocookie.net/hellcard/images/2/25/Single_Out.png/revision/latest?cb=20230325230602",
+  "judgemental-scowl":"https://static.wikia.nocookie.net/hellcard/images/2/23/Judgemental_Scowl.png/revision/latest?cb=20230325234105",
+  "fulcrum-ji":"https://static.wikia.nocookie.net/hellcard/images/3/3c/Fulcrum_Ji.png/revision/latest?cb=20240907010611",
+  "provoke":"https://static.wikia.nocookie.net/hellcard/images/6/6b/Provoke.png/revision/latest?cb=20230325235534",
+  "ox":"https://static.wikia.nocookie.net/hellcard/images/d/dc/Ox.png/revision/latest?cb=20230325235505",
+  "tap":"https://static.wikia.nocookie.net/hellcard/images/1/14/Tap.png/revision/latest?cb=20230325235612",
+  "weakest-link":"https://static.wikia.nocookie.net/hellcard/images/a/a9/Weakest_Link.png/revision/latest?cb=20230325235647",
+  "taunt":"https://static.wikia.nocookie.net/hellcard/images/c/cc/Taunt.png/revision/latest?cb=20230325235628",
+  "defiant-roar":"https://static.wikia.nocookie.net/hellcard/images/d/db/Defiant_Roar.png/revision/latest?cb=20230325234321",
+  "outreach-ji":"https://static.wikia.nocookie.net/hellcard/images/1/1e/Outreach_Ji.png/revision/latest?cb=20240907011610",
+  "ambush":"https://static.wikia.nocookie.net/hellcard/images/3/30/Ambush.png/revision/latest?cb=20230325233106",
+  "riddle-of-steel":"https://static.wikia.nocookie.net/hellcard/images/9/98/Riddle_of_Steel.png/revision/latest?cb=20230325234622",
+  "doom":"https://static.wikia.nocookie.net/hellcard/images/0/0b/Doom.png/revision/latest?cb=20230325234413",
+  "cauterize-wound":"https://static.wikia.nocookie.net/hellcard/images/f/f5/Cauterize_Wound.png/revision/latest?cb=20230325233330",
+  "ji-dao":"https://static.wikia.nocookie.net/hellcard/images/3/35/Ji_Dao.png/revision/latest?cb=20240907011632",
+  "dragon-ji":"https://static.wikia.nocookie.net/hellcard/images/8/86/Dragon_Ji.png/revision/latest?cb=20240907011650",
+  "counter-strike":"https://static.wikia.nocookie.net/hellcard/images/6/66/Counter_Strike.png/revision/latest?cb=20230325233427",
+  "tip-the-scales":"https://static.wikia.nocookie.net/hellcard/images/8/83/Tip_the_Scales.png/revision/latest?cb=20230325235729",
+  "whetstone":"https://static.wikia.nocookie.net/hellcard/images/9/9f/Whetstone.png/revision/latest?cb=20230325235743",
+  "chip-and-shatter":"https://static.wikia.nocookie.net/hellcard/images/a/ae/Chip_And_Shatter.png/revision/latest?cb=20240907011947",
+  "flow":"https://static.wikia.nocookie.net/hellcard/images/e/e6/Flow.png/revision/latest?cb=20230325234729",
+  "snap-back":"https://static.wikia.nocookie.net/hellcard/images/8/81/Snap_Back.png/revision/latest?cb=20230325234914",
+  "bait":"https://static.wikia.nocookie.net/hellcard/images/f/ff/Bait.png/revision/latest?cb=20230325233145",
+  "padded-shield":"https://static.wikia.nocookie.net/hellcard/images/4/40/Padded_Shield.png/revision/latest?cb=20230325234840",
+  "crown":"https://static.wikia.nocookie.net/hellcard/images/f/f3/Crown.png/revision/latest?cb=20230325234643",
+  "dread":"https://static.wikia.nocookie.net/hellcard/images/c/c9/Dread.png/revision/latest?cb=20230325234657",
+  "lift":"https://static.wikia.nocookie.net/hellcard/images/e/e8/Lift.png/revision/latest?cb=20230325234804",
+  "ice-breaker":"https://static.wikia.nocookie.net/hellcard/images/5/5a/Ice_Breaker.png/revision/latest?cb=20240907012509",
+  "burning-blade":"https://static.wikia.nocookie.net/hellcard/images/f/fe/Burning_Blade.png/revision/latest?cb=20240907012438",
+  "mad-snack":"https://static.wikia.nocookie.net/hellcard/images/9/90/Mad_Snack.png/revision/latest?cb=20230325234823",
+  "elysium":"https://static.wikia.nocookie.net/hellcard/images/6/68/Elysium.png/revision/latest?cb=20230325234712",
+  "save":"https://static.wikia.nocookie.net/hellcard/images/2/21/Save.png/revision/latest?cb=20230325234858",
+  "lie-in-wait":"https://static.wikia.nocookie.net/hellcard/images/2/24/Lie_in_Wait.png/revision/latest?cb=20230325234744",
+  "root":"https://static.wikia.nocookie.net/hellcard/images/8/80/Root.png/revision/latest?cb=20230325235912",
+  "momentum":"https://static.wikia.nocookie.net/hellcard/images/d/dd/Momentum.png/revision/latest?cb=20230325235856",
+  "third-law":"https://static.wikia.nocookie.net/hellcard/images/f/ff/Third_Law.png/revision/latest?cb=20230325235954",
+  "thrill":"https://static.wikia.nocookie.net/hellcard/images/2/2e/Thrill.png/revision/latest?cb=20230326000007",
+  "insult":"https://static.wikia.nocookie.net/hellcard/images/1/11/Insult.png/revision/latest?cb=20230325235844",
+  "team-effort":"https://static.wikia.nocookie.net/hellcard/images/e/e9/Team_Effort.png/revision/latest?cb=20230325235933",
+  "vigor":"https://static.wikia.nocookie.net/hellcard/images/f/f4/Vigor.png/revision/latest?cb=20230326000022",
+  "cardio":"https://static.wikia.nocookie.net/hellcard/images/d/d8/Cardio.png/revision/latest?cb=20230325233314",
+  "inspire":"https://static.wikia.nocookie.net/hellcard/images/c/c4/Inspire.png/revision/latest?cb=20230325235800",
+  "gong":"https://static.wikia.nocookie.net/hellcard/images/3/36/Gong.png/revision/latest?cb=20240907012516",
+  "fracture-line":"https://static.wikia.nocookie.net/hellcard/images/2/2c/Fracture_Line.png/revision/latest?cb=20240907012451",
+  "fools-guard":"https://static.wikia.nocookie.net/hellcard/images/0/0b/Fool%27s_Guard.png/revision/latest?cb=20230325233447"
+};
+
+const CARDS = {
+  "sword-slash":{name:"Sword Slash",type:"Attack",rarity:"Starter",cost:1,effect:"Deal 2 damage. If target is far, deal 1 damage instead.",to:["Slam","Short Sword","Heavy Sword"],from:[]},
+  "mighty-blow":{name:"Mighty Blow",type:"Attack",rarity:"Common",cost:2,effect:"Deal 2 damage in a medium radius. Random monster in radius is dealt additional 2 damage.",to:["Groundbreaker","Fury","Reckless Charge"],from:[]},
+  "slam":{name:"Slam",type:"Attack",rarity:"Common",cost:2,effect:"Deal 3 damage in a medium radius. Lose block. Get Disarm.",to:["Fury","Flurry of Blows","Haymaker"],from:["Sword Slash"]},
+  "short-sword":{name:"Short Sword",type:"Attack",rarity:"Common",cost:1,effect:"Deal 4 damage. If monster is far, deal 2 damage instead.",to:["Haymaker","Maim","Deatheater Sword"],from:["Sword Slash"]},
+  "heavy-sword":{name:"Heavy Sword",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage. Use 2 Stamina for additional 2 damage.",to:["Deatheater Sword","Offering","Side Sword"],from:["Sword Slash"]},
+  "sacrificial-lunge":{name:"Sacrificial Lunge",type:"Attack",rarity:"Common",cost:1,effect:"Deal 8 damage minus your current block. Discard all Skill cards from hand.",to:["Maim","Deathblow","All Out Strike"],from:[]},
+  "swords-akimbo":{name:"Swords Akimbo",type:"Attack",rarity:"Common",cost:1,effect:"Deal 5 damage in a wide cone. Strain.",to:["Deatheater Sword","Whirlwind","Groundbreaker"],from:[]},
+  "initiative":{name:"Initiative",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage. Deal 5 damage if target's intent is attack.",to:["Offering","Charge","Side Sword"],from:[]},
+  "boomerang-shield":{name:"Boomerang Shield",type:"Attack",rarity:"Common",cost:1,effect:"Deal damage equal to your block to the first monster in a long narrow cone.",to:["Deathblow","Charge","Sticks and Stones"],from:[]},
+  "ji-poke":{name:"Ji Poke",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage to a monster in far range. On draw, gain 1 block.",to:["Sticks and Stones","Ground Ji","Ji Thrust"],from:[]},
+  "fury":{name:"Fury",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 8 damage in a medium radius. Lose block. Get Disarm.",to:["Mighty Weaponry","Furious Cyclone"],from:["Mighty Blow","Slam"]},
+  "flurry-of-blows":{name:"Flurry of Blows",type:"Attack",rarity:"Rare",cost:0,effect:"Deal 3 damage. Add a copy of this card to the discard pile.",to:["Shadow Sword","Reverse"],from:["Slam"]},
+  "haymaker":{name:"Haymaker",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage. Deal additional 5 damage if the monster has block.",to:["Gut Punch","Reverse","Serrated Blade"],from:["Short Sword","Slam"]},
+  "maim":{name:"Maim",type:"Attack",rarity:"Rare",cost:3,effect:"Deal 8 damage. Focus: mana cost -1 each draw.",to:["Whack 'em All","Furious Cyclone"],from:["Sacrificial Lunge","Short Sword"]},
+  "deatheater-sword":{name:"Deatheater Sword",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 5 damage. If it kills the monster, increase damage by 5.",to:["Diamond Knife","Storm of Blades","Crystal Sword"],from:["Heavy Sword","Short Sword","Swords Akimbo"]},
+  "offering":{name:"Offering",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 12 damage. Lose 1 HP.",to:["Mighty Weaponry","Double-Edged Sword"],from:["Heavy Sword","Initiative"]},
+  "side-sword":{name:"Side Sword",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage. Use 2 Stamina for additional 4 damage.",to:["Unleash","Storm of Blades","Double-Edged Sword"],from:["Heavy Sword","Initiative"]},
+  "groundbreaker":{name:"Groundbreaker",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 4 damage in a medium radius.",to:["Starlight Strike","Red Mist","Breakthrough"],from:["Mighty Blow","Swords Akimbo"]},
+  "reckless-charge":{name:"Reckless Charge",type:"Attack",rarity:"Rare",cost:1,effect:"Deal damage equal to cost of all cards in hand in a medium radius. Discard all non Attack cards.",to:["Shield Bite","Starlight Strike","Red Mist"],from:["Mighty Blow"]},
+  "all-out-strike":{name:"All Out Strike",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 8 damage minus your current block in a medium radius. Discard all Skill cards.",to:["Starlight Strike","Gut Punch","Breakthrough"],from:["Sacrificial Lunge"]},
+  "deathblow":{name:"Deathblow",type:"Attack",rarity:"Rare",cost:2,effect:"Kill a wounded monster with 10 or less HP.",to:["Crystal Sword","Scythe"],from:["Boomerang Shield","Sacrificial Lunge"]},
+  "charge":{name:"Charge",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 4 damage. Focus: +4 damage. Strain.",to:["Diamond Knife","Whack 'em All","Serrated Blade"],from:["Boomerang Shield","Initiative"]},
+  "sticks-and-stones":{name:"Sticks and Stones",type:"Attack",rarity:"Rare",cost:1,effect:"Deal damage equal to your block.",to:["Breakthrough","Red Mist"],from:["Boomerang Shield","Ji Poke"]},
+  "whirlwind":{name:"Whirlwind",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage to ALL monsters in near range. Strain.",to:["Scythe","Furious Cyclone","Gut Punch"],from:["Swords Akimbo"]},
+  "ground-ji":{name:"Ground Ji",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage. Gain 3 Stamina if monster is frozen or stunned.",to:["Ji Sweep","Sky Ji","Windmill Ji"],from:["Ji Poke"]},
+  "ji-thrust":{name:"Ji Thrust",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage to a monster in far range. On draw, gain 2 block.",to:["Ji Sweep","Sky Ji","Windmill Ji"],from:["Ji Poke"]},
+  "mighty-weaponry":{name:"Mighty Weaponry",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 12 damage in a medium radius. Lose block. Get Disarm.",to:[],from:["Fury","Offering"]},
+  "furious-cyclone":{name:"Furious Cyclone",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 8 damage to ALL monsters in near range and move them to far range. Strain.",to:[],from:["Fury","Maim","Whirlwind"]},
+  "shadow-sword":{name:"Shadow Sword",type:"Attack",rarity:"Legendary",cost:0,effect:"Deal 3x1 damage. Add 3 copies of Shadow Sword to discard pile.",to:[],from:["Flurry of Blows"]},
+  "reverse":{name:"Reverse",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal damage equal to monster's Strength.",to:[],from:["Flurry of Blows","Haymaker"]},
+  "gut-punch":{name:"Gut Punch",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 5 damage plus Stamina. Double damage if the monster has block.",to:[],from:["All Out Strike","Haymaker","Whirlwind"]},
+  "serrated-blade":{name:"Serrated Blade",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 5 unblockable damage. Focus: +4 damage.",to:[],from:["Charge","Haymaker"]},
+  "whack-em-all":{name:"Whack 'em All",type:"Attack",rarity:"Legendary",cost:3,effect:"Deal 12 damage. Focus: mana cost -1.",to:[],from:["Charge","Maim"]},
+  "diamond-knife":{name:"Diamond Knife",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 3 damage. Increase damage by 5 with each play.",to:[],from:["Charge","Deatheater Sword"]},
+  "storm-of-blades":{name:"Storm of Blades",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 2 damage for each Sword in your deck in a long medium cone. Use 4 Stamina to repeat.",to:[],from:["Deatheater Sword","Side Sword"]},
+  "crystal-sword":{name:"Crystal Sword",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 20 damage. If this kills the monster, reduce damage by 5.",to:[],from:["Deathblow","Deatheater Sword"]},
+  "double-edged-sword":{name:"Double-Edged Sword",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 20 damage. Use 5 Stamina or get damaged for each Stamina missing.",to:[],from:["Offering","Side Sword"]},
+  "unleash":{name:"Unleash",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 7 damage. +5 for each Stamina you have.",to:[],from:["Side Sword"]},
+  "starlight-strike":{name:"Starlight Strike",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 12 damage minus your current block in a medium radius. Get 2 Stamina per monster killed. Discard all Skill cards.",to:[],from:["All Out Strike","Groundbreaker","Reckless Charge"]},
+  "red-mist":{name:"Red Mist",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 5 damage in a medium radius. Heal 3 HP for each non-summoned monster this kills.",to:[],from:["Groundbreaker","Reckless Charge","Sticks and Stones"]},
+  "breakthrough":{name:"Breakthrough",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal damage equal to your block in a long narrow cone.",to:[],from:["All Out Strike","Groundbreaker","Sticks and Stones"]},
+  "shield-bite":{name:"Shield Bite",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal damage equal to the number of cards in your draw pile in a medium radius. Discard all non Attack cards.",to:[],from:["Reckless Charge"]},
+  "scythe":{name:"Scythe",type:"Attack",rarity:"Legendary",cost:2,effect:"Kill all monsters with 10 or less HP in a medium radius.",to:[],from:["Deathblow","Whirlwind"]},
+  "ji-sweep":{name:"Ji Sweep",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 8 damage to all far monsters. Double damage to frozen or stunned.",to:[],from:["Ji Thrust","Ground Ji"]},
+  "sky-ji":{name:"Sky Ji",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 15 damage. Gain 4 Stamina if monster is frozen or stunned.",to:[],from:["Ji Thrust","Ground Ji"]},
+  "windmill-ji":{name:"Windmill Ji",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 5 damage to monsters in one far section. On draw, gain 2 block for each Ji card in deck.",to:[],from:["Ji Thrust","Ground Ji"]},
+  "shield-block":{name:"Shield Block",type:"Skill",rarity:"Starter",cost:1,effect:"Give 2 block to any hero.",to:["Safeguard","Heroism","Tactics"],from:[]},
+  "safeguard":{name:"Safeguard",type:"Skill",rarity:"Common",cost:1,effect:"Give 4 block to any hero.",to:["Immutability","Knuckle Crack","Pacifist"],from:["Shield Block"]},
+  "heroism":{name:"Heroism",type:"Skill",rarity:"Common",cost:2,effect:"Give 4 block to all heroes.",to:["Immutability","Pacifist","Barricade"],from:["Shield Block"]},
+  "tactics":{name:"Tactics",type:"Skill",rarity:"Common",cost:1,effect:"Draw 2 cards. Gain 2 block.",to:["Second Wind","Arsenal","Deep Breath"],from:["Shield Block"]},
+  "camaraderie":{name:"Camaraderie",type:"Skill",rarity:"Common",cost:1,effect:"Everybody draws 2 cards.",to:["Provoke","Arsenal","Barricade"],from:[]},
+  "cross-blades":{name:"Cross Blades",type:"Skill",rarity:"Common",cost:1,effect:"Add 2 random Attack cards to draw pile.",to:["Ox","Provoke","Tap"],from:[]},
+  "ploughshares":{name:"Ploughshares",type:"Skill",rarity:"Common",cost:0,effect:"Gain 4 block. 6 if you have no Attack cards in hand.",to:["Pacifist","Ox","Immutability"],from:[]},
+  "preparation":{name:"Preparation",type:"Skill",rarity:"Common",cost:1,effect:"Add 3 Stamina.",to:["Knuckle Crack","Second Wind","Deep Breath"],from:[]},
+  "stretch":{name:"Stretch",type:"Skill",rarity:"Common",cost:1,effect:"Get 2 Stamina. 5 if you don't have any Swords in hand.",to:["Knuckle Crack","Second Wind","Deep Breath"],from:[]},
+  "akanbe":{name:"Akanbe",type:"Skill",rarity:"Common",cost:1,effect:"Move the selected monster to your near section.",to:["Weakest Link","Taunt","Defiant Roar"],from:[]},
+  "single-out":{name:"Single Out",type:"Skill",rarity:"Common",cost:1,effect:"Mark a random monster in the near range.",to:["Weakest Link","Tap","Defiant Roar"],from:[]},
+  "judgemental-scowl":{name:"Judgemental Scowl",type:"Skill",rarity:"Common",cost:1,effect:"Break block. Gain 2 block.",to:["Tap","Taunt","Defiant Roar"],from:[]},
+  "fulcrum-ji":{name:"Fulcrum Ji",type:"Skill",rarity:"Common",cost:1,effect:"Move 1 monster to the opposite distance. On draw, gain 1 block for every 2 monsters in your near section.",to:["Immutability","Taunt","Outreach Ji"],from:[]},
+  "immutability":{name:"Immutability",type:"Skill",rarity:"Rare",cost:0,effect:"Gain 6 block. 9 if you don't have an Attack card in hand.",to:["Iron Door","¡No Pasarán!"],from:["Heroism","Ploughshares","Safeguard","Fulcrum Ji"]},
+  "knuckle-crack":{name:"Knuckle Crack",type:"Skill",rarity:"Rare",cost:1,effect:"Get 5 Stamina. Strain.",to:["The Collector","One For All"],from:["Preparation","Safeguard","Stretch"]},
+  "pacifist":{name:"Pacifist",type:"Skill",rarity:"Rare",cost:1,effect:"Give 4 block. Take a random Skill card.",to:["¡No Pasarán!","Iron Door"],from:["Heroism","Ploughshares","Safeguard"]},
+  "barricade":{name:"Barricade",type:"Skill",rarity:"Rare",cost:2,effect:"Give 6 block to all heroes.",to:["Iron Door","¡No Pasarán!"],from:["Camaraderie","Heroism"]},
+  "second-wind":{name:"Second Wind",type:"Skill",rarity:"Rare",cost:1,effect:"Get 5 Stamina, draw 2 cards and gain 2 mana. Exhaust.",to:["Battle Juice","Readiness","Overwhelm"],from:["Preparation","Stretch","Tactics"]},
+  "arsenal":{name:"Arsenal",type:"Skill",rarity:"Rare",cost:1,effect:"Everybody draws 2 cards. Use all Stamina for additional cards (2 Stamina each).",to:["The Collector","Battle Juice"],from:["Camaraderie","Tactics"]},
+  "deep-breath":{name:"Deep Breath",type:"Skill",rarity:"Rare",cost:1,effect:"Add 2 Stamina. Draw 2 cards. Gain 4 block.",to:["Turtle Up","Battle Juice","Readiness"],from:["Preparation","Stretch","Tactics"]},
+  "provoke":{name:"Provoke",type:"Skill",rarity:"Rare",cost:1,effect:"Add 2 random Attack cards to draw pile. Take 2 random Attack cards.",to:["Overwhelm","The Collector"],from:["Camaraderie","Cross Blades"]},
+  "ox":{name:"Ox",type:"Skill",rarity:"Rare",cost:1,effect:"Double your block.",to:["Cauterize Wound","Turtle Up"],from:["Cross Blades","Ploughshares"]},
+  "tap":{name:"Tap",type:"Skill",rarity:"Rare",cost:1,effect:"Mark. If the target is in near range add 1 more mark.",to:["Cauterize Wound","Doom"],from:["Cross Blades","Judgemental Scowl","Single Out"]},
+  "weakest-link":{name:"Weakest Link",type:"Skill",rarity:"Rare",cost:1,effect:"Move the selected monster to your near section. Gain 3 Stamina.",to:["Ambush","Riddle of Steel"],from:["Akanbe","Single Out"]},
+  "taunt":{name:"Taunt",type:"Skill",rarity:"Rare",cost:1,effect:"Move the selected monster to your near section. Take a random Attack card.",to:["Ambush","Doom"],from:["Akanbe","Judgemental Scowl","Fulcrum Ji"]},
+  "defiant-roar":{name:"Defiant Roar",type:"Skill",rarity:"Rare",cost:1,effect:"Break monsters' block in a long medium cone. Gain 2 block for each monster in cone.",to:["Riddle of Steel","One For All"],from:["Akanbe","Judgemental Scowl","Single Out"]},
+  "outreach-ji":{name:"Outreach Ji",type:"Skill",rarity:"Rare",cost:1,effect:"Move 1 monster to the opposite distance. On draw, gain 1 block for each monster in your near section.",to:["¡No Pasarán!","Ji Dao","Dragon Ji"],from:["Fulcrum Ji"]},
+  "iron-door":{name:"Iron Door",type:"Skill",rarity:"Legendary",cost:1,effect:"Give 9 block to all heroes. 15 if you don't have an Attack card in hand.",to:[],from:["Barricade","Immutability","Pacifist"]},
+  "no-pasaran":{name:"¡No Pasarán!",type:"Skill",rarity:"Legendary",cost:0,effect:"Give 6 block to all heroes. Take a random Skill card.",to:[],from:["Barricade","Immutability","Pacifist","Outreach Ji"]},
+  "the-collector":{name:"The Collector",type:"Skill",rarity:"Legendary",cost:1,effect:"Everybody draws 2 cards. Use all Stamina for additional cards (1 Stamina each).",to:[],from:["Arsenal","Knuckle Crack","Provoke"]},
+  "one-for-all":{name:"One For All",type:"Skill",rarity:"Legendary",cost:2,effect:"All heroes get a random legendary card to hand.",to:[],from:["Defiant Roar","Knuckle Crack"]},
+  "battle-juice":{name:"Battle Juice",type:"Skill",rarity:"Legendary",cost:1,effect:"Get 5 Stamina. All heroes gain 2 mana and draw 2 cards. Exhaust.",to:[],from:["Arsenal","Deep Breath","Second Wind"]},
+  "readiness":{name:"Readiness",type:"Skill",rarity:"Legendary",cost:1,effect:"Gain 6 block. Get 5 Stamina. Draw 2 cards.",to:[],from:["Deep Breath","Second Wind"]},
+  "overwhelm":{name:"Overwhelm",type:"Skill",rarity:"Legendary",cost:1,effect:"Add 2 random Attack cards to draw pile. Take 2 random Attack cards. They cost 0 until played or turn ends.",to:[],from:["Provoke","Second Wind"]},
+  "turtle-up":{name:"Turtle Up",type:"Skill",rarity:"Legendary",cost:1,effect:"Double block for all heroes.",to:[],from:["Deep Breath","Ox"]},
+  "ambush":{name:"Ambush",type:"Skill",rarity:"Legendary",cost:1,effect:"Move the selected monster to your near section. Gain 1 mana, 3 Stamina and take a random Attack card.",to:[],from:["Taunt","Weakest Link"]},
+  "riddle-of-steel":{name:"Riddle of Steel",type:"Skill",rarity:"Legendary",cost:1,effect:"Break all monsters' block. Give 5 block to all heroes.",to:[],from:["Defiant Roar","Weakest Link"]},
+  "doom":{name:"Doom",type:"Skill",rarity:"Legendary",cost:1,effect:"Mark. If any monster was already marked deal them 5 damage.",to:[],from:["Tap","Taunt"]},
+  "cauterize-wound":{name:"Cauterize Wound",type:"Skill",rarity:"Legendary",cost:1,effect:"Use Stamina to heal any hero. Strain.",to:[],from:["Ox","Tap"]},
+  "ji-dao":{name:"Ji Dao",type:"Skill",rarity:"Legendary",cost:2,effect:"Give all heroes 2 block. On draw, deal 5 damage to frozen, stunned, or stun immune monsters. On discard, move to draw pile.",to:[],from:["Outreach Ji"]},
+  "dragon-ji":{name:"Dragon Ji",type:"Skill",rarity:"Legendary",cost:2,effect:"Move 1 monster to the opposite distance. Take 1 Attack card. It costs 0 this turn. On draw, gain 1 block per monster in near section.",to:[],from:["Outreach Ji"]},
+  "counter-strike":{name:"Counter Strike",type:"Influence",rarity:"Common",cost:2,effect:"Deal 1 damage if monster's attack leaves you with block. Exhaust. Unstackable.",to:["Flow","Snap Back","Bait"],from:[]},
+  "tip-the-scales":{name:"Tip the Scales",type:"Influence",rarity:"Common",cost:2,effect:"Gain 2 block after you kill a monster. Strain.",to:["Padded Shield","Crown","Dread"],from:[]},
+  "whetstone":{name:"Whetstone",type:"Influence",rarity:"Common",cost:1,effect:"All Swords deal +2 damage for 3 turns.",to:["Bait","Lift","Crown"],from:[]},
+  "chip-and-shatter":{name:"Chip And Shatter",type:"Influence",rarity:"Common",cost:2,effect:"All your Attacks deal +1 damage to frozen or stunned monsters. Exhaust.",to:["Lift","Ice Breaker","Burning Blade"],from:[]},
+  "fools-guard":{name:"Fool's Guard",type:"Influence",rarity:"Common",cost:2,effect:"Gain 3 block at the start of a turn. Gain Weak for one turn. Exhaust.",to:["Padded Shield","Mad Snack","Elysium"],from:[]},
+  "flow":{name:"Flow",type:"Influence",rarity:"Rare",cost:2,effect:"Get 1 block every time you play an Attack card. Strain.",to:["Root","Momentum"],from:["Counter Strike"]},
+  "snap-back":{name:"Snap Back",type:"Influence",rarity:"Rare",cost:2,effect:"Deal 1 damage if monster's attack leaves you with block.",to:["Third Law","Root"],from:["Counter Strike"]},
+  "bait":{name:"Bait",type:"Influence",rarity:"Rare",cost:2,effect:"Your attacks deal 1 more damage in near range. Exhaust.",to:["Thrill","Insult"],from:["Counter Strike","Whetstone"]},
+  "padded-shield":{name:"Padded Shield",type:"Influence",rarity:"Rare",cost:1,effect:"Get 2 Stamina if the monster's attack leaves you with block. Exhaust.",to:["Vigor","Third Law","Cardio"],from:["Fool's Guard","Tip the Scales"]},
+  "crown":{name:"Crown",type:"Influence",rarity:"Rare",cost:1,effect:"Your Swords deal +2 damage. Exhaust.",to:["Team Effort","Thrill"],from:["Tip the Scales","Whetstone"]},
+  "dread":{name:"Dread",type:"Influence",rarity:"Rare",cost:2,effect:"Give 2 block to all heroes after you kill a monster. Strain.",to:["Team Effort","Momentum","Thrill"],from:["Tip the Scales"]},
+  "lift":{name:"Lift",type:"Influence",rarity:"Rare",cost:2,effect:"Get 1 Stamina for every 8th damage you deal. Exhaust. Unstackable.",to:["Inspire","Third Law"],from:["Whetstone","Chip And Shatter"]},
+  "ice-breaker":{name:"Ice Breaker",type:"Influence",rarity:"Rare",cost:2,effect:"Your Swords and Jis deal double damage to frozen monsters. Exhaust.",to:["Gong","Fracture Line"],from:["Chip And Shatter"]},
+  "burning-blade":{name:"Burning Blade",type:"Influence",rarity:"Rare",cost:2,effect:"All your Attacks deal +2 damage to frozen or stunned monsters. Unstackable. Exhaust.",to:["Gong","Fracture Line"],from:["Chip And Shatter"]},
+  "mad-snack":{name:"Mad Snack",type:"Influence",rarity:"Rare",cost:3,effect:"Each turn you end without block increases the bonus damage by 1. Unstackable. Exhaust.",to:["Vigor","Insult","Cardio"],from:["Fool's Guard"]},
+  "elysium":{name:"Elysium",type:"Influence",rarity:"Rare",cost:2,effect:"Gain 4 block at the start of a turn. Exhaust.",to:["Team Effort","Root"],from:["Fool's Guard"]},
+  "save":{name:"Save",type:"Influence",rarity:"Rare",cost:2,effect:"Your block is not removed at the start of your turn. Unstackable. Exhaust.",to:["Momentum","Root"],from:[]},
+  "lie-in-wait":{name:"Lie in Wait",type:"Influence",rarity:"Rare",cost:1,effect:"Get 3 Stamina if you have any unused mana at the end of your turn. Exhaust.",to:["Vigor","Cardio","Inspire"],from:[]},
+  "root":{name:"Root",type:"Influence",rarity:"Legendary",cost:2,effect:"Your block is not removed at the start of your turn. Gain 2 block at the beginning of your turn. Exhaust.",to:[],from:["Elysium","Flow","Save","Snap Back"]},
+  "momentum":{name:"Momentum",type:"Influence",rarity:"Legendary",cost:2,effect:"Give 1 block to all heroes every time you play an Attack card. Strain.",to:[],from:["Dread","Flow","Save"]},
+  "third-law":{name:"Third Law",type:"Influence",rarity:"Legendary",cost:2,effect:"When monster's attack leaves you with block, deal equal damage and get 2 Stamina. Unstackable. Exhaust.",to:[],from:["Lift","Padded Shield","Snap Back"]},
+  "thrill":{name:"Thrill",type:"Influence",rarity:"Legendary",cost:2,effect:"Your attacks deal 2 more damage. Exhaust.",to:[],from:["Bait","Crown","Dread"]},
+  "insult":{name:"Insult",type:"Influence",rarity:"Legendary",cost:2,effect:"Your Swords deal +3 damage. Exhaust.",to:[],from:["Bait","Mad Snack"]},
+  "team-effort":{name:"Team Effort",type:"Influence",rarity:"Legendary",cost:2,effect:"Give 2 block to all heroes after a monster is killed. Strain.",to:[],from:["Crown","Dread","Elysium"]},
+  "vigor":{name:"Vigor",type:"Influence",rarity:"Legendary",cost:1,effect:"When out of mana use Stamina instead (1 mana costs 2 Stamina). Unstackable. Exhaust.",to:[],from:["Lie in Wait","Mad Snack","Padded Shield"]},
+  "cardio":{name:"Cardio",type:"Influence",rarity:"Legendary",cost:0,effect:"Get Stamina Burst. Strain.",to:[],from:["Lie in Wait","Mad Snack","Padded Shield"]},
+  "inspire":{name:"Inspire",type:"Influence",rarity:"Legendary",cost:2,effect:"Next time you get Stamina Burst all heroes get Stamina Burst.",to:[],from:["Lie in Wait","Lift"]},
+  "gong":{name:"Gong",type:"Influence",rarity:"Legendary",cost:2,effect:"Your Swords and Jis deal double damage to stunned monsters. Exhaust.",to:[],from:["Burning Blade","Ice Breaker"]},
+  "fracture-line":{name:"Fracture Line",type:"Influence",rarity:"Legendary",cost:1,effect:"All your Attacks deal +2 damage to frozen or stunned monsters. Strain.",to:[],from:["Burning Blade","Ice Breaker"]}
+};
+
+// Build name->id lookup and backfill from[] using to[]
+const nameToId = {};
+for (const [id, c] of Object.entries(CARDS)) nameToId[c.name] = id;
+for (const [id, c] of Object.entries(CARDS)) {
+  c.to.forEach(targetName => {
+    const tid = nameToId[targetName];
+    if (tid && !CARDS[tid].from.includes(c.name)) CARDS[tid].from.push(c.name);
+  });
+}
+// Starters evolve to all Commons of the same type
+const starters = Object.entries(CARDS).filter(([,c]) => c.rarity === 'Starter');
+for (const [sid, sc] of starters) {
+  Object.entries(CARDS).filter(([,c]) => c.rarity === 'Common' && c.type === sc.type).forEach(([cid, cc]) => {
+    if (!sc.to.includes(cc.name)) sc.to.push(cc.name);
+    if (!cc.from.includes(sc.name)) cc.from.push(sc.name);
+  });
+}
+
+// Build the 3 unified trees from card data
+const RARITY_ORDER = { Starter: 0, Common: 1, Rare: 2, Legendary: 3 };
+const TYPE_CONFIG = {
+  Attack:    { color: 'var(--attack)',    desc: 'Deal damage to enemies — swords, AoE, combos, and Ji polearms', count: 0 },
+  Skill:     { color: 'var(--skill)',     desc: 'Block, draw, stamina, and monster manipulation', count: 0 },
+  Influence: { color: 'var(--influence)', desc: 'Persistent effects lasting until end of battle', count: 0 }
+};
+
+// Group cards by type and rarity
+const grouped = {};
+for (const type of ['Attack','Skill','Influence']) {
+  grouped[type] = { Starter: [], Common: [], Rare: [], Legendary: [] };
+}
+for (const [id, c] of Object.entries(CARDS)) {
+  grouped[c.type][c.rarity].push(id);
+  TYPE_CONFIG[c.type].count++;
+}
+
+// Sort within each rarity: roots first (no from), then alphabetical
+for (const type of Object.keys(grouped)) {
+  for (const rarity of Object.keys(grouped[type])) {
+    grouped[type][rarity].sort((a, b) => {
+      const ca = CARDS[a], cb = CARDS[b];
+      if (ca.from.length === 0 && cb.from.length > 0) return -1;
+      if (ca.from.length > 0 && cb.from.length === 0) return 1;
+      return ca.name.localeCompare(cb.name);
+    });
+  }
+}
+
+function cardHTML(id) {
+  const c = CARDS[id];
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+  const legendaryClass = c.rarity === 'Legendary' ? ' legendary' : '';
+  const fromIds = c.from.map(n => nameToId[n]).filter(Boolean).join(',');
+  const dataFrom = fromIds ? ` data-from="${fromIds}"` : '';
+  return `<div class="card-node ${typeClass}${legendaryClass}" data-card="${id}"${dataFrom}>
+    <div class="card-img">${img ? `<img src="${img}" alt="${c.name}" loading="lazy">` : ''}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-meta"><span class="card-cost">${c.cost}</span><span class="card-rarity ${rarityClass}">${c.rarity}</span></div>
+  </div>`;
+}
+
+const container = document.getElementById('all-trees');
+let html = '';
+
+for (const type of ['Attack','Skill','Influence']) {
+  const cfg = TYPE_CONFIG[type];
+  const g = grouped[type];
+  const typeClass = type.toLowerCase();
+
+  html += `<div class="type-section">
+    <h2 style="color:${cfg.color}">${type} Cards</h2>
+    <div class="type-count">${cfg.count} cards</div>
+    <p class="type-desc">${cfg.desc}</p>
+  </div>`;
+  html += `<div class="tree-wrapper"><div class="flat-tree tree-${typeClass}">`;
+
+  const tiers = [];
+  if (g.Starter.length) tiers.push({ label:'starter', title:'Starter', star:true, cards:g.Starter });
+  if (g.Common.length)  tiers.push({ label:'common',  title:'Common',  star:false, cards:g.Common });
+  if (g.Rare.length)    tiers.push({ label:'rare',    title:'Rare',    star:false, cards:g.Rare });
+  if (g.Legendary.length) tiers.push({ label:'legendary', title:'Legendary', star:true, cards:g.Legendary });
+
+  tiers.forEach(tier => {
+    html += `<div class="tier-label ${tier.label}-tier">${tier.star ? '★ ' : ''}${tier.title}</div>`;
+    html += `<div class="flat-tier" data-tier="${tier.label}">`;
+    tier.cards.forEach(id => { html += cardHTML(id); });
+    html += `</div><div class="flat-spacer"></div>`;
+  });
+
+  html += `</div></div>`;
+}
+
+container.innerHTML = html;
+
+// Draw connector lines
+function drawConnectors() {
+  document.querySelectorAll('.flat-tree').forEach(tree => {
+    const existing = tree.querySelector('.tree-svg');
+    if (existing) existing.remove();
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('tree-svg');
+    svg.style.width = tree.scrollWidth + 'px';
+    svg.style.height = tree.scrollHeight + 'px';
+
+    const treeRect = tree.getBoundingClientRect();
+    tree.querySelectorAll('.card-node[data-from]').forEach(card => {
+      const fromIds = card.dataset.from.split(',');
+      const cardRect = card.getBoundingClientRect();
+      const toX = cardRect.left + cardRect.width / 2 - treeRect.left + tree.scrollLeft;
+      const toY = cardRect.top - treeRect.top + tree.scrollTop;
+
+      fromIds.forEach(fid => {
+        const fromCard = tree.querySelector(`[data-card="${fid.trim()}"]`);
+        if (!fromCard) return;
+        const fromRect = fromCard.getBoundingClientRect();
+        const fromX = fromRect.left + fromRect.width / 2 - treeRect.left + tree.scrollLeft;
+        const fromY = fromRect.bottom - treeRect.top + tree.scrollTop;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX);
+        line.setAttribute('y2', toY);
+        line.dataset.from = fid.trim();
+        line.dataset.to = card.dataset.card;
+        svg.appendChild(line);
+      });
+    });
+
+    tree.style.position = 'relative';
+    tree.insertBefore(svg, tree.firstChild);
+  });
+}
+
+setTimeout(drawConnectors, 300);
+window.addEventListener('resize', () => setTimeout(drawConnectors, 100));
+
+// Detail pane
+const detailPane = document.getElementById('detailPane');
+
+function showDetail(node) {
+  const id = node.dataset.card;
+  const c = CARDS[id];
+  if (!c) return;
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+
+  let h = `<div class="tt-header">`;
+  h += `<div class="tt-img">${img ? `<img src="${img}" alt="${c.name}">` : ''}</div>`;
+  h += `<div class="tt-info">`;
+  h += `<div class="tt-name" style="color:var(--${typeClass})">${c.name}</div>`;
+  h += `<div class="tt-badges"><span class="tt-badge type-${typeClass}">${c.type}</span><span class="tt-badge rarity-${rarityClass}">${c.rarity}</span></div>`;
+  h += `<div class="tt-mana"><span class="tt-mana-gem">${c.cost}</span> Mana Cost</div>`;
+  h += `</div></div><div class="tt-body">`;
+  h += `<div class="tt-effect" style="border-left-color:var(--${typeClass})">${c.effect}</div>`;
+  if (c.to.length) h += `<div class="tt-transforms"><span class="tt-arrow-up">▲</span> <strong>Evolves to:</strong> ${c.to.join(', ')}</div>`;
+  if (c.from.length) h += `<div class="tt-transforms"><span class="tt-arrow-down">▼</span> <strong>Evolves from:</strong> ${c.from.join(', ')}</div>`;
+  h += `</div>`;
+  detailPane.innerHTML = h;
+  detailPane.classList.add('visible');
+}
+
+// Path highlight: walk up ancestors
+function getAncestors(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const fromStr = cardEl.dataset.from;
+  if (!fromStr) return ids;
+  fromStr.split(',').forEach(fid => {
+    const parent = tree.querySelector(`[data-card="${fid.trim()}"]`);
+    if (parent) getAncestors(tree, parent, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+function getDescendants(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const c = CARDS[cardId];
+  if (!c || !c.to.length) return ids;
+  c.to.forEach(name => {
+    const childId = nameToId[name];
+    if (!childId) return;
+    const child = tree.querySelector(`[data-card="${childId}"]`);
+    if (child) getDescendants(tree, child, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+document.addEventListener('mouseover', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const tree = node.closest('.flat-tree');
+  if (!tree) return;
+
+  const hoveredId = node.dataset.card;
+  const ancestorIds = getAncestors(tree, node);
+  const descendantIds = getDescendants(tree, node);
+
+  tree.querySelectorAll('.card-node').forEach(c => {
+    const id = c.dataset.card;
+    c.classList.remove('path-highlight', 'path-descendant', 'dimmed');
+    if (ancestorIds.has(id)) c.classList.add('path-highlight');
+    else if (descendantIds.has(id)) c.classList.add('path-descendant');
+    else c.classList.add('dimmed');
+  });
+  tree.querySelectorAll('.tree-svg line').forEach(line => {
+    line.classList.remove('line-highlight', 'line-descendant', 'line-dimmed');
+    const f = line.dataset.from, t = line.dataset.to;
+    const fAnc = ancestorIds.has(f), tAnc = ancestorIds.has(t);
+    const fDesc = descendantIds.has(f), tDesc = descendantIds.has(t);
+    if (fAnc && tAnc) line.classList.add('line-highlight');
+    else if (fDesc && tDesc) line.classList.add('line-descendant');
+    else line.classList.add('line-dimmed');
+  });
+  showDetail(node);
+});
+
+document.addEventListener('mouseout', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const related = e.relatedTarget;
+  if (related && related.closest && related.closest('.card-node') === node) return;
+  const tree = node.closest('.flat-tree');
+  if (tree) {
+    tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+    tree.querySelectorAll('.tree-svg line').forEach(l => { l.classList.remove('line-highlight','line-descendant','line-dimmed'); });
+  }
+  detailPane.classList.remove('visible');
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.card-node').forEach(node => {
+    const c = CARDS[node.dataset.card];
+    if (!q) { node.classList.remove('dimmed','search-match'); return; }
+    if (!c) { node.classList.add('dimmed'); return; }
+    const text = `${c.name} ${c.type} ${c.rarity} ${c.effect}`.toLowerCase();
+    if (text.includes(q)) { node.classList.remove('dimmed'); node.classList.add('search-match'); }
+    else { node.classList.add('dimmed'); node.classList.remove('search-match'); }
+  });
+});
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.card-node:not(.dimmed)'); },
+  matchFn: function(el, query) {
+    var c = CARDS[el.dataset.card];
+    if (!c) return false;
+    var text = (c.name + ' ' + c.type + ' ' + c.rarity + ' ' + c.effect).toLowerCase();
+    return text.includes(query);
+  }
+});
+</script>
+</body>
+</html>

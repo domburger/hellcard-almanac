@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Starters</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="header.css?v=2">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  .page-title {
+    font-size: 1.4em; font-weight: 700; text-align: center;
+    margin-bottom: 40px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .artifact-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 20px; max-width: 1500px; margin: 0 auto; padding: 0 24px;
+  }
+
+  .artifact-card {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; text-align: left;
+    gap: 10px; padding: 16px 14px 14px;
+    border: 1px solid var(--border); background: var(--bg-card); border-radius: 10px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .artifact-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.25);
+  }
+  .artifact-card.dimmed { opacity: 0.1; }
+  .artifact-card.search-match { animation: pulse 1s ease-in-out 3; }
+  @keyframes pulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3); } }
+
+  .artifact-img {
+    width: 100px; height: 100px; border-radius: 0;
+    overflow: hidden; flex-shrink: 0;
+  }
+  .artifact-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .artifact-info { width: 100%; display: flex; flex-direction: column; }
+
+  .artifact-top {
+    margin-bottom: 4px; width: 100%;
+  }
+
+  .artifact-name {
+    font-weight: 800; font-size: 1.05em; line-height: 1.25;
+    color: var(--text); padding-right: 30px;
+  }
+
+  .gem-badge {
+    position: absolute; top: 8px; right: 8px;
+    display: flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; border-radius: 6px;
+    background: rgba(184, 145, 42, 0.18); border: 1px solid rgba(184, 145, 42, 0.35);
+    font-size: 0.8em; font-weight: 800; color: #b8912a;
+  }
+
+  .artifact-effect {
+    font-size: 0.88em; line-height: 1.6; color: var(--text-dim);
+  }
+
+  @media (max-width: 1200px) {
+    .artifact-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 720px) {
+    .artifact-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .artifact-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search starters... (e.g. Scabbard, block, mana)">
+  </div>
+</div>
+<script src="header.js?v=3"></script>
+
+<div id="artifact-content"></div>
+<div class="no-results" id="noResults">No starter artifacts match your search.</div>
+
+<script>
+const ARTIFACT_IMAGES = {
+  "Talking Scabbard":"https://static.wikia.nocookie.net/hellcard/images/e/eb/Talking_Scabbard.png/revision/latest?cb=20240920014523",
+  "Unagi":"https://static.wikia.nocookie.net/hellcard/images/3/36/Unagi.png/revision/latest?cb=20240920014454",
+  "Tankard":"https://static.wikia.nocookie.net/hellcard/images/1/1b/Tankard.png/revision/latest?cb=20240920014506",
+  "Sun":"https://static.wikia.nocookie.net/hellcard/images/6/61/Sun.png/revision/latest?cb=20240920014534",
+  "Broom":"https://static.wikia.nocookie.net/hellcard/images/2/26/Broom.png/revision/latest?cb=20240920014559",
+  "Foreign Coin":"https://static.wikia.nocookie.net/hellcard/images/2/28/Foreign_Coin.png/revision/latest?cb=20240920015321",
+  "Beetroot":"https://static.wikia.nocookie.net/hellcard/images/5/56/Beetroot.png/revision/latest?cb=20240920014604",
+  "Unripe Banana":"https://static.wikia.nocookie.net/hellcard/images/5/5f/Unripe_Banana.png/revision/latest?cb=20240920014441",
+  "Veteran Pin":"https://static.wikia.nocookie.net/hellcard/images/2/28/Veteran_Pin.png/revision/latest?cb=20240920014428",
+  "Chocolate Box":"https://static.wikia.nocookie.net/hellcard/images/a/a9/Chocolate_Box.png/revision/latest?cb=20240911182635",
+  "Brass Cog":"https://static.wikia.nocookie.net/hellcard/images/c/c9/Brass_Cog.png/revision/latest?cb=20240920124738",
+  "Salt":"https://static.wikia.nocookie.net/hellcard/images/7/77/Salt.png/revision/latest?cb=20240920124945",
+  "Horse's Head":"https://static.wikia.nocookie.net/hellcard/images/2/21/Horse%27s_Head.png/revision/latest?cb=20240920124914",
+  "Key":"https://static.wikia.nocookie.net/hellcard/images/5/52/Key.png/revision/latest?cb=20240920115845",
+  "Box":"https://static.wikia.nocookie.net/hellcard/images/2/2b/Box.png/revision/latest?cb=20240920115846",
+  "Crossbow":"https://static.wikia.nocookie.net/hellcard/images/7/79/Crossbow.png/revision/latest?cb=20240920115846",
+  "Grabber":"https://static.wikia.nocookie.net/hellcard/images/e/ee/Grabber.png/revision/latest?cb=20240920115923",
+  "Golden Onion":"https://static.wikia.nocookie.net/hellcard/images/e/e0/Golden_Onion.png/revision/latest?cb=20240920124900",
+  "Prism":"https://static.wikia.nocookie.net/hellcard/images/a/a8/Prism.png/revision/latest?cb=20240920124927",
+  "Little Helper":"https://static.wikia.nocookie.net/hellcard/images/0/07/Little_Helper.png/revision/latest?cb=20230320195703",
+  "Hat":"https://static.wikia.nocookie.net/hellcard/images/f/fc/Hat.png/revision/latest?cb=20240911182856",
+  "Crimson Vial":"https://static.wikia.nocookie.net/hellcard/images/b/bf/Crimson_Vial.png/revision/latest?cb=20240911182929",
+  "Cockade":"https://static.wikia.nocookie.net/hellcard/images/7/7d/Cockade.png/revision/latest?cb=20240920120223",
+  "Library Card":"https://static.wikia.nocookie.net/hellcard/images/1/13/Library_Card.png/revision/latest?cb=20240911182816",
+  "Acorn":"https://static.wikia.nocookie.net/hellcard/images/c/cd/Acorn.png/revision/latest?cb=20240920115910",
+  "Spacious Sleeve":"https://static.wikia.nocookie.net/hellcard/images/f/ff/Spacious_Sleeve.png/revision/latest?cb=20240920125000",
+  "Party Hat":"https://static.wikia.nocookie.net/hellcard/images/6/69/Party_Hat.png/revision/latest?cb=20240920122749",
+  "Transmission Belt":"https://static.wikia.nocookie.net/hellcard/images/b/bb/Transmission_Belt.png/revision/latest?cb=20240920122748",
+  "Meter":"https://static.wikia.nocookie.net/hellcard/images/2/20/Meter.png/revision/latest?cb=20240920122749",
+  "Battery Charger":"https://static.wikia.nocookie.net/hellcard/images/b/b8/Battery_Charger.png/revision/latest?cb=20240920005151",
+  "Work Glove":"https://static.wikia.nocookie.net/hellcard/images/f/f9/Work_Glove.png/revision/latest?cb=20240920122749",
+  "Scout Badge":"https://static.wikia.nocookie.net/hellcard/images/8/85/Scout_Badge.png/revision/latest?cb=20240920122748",
+  "Screw Making Mold":"https://static.wikia.nocookie.net/hellcard/images/f/fc/Screw_Making_Mold.png/revision/latest?cb=20240920122748",
+  "Jack":"https://static.wikia.nocookie.net/hellcard/images/4/46/Jack.png/revision/latest?cb=20240920122748",
+  "Nazar Eye":"https://static.wikia.nocookie.net/hellcard/images/b/bd/Nazar_Eye.png/revision/latest?cb=20240920005152",
+  "Suturing Needle":"https://static.wikia.nocookie.net/hellcard/images/f/ff/Suturing_Needle.png/revision/latest?cb=20240920124254",
+  "Chirograph":"https://static.wikia.nocookie.net/hellcard/images/8/8e/Chirograph.png/revision/latest?cb=20240920124253",
+  "Sangrethyst":"https://static.wikia.nocookie.net/hellcard/images/8/8a/Sangrethyst.png/revision/latest?cb=20240920124336",
+  "Donor Card":"https://static.wikia.nocookie.net/hellcard/images/a/a8/Donor_Card.png/revision/latest?cb=20240920124254",
+  "Finger Guillotine":"https://static.wikia.nocookie.net/hellcard/images/4/4e/Finger_Guillotine.png/revision/latest?cb=20240920124254",
+  "Red Beads":"https://static.wikia.nocookie.net/hellcard/images/5/5e/Red_Beads.png/revision/latest?cb=20240920005152",
+  "Dreamcatcher":"https://static.wikia.nocookie.net/hellcard/images/3/32/Dreamcatcher.png/revision/latest?cb=20240920005152"
+};
+
+const STARTER_ARTIFACTS = {
+  warrior: [
+    {name:"Talking Scabbard", cost:1, effect:"Transform one Sword Slash into Heavy Sword."},
+    {name:"Unagi", cost:1, effect:"Start each battle with 5 Stamina points."},
+    {name:"Tankard", cost:1, effect:"Add Camaraderie and Fool's Guard cards to deck."},
+    {name:"Sun", cost:2, effect:"Get 1 additional mana at the start of your next turn if you got damaged this turn."},
+    {name:"Broom", cost:1, effect:"Add Swords Akimbo to deck."},
+    {name:"Foreign Coin", cost:2, effect:"Replace the starting deck with Chip And Shatter 1x, Fulcrum Ji 3x, Ji Poke 3x, and Sword Slash 1x."},
+    {name:"Beetroot", cost:2, effect:"Gain +7 max HP."},
+    {name:"Unripe Banana", cost:2, effect:"Gain 3 block for every mana point left when ending your turn."},
+    {name:"Veteran Pin", cost:3, effect:"Discard whole deck. Pick up 4 random starters, 4 random common cards and 1 random rare card instead."},
+    {name:"Chocolate Box", cost:3, effect:"Discard whole deck. Draft 3 attack cards, 3 skill cards, 1 influence card and 1 random rare card instead."}
+  ],
+  rogue: [
+    {name:"Brass Cog", cost:1, effect:"Transform one Sharp Arrow into Rogue Tactics."},
+    {name:"Salt", cost:1, effect:"Gain 1 mana every 5th summoned card played."},
+    {name:"Horse's Head", cost:1, effect:"Add Death Mark and Osoto Gari cards to deck."},
+    {name:"Key", cost:1, effect:"Get 1 additional mana on the first turn."},
+    {name:"Box", cost:1, effect:"Add Improvise to deck."},
+    {name:"Crossbow", cost:1, effect:"Exchange 2 Sharp Arrows for Quality Quarrels."},
+    {name:"Grabber", cost:2, effect:"Add 1 random Bomb to your hand at the start of your turn."},
+    {name:"Golden Onion", cost:2, effect:"After every battle one random Location of yours is lowered by 1 gemstone."},
+    {name:"Veteran Pin", cost:3, effect:"Discard whole deck. Pick up 4 random starters, 4 random common cards and 1 random rare card instead."},
+    {name:"Chocolate Box", cost:3, effect:"Discard whole deck. Draft 3 attack cards, 3 skill cards, 1 influence card and 1 random rare card instead."}
+  ],
+  mage: [
+    {name:"Prism", cost:1, effect:"Transform one Magic Bolt into a Comet Rune."},
+    {name:"Little Helper", cost:1, effect:"Draw 1 additional card when you draw a Status (black) card."},
+    {name:"Hat", cost:1, effect:"Add Fractal Whip to deck."},
+    {name:"Crimson Vial", cost:1, effect:"Heal 1 HP at the start of your next turn if you got damaged this turn."},
+    {name:"Cockade", cost:1, effect:"Add Cold Arm and Brutal Thaw to deck."},
+    {name:"Library Card", cost:2, effect:"Replace the starting deck with Ethereal Shield 2x, Magic Bolt 2x, Cocoa Mug 1x, Page Rip 1x and Draft 2 Book cards."},
+    {name:"Acorn", cost:2, effect:"Gain 10 block after using Bolts 3 times in a turn."},
+    {name:"Spacious Sleeve", cost:2, effect:"Add 1 random Scroll to your hand at the start of your turn."},
+    {name:"Veteran Pin", cost:3, effect:"Discard whole deck. Pick up 4 random starters, 4 random common cards and 1 random rare card instead."},
+    {name:"Chocolate Box", cost:3, effect:"Discard whole deck. Draft 3 attack cards, 3 skill cards, 1 influence card and 1 random rare card instead."}
+  ],
+  tinkerer: [
+    {name:"Party Hat", cost:1, effect:"Transform one Screw Shot into Piñata and one Gear Up into Sugar Rush."},
+    {name:"Transmission Belt", cost:1, effect:"Every time you play a Contraption you already have active, draw a card."},
+    {name:"Meter", cost:1, effect:"Add Jump Start and Flare to deck."},
+    {name:"Battery Charger", cost:1, effect:"At the start of your turn, Draw +1 card if you have any cores."},
+    {name:"Work Glove", cost:1, effect:"Transform one Screw Shot into Boom Bird and one Prototype into Fire Sprinkler."},
+    {name:"Scout Badge", cost:2, effect:"Replace the starting deck with the following. Prototype 1x, Science! 1x, Gear Up 2x, Screw Shot 2x, Draft 2 Trap cards and 1 Trap-dependent Attack card."},
+    {name:"Screw Making Mold", cost:2, effect:"At the start of your turn, gain between 1-2 Screw(s)."},
+    {name:"Jack", cost:2, effect:"If you play no cards in a turn, at the end of that turn, gain 3 Screws and 1 Core."},
+    {name:"Veteran Pin", cost:3, effect:"Discard whole deck. Pick up 4 random starters, 4 random common cards and 1 random rare card instead."},
+    {name:"Chocolate Box", cost:3, effect:"Discard whole deck. Draft 3 attack cards, 3 skill cards, 1 influence card and 1 random rare card instead."}
+  ],
+  bruja: [
+    {name:"Nazar Eye", cost:1, effect:"When you end your turn with at least 3 mana and 5 cards activate Grace."},
+    {name:"Suturing Needle", cost:1, effect:"Replace the starting deck with Bag of Bones 1x, Ward Off 2x, Leeches 3x, and Boils 2x."},
+    {name:"Chirograph", cost:1, effect:"Replace the starting deck with Appease 2x, Adjourn 1x, Anoint 2x, Channel Wrath 1x and Hex 2x."},
+    {name:"Sangrethyst", cost:1, effect:"At the beginning of each battle lose all gemstone above 3. Gain 3 Max HP for each gemstone lost this way."},
+    {name:"Donor Card", cost:1, effect:"When your HP is below 50%, you can use 2 Location options in each Location."},
+    {name:"Finger Guillotine", cost:2, effect:"Gain 1 Max HP after each battle you survive."},
+    {name:"Red Beads", cost:2, effect:"Every turn, once you lose 4 or more HP during your turn, other Heroes gain 1 HP each."},
+    {name:"Dreamcatcher", cost:2, effect:"At the start of each turn, gain block equal to the HP you lost the previous turn."},
+    {name:"Veteran Pin", cost:3, effect:"Discard whole deck. Pick up 4 random starters, 4 random common cards and 1 random rare card instead."},
+    {name:"Chocolate Box", cost:3, effect:"Discard whole deck. Draft 3 attack cards, 3 skill cards, 1 influence card and 1 random rare card instead."}
+  ]
+};
+
+const CLASS_LABELS = {warrior:'Warrior',rogue:'Rogue',mage:'Mage',tinkerer:'Tinkerer',bruja:'Bruja'};
+
+let currentClass = 'warrior';
+
+function getImg(name) {
+  return ARTIFACT_IMAGES[name] || '';
+}
+
+function getClassFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const cls = (params.get('class') || '').toLowerCase();
+  if (STARTER_ARTIFACTS[cls]) return cls;
+  return 'warrior';
+}
+
+function switchClass(cls) {
+  if (!STARTER_ARTIFACTS[cls]) return;
+  currentClass = cls;
+  const url = new URL(window.location);
+  url.searchParams.set('class', cls);
+  history.replaceState(null, '', url);
+  if (typeof updateClassDropdown === 'function') updateClassDropdown(cls);
+  buildPage();
+  const query = document.getElementById('searchInput').value.trim();
+  if (query) applySearch(query);
+}
+
+function createCard(artifact) {
+  const card = document.createElement('div');
+  card.className = 'artifact-card';
+  card.dataset.name = artifact.name.toLowerCase();
+  card.dataset.effect = artifact.effect.toLowerCase();
+  card.dataset.cost = artifact.cost;
+
+  const img = getImg(artifact.name);
+  card.innerHTML = `
+    <div class="artifact-img">${img ? `<img src="${img}" alt="${artifact.name}" loading="lazy">` : ''}</div>
+    <div class="artifact-info">
+      <div class="artifact-top">
+        <div class="artifact-name">${artifact.name}</div>
+        <div class="gem-badge">${artifact.cost}</div>
+      </div>
+      <div class="artifact-effect">${artifact.effect}</div>
+    </div>
+  `;
+  return card;
+}
+
+function buildPage() {
+  const container = document.getElementById('artifact-content');
+  const cls = currentClass;
+  const artifacts = STARTER_ARTIFACTS[cls];
+  container.innerHTML = `
+    <div class="content-area">
+      <h2 class="page-title">${CLASS_LABELS[cls]} Starters</h2>
+      <div class="artifact-grid" id="artifactGrid"></div>
+    </div>
+  `;
+  const grid = document.getElementById('artifactGrid');
+  for (const a of artifacts) {
+    grid.appendChild(createCard(a));
+  }
+}
+
+function applySearch(query) {
+  query = query.toLowerCase().trim();
+  const allCards = document.querySelectorAll('.artifact-card');
+  let anyVisible = false;
+  if (!query) {
+    allCards.forEach(c => { c.classList.remove('dimmed', 'search-match'); });
+    document.getElementById('noResults').style.display = 'none';
+    return;
+  }
+  allCards.forEach(card => {
+    const match = card.dataset.name.includes(query) || card.dataset.effect.includes(query);
+    card.classList.toggle('dimmed', !match);
+    if (match) { card.classList.add('search-match'); anyVisible = true; }
+    else { card.classList.remove('search-match'); }
+  });
+  document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  applySearch(this.value);
+});
+
+currentClass = getClassFromURL();
+if (typeof updateClassDropdown === 'function') updateClassDropdown(currentClass);
+buildPage();
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.artifact-card:not(.dimmed)'); },
+  matchFn: function(el, query) { return el.dataset.name.includes(query) || el.dataset.effect.includes(query); }
+});
+</script>
+</body>
+</html>

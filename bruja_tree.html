@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Bruja Tree</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg-dark: #0d0d12;
+    --bg-card: #1a1a24;
+    --bg-panel: #14141e;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --attack: #c62828;
+    --attack-bg: #2a1010;
+    --attack-border: #8b1a1a;
+    --skill: #1565c0;
+    --skill-bg: #0d1a2e;
+    --skill-border: #0d47a1;
+    --influence: #2e7d32;
+    --influence-bg: #0d2010;
+    --influence-border: #1b5e20;
+    --starter: #78909c;
+    --common: #9e9e9e;
+    --rare: #7e57c2;
+    --legendary: #4caf50;
+    --gold-glow: rgba(76, 175, 80, 0.3);
+    --line-color: #2a2a30;
+    --highlight-line: #4caf50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #1a0a1e 0%, var(--bg-dark) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #388e3c, #4caf50, #388e3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+  }
+
+  header .subtitle { color: var(--text-dim); font-size: 1.1em; margin-top: 8px; font-weight: 300; }
+
+  .legend {
+    display: flex; justify-content: center; gap: 24px; padding: 16px 20px; flex-wrap: wrap;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+  }
+  .legend-group { display: flex; gap: 12px; align-items: center; }
+  .legend-group .label { color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.attack { background: var(--attack); }
+  .legend-dot.skill { background: var(--skill); }
+  .legend-dot.influence { background: var(--influence); }
+  .legend-dot.starter { background: var(--starter); border: 1px solid #aaa; }
+  .legend-dot.common { background: var(--common); }
+  .legend-dot.rare { background: var(--rare); }
+  .legend-dot.legendary { background: var(--legendary); }
+
+  .stats-bar {
+    display: flex; justify-content: center; gap: 30px; padding: 12px 20px;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border); font-size: 0.85em;
+  }
+  .stat-item { display: flex; align-items: center; gap: 6px; }
+  .stat-num { font-weight: 700; font-size: 1.1em; }
+  .stat-label { color: var(--text-dim); }
+
+  .search-bar {
+    display: flex; justify-content: center; padding: 16px 20px; background: var(--bg-panel);
+    position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border);
+  }
+  .search-bar input {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 16px; color: var(--text); font-size: 0.95em; width: 360px;
+    outline: none; font-family: 'Inter', sans-serif;
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  .search-bar input:focus { border-color: var(--legendary); }
+
+  .type-section {
+    padding: 50px 0 10px;
+    border-top: 3px solid var(--border);
+  }
+  .type-section:first-of-type { border-top: none; }
+  .type-section h2 {
+    font-family: 'Cinzel', serif; font-size: 2.2em; text-align: center; margin-bottom: 4px;
+  }
+  .type-section .type-desc { text-align: center; color: var(--text-dim); font-size: 0.95em; margin-bottom: 20px; }
+  .type-section .type-count {
+    text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .tier-label {
+    text-align: center; font-size: 0.7em; text-transform: uppercase;
+    letter-spacing: 2px; font-weight: 700; padding: 8px; margin-bottom: 6px;
+  }
+  .tier-label.starter-tier { color: var(--starter); }
+  .tier-label.common-tier { color: var(--common); }
+  .tier-label.rare-tier { color: var(--rare); }
+  .tier-label.legendary-tier { color: var(--legendary); }
+
+  .tree-wrapper { padding: 0 10px 40px; }
+
+  .flat-tree {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    position: relative; padding: 20px 0;
+  }
+  .flat-tier {
+    display: flex; gap: 5px; justify-content: center;
+    position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  .flat-spacer { height: 20px; position: relative; width: 100%; }
+
+  .card-node {
+    position: relative; width: 64px; min-width: 64px; padding: 3px 3px 4px;
+    border-radius: 6px; border: 2px solid var(--border); background: var(--bg-card);
+    cursor: pointer; transition: all 0.25s ease; text-align: center; flex-shrink: 0;
+  }
+  .card-node:hover { transform: translateY(-2px); z-index: 10; }
+
+  .card-node.attack { border-color: var(--attack-border); background: var(--attack-bg); }
+  .card-node.attack:hover { border-color: var(--attack); box-shadow: 0 4px 20px rgba(198,40,40,0.3); }
+  .card-node.skill { border-color: var(--skill-border); background: var(--skill-bg); }
+  .card-node.skill:hover { border-color: var(--skill); box-shadow: 0 4px 20px rgba(21,101,192,0.3); }
+  .card-node.influence { border-color: var(--influence-border); background: var(--influence-bg); }
+  .card-node.influence:hover { border-color: var(--influence); box-shadow: 0 4px 20px rgba(46,125,50,0.3); }
+
+  .card-node.legendary { border-width: 2px; }
+  .card-node.legendary.attack,
+  .card-node.legendary.skill,
+  .card-node.legendary.influence { border-color: var(--legendary); box-shadow: 0 0 8px var(--gold-glow); }
+  .card-node.legendary:hover { box-shadow: 0 4px 25px var(--gold-glow); }
+
+  .card-img { width: 48px; height: 48px; margin: 0 auto 2px; border-radius: 4px; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .card-name { font-weight: 700; font-size: 0.52em; line-height: 1.1; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { display: flex; justify-content: center; gap: 2px; align-items: center; font-size: 0.48em; }
+  .card-cost { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  .card-rarity { text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-size: 0.85em; }
+  .card-rarity.starter { color: var(--starter); }
+  .card-rarity.common { color: var(--common); }
+  .card-rarity.rare { color: var(--rare); }
+  .card-rarity.legendary { color: var(--legendary); }
+
+  .card-node.path-highlight { filter: brightness(1.4); z-index: 5; }
+  .card-node.path-highlight.attack { border-color: #ff5252 !important; box-shadow: 0 0 15px rgba(255,82,82,0.5) !important; }
+  .card-node.path-highlight.skill { border-color: #42a5f5 !important; box-shadow: 0 0 15px rgba(66,165,245,0.5) !important; }
+  .card-node.path-highlight.influence { border-color: #66bb6a !important; box-shadow: 0 0 15px rgba(102,187,106,0.5) !important; }
+  .card-node.path-descendant { filter: brightness(1.2); z-index: 4; }
+  .card-node.path-descendant.attack { border-color: #ef9a9a !important; box-shadow: 0 0 12px rgba(239,154,154,0.4) !important; }
+  .card-node.path-descendant.skill { border-color: #90caf9 !important; box-shadow: 0 0 12px rgba(144,202,249,0.4) !important; }
+  .card-node.path-descendant.influence { border-color: #a5d6a7 !important; box-shadow: 0 0 12px rgba(165,214,167,0.4) !important; }
+  .card-node.dimmed { opacity: 0.12; transition: opacity 0.3s; }
+
+  .tree-svg line { stroke: var(--line-color); stroke-width: 1.5; opacity: 0.15; transition: all 0.3s; }
+  .tree-svg line.line-highlight { stroke: var(--highlight-line); stroke-width: 3; opacity: 1; filter: drop-shadow(0 0 4px var(--gold-glow)); }
+  .tree-svg line.line-descendant { stroke-width: 2.5; opacity: 0.75; }
+  .flat-tree.tree-attack .tree-svg line.line-descendant { stroke: #ef9a9a; filter: drop-shadow(0 0 3px rgba(239,154,154,0.4)); }
+  .flat-tree.tree-skill .tree-svg line.line-descendant { stroke: #90caf9; filter: drop-shadow(0 0 3px rgba(144,202,249,0.4)); }
+  .flat-tree.tree-influence .tree-svg line.line-descendant { stroke: #a5d6a7; filter: drop-shadow(0 0 3px rgba(165,214,167,0.4)); }
+  .tree-svg line.line-dimmed { opacity: 0.04; }
+  .tree-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  .detail-pane {
+    position: fixed; top: 80px; right: 12px; z-index: 1000; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0;
+    width: 364px; overflow: hidden;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .detail-pane.visible { opacity: 1; pointer-events: auto; }
+  .detail-pane .tt-header { display: flex; gap: 12px; padding: 16px; align-items: center; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img { width: 84px; height: 84px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-pane .tt-info { flex: 1; min-width: 0; }
+  .detail-pane .tt-name { font-size: 1.1em; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+  .detail-pane .tt-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .detail-pane .tt-badge { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; }
+  .detail-pane .tt-badge.type-attack { background: rgba(198,40,40,0.2); color: var(--attack); }
+  .detail-pane .tt-badge.type-skill { background: rgba(21,101,192,0.2); color: var(--skill); }
+  .detail-pane .tt-badge.type-influence { background: rgba(46,125,50,0.2); color: var(--influence); }
+  .detail-pane .tt-badge.rarity-starter { background: rgba(120,144,156,0.2); color: var(--starter); }
+  .detail-pane .tt-badge.rarity-common { background: rgba(158,158,158,0.2); color: #9e9e9e; }
+  .detail-pane .tt-badge.rarity-rare { background: rgba(126,87,194,0.2); color: var(--rare); }
+  .detail-pane .tt-badge.rarity-legendary { background: rgba(76,175,80,0.2); color: var(--legendary); }
+  .detail-pane .tt-mana { display: flex; align-items: center; gap: 4px; font-size: 0.88em; margin-top: 6px; color: #90caf9; font-weight: 600; }
+  .detail-pane .tt-mana-gem { width: 18px; height: 18px; background: #3366dd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75em; color: #fff; font-weight: 800; }
+  .detail-pane .tt-body { padding: 0 16px 16px; }
+  .detail-pane .tt-effect { font-size: 0.88em; line-height: 1.55; color: var(--text); padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; border-left: 2px solid rgba(76, 175, 80, 0.25); }
+  .detail-pane .tt-transforms { margin-top: 8px; font-size: 0.8em; color: var(--text-dim); line-height: 1.5; }
+  .detail-pane .tt-transforms strong { color: var(--text); }
+  .detail-pane .tt-arrow-up { color: var(--accent); }
+  .detail-pane .tt-arrow-down { color: #ef5350; }
+
+  .card-node.search-match { animation: pulse-highlight 1s ease-in-out 3; }
+  @keyframes pulse-highlight { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>BRUJA</h1>
+  <div class="subtitle">Hellcard Evolution Tree &mdash; All Cards &amp; Upgrade Paths</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">104</span><span class="stat-label">Total Cards</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--attack)">32</span><span class="stat-label">Attack</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--skill)">38</span><span class="stat-label">Skill</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--influence)">34</span><span class="stat-label">Influence</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--legendary)">42</span><span class="stat-label">Legendary</span></div>
+</div>
+
+<div class="legend">
+  <div class="legend-group">
+    <span class="label">Type</span>
+    <div class="legend-item"><div class="legend-dot attack"></div> Attack</div>
+    <div class="legend-item"><div class="legend-dot skill"></div> Skill</div>
+    <div class="legend-item"><div class="legend-dot influence"></div> Influence</div>
+  </div>
+  <div class="legend-group">
+    <span class="label">Rarity</span>
+    <div class="legend-item"><div class="legend-dot starter"></div> Starter</div>
+    <div class="legend-item"><div class="legend-dot common"></div> Common</div>
+    <div class="legend-item"><div class="legend-dot rare"></div> Rare</div>
+    <div class="legend-item"><div class="legend-dot legendary"></div> Legendary</div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search cards... (e.g. Hex, Lifesteal, blood)">
+</div>
+
+<div class="detail-pane" id="detailPane"></div>
+<div id="all-trees"></div>
+
+<script>
+const IMGS = {
+  "abuse-pity": "https://static.wikia.nocookie.net/hellcard/images/c/cc/Abuse_Pity.png/revision/latest?cb=20240908165811",
+  "accessorize": "https://static.wikia.nocookie.net/hellcard/images/8/8c/Accessorize.png/revision/latest?cb=20240908164753",
+  "adjourn": "https://static.wikia.nocookie.net/hellcard/images/d/d7/Adjourn.png/revision/latest?cb=20240908164756",
+  "anoint": "https://static.wikia.nocookie.net/hellcard/images/c/c4/Anoint.png/revision/latest?cb=20240908164749",
+  "appeal-to-mercy": "https://static.wikia.nocookie.net/hellcard/images/d/da/Appeal_to_Mercy.png/revision/latest?cb=20240908165726",
+  "appease": "https://static.wikia.nocookie.net/hellcard/images/3/3c/Appease.png/revision/latest?cb=20240908164818",
+  "arterial-spray": "https://static.wikia.nocookie.net/hellcard/images/0/0d/Arterial_Spray.png/revision/latest?cb=20240908164604",
+  "atone": "https://static.wikia.nocookie.net/hellcard/images/0/00/Atone.png/revision/latest?cb=20240908165343",
+  "autosarcophagy": "https://static.wikia.nocookie.net/hellcard/images/b/b8/Autosarcophagy.png/revision/latest?cb=20240908165346",
+  "bag-of-bones": "https://static.wikia.nocookie.net/hellcard/images/e/e3/Bag_of_Bones.png/revision/latest?cb=20240908165628",
+  "bargaining": "https://static.wikia.nocookie.net/hellcard/images/0/04/Bargaining.png/revision/latest?cb=20240908165339",
+  "bile-blade": "https://static.wikia.nocookie.net/hellcard/images/a/a9/Bile_Blade.png/revision/latest?cb=20240908164452",
+  "bitter-incense": "https://static.wikia.nocookie.net/hellcard/images/a/a3/Bitter_Incense.png/revision/latest?cb=20240908164526",
+  "black-affinity": "https://static.wikia.nocookie.net/hellcard/images/b/b3/Black_Affinity.png/revision/latest?cb=20240908165749",
+  "blame": "https://static.wikia.nocookie.net/hellcard/images/4/4d/Blame.png/revision/latest?cb=20240908165644",
+  "boils": "https://static.wikia.nocookie.net/hellcard/images/9/98/Boils.png/revision/latest?cb=20240908162607",
+  "bone-broth": "https://static.wikia.nocookie.net/hellcard/images/4/47/Bone_Broth.png/revision/latest?cb=20240908165736",
+  "bone-knitting": "https://static.wikia.nocookie.net/hellcard/images/0/0e/Bone_Knitting.png/revision/latest?cb=20240908165611",
+  "cabrit-sans-cor": "https://static.wikia.nocookie.net/hellcard/images/9/9e/Cabrit_sans_Cor.png/revision/latest?cb=20240908162634",
+  "channel-wrath": "https://static.wikia.nocookie.net/hellcard/images/8/8d/Channel_Wrath.png/revision/latest?cb=20240908162611",
+  "choir-of-agony": "https://static.wikia.nocookie.net/hellcard/images/0/0d/Choir_of_Agony.png/revision/latest?cb=20240908164733",
+  "corrupt-offering": "https://static.wikia.nocookie.net/hellcard/images/e/e7/Corrupt_Offering.png/revision/latest?cb=20240908165400",
+  "crimson-tide": "https://static.wikia.nocookie.net/hellcard/images/4/4a/Crimson_Tide.png/revision/latest?cb=20240908164724",
+  "crumple": "https://static.wikia.nocookie.net/hellcard/images/1/15/Crumple.png/revision/latest?cb=20240908165618",
+  "culling": "https://static.wikia.nocookie.net/hellcard/images/6/67/Culling.png/revision/latest?cb=20240908164743",
+  "curry-favor": "https://static.wikia.nocookie.net/hellcard/images/0/0c/Curry_Favor.png/revision/latest?cb=20240908165357",
+  "dark-embrace": "https://static.wikia.nocookie.net/hellcard/images/f/fb/Dark_Embrace.png/revision/latest?cb=20240908165745",
+  "deadlines": "https://static.wikia.nocookie.net/hellcard/images/3/37/Deadlines.png/revision/latest?cb=20240908165733",
+  "double-cut": "https://static.wikia.nocookie.net/hellcard/images/b/b3/Double_Cut.png/revision/latest?cb=20240908162615",
+  "drain-essence": "https://static.wikia.nocookie.net/hellcard/images/3/3d/Drain_Essence.png/revision/latest?cb=20240908165640",
+  "echoing-whimper": "https://static.wikia.nocookie.net/hellcard/images/0/03/Echoing_Whimper.png/revision/latest?cb=20240908164647",
+  "edgerunner": "https://static.wikia.nocookie.net/hellcard/images/b/b1/Edgerunner.png/revision/latest?cb=20240908165806",
+  "eigth-rule": "https://static.wikia.nocookie.net/hellcard/images/7/78/Eigth_Rule.png/revision/latest?cb=20240908165825",
+  "embrace-ire": "https://static.wikia.nocookie.net/hellcard/images/8/82/Embrace_Ire.png/revision/latest?cb=20240908165419",
+  "engorge": "https://static.wikia.nocookie.net/hellcard/images/5/5a/Engorge.png/revision/latest?cb=20240908165719",
+  "evil-eye": "https://static.wikia.nocookie.net/hellcard/images/2/27/Evil_Eye.png/revision/latest?cb=20240908164830",
+  "forewarn": "https://static.wikia.nocookie.net/hellcard/images/a/aa/Forewarn.png/revision/latest?cb=20240908164824",
+  "haruspicy": "https://static.wikia.nocookie.net/hellcard/images/d/de/Haruspicy.png/revision/latest?cb=20240908164849",
+  "heptomancy": "https://static.wikia.nocookie.net/hellcard/images/9/9f/Heptomancy.png/revision/latest?cb=20240908165407",
+  "hex": "https://static.wikia.nocookie.net/hellcard/images/2/2c/Hex.png/revision/latest?cb=20240908162602",
+  "hollow-blade": "https://static.wikia.nocookie.net/hellcard/images/1/17/Hollow_Blade.png/revision/latest?cb=20240908164721",
+  "humoric-attune": "https://static.wikia.nocookie.net/hellcard/images/b/b1/Humoric_Attune.png/revision/latest?cb=20240908164746",
+  "ill-intent": "https://static.wikia.nocookie.net/hellcard/images/4/42/Ill_Intent.png/revision/latest?cb=20240908164703",
+  "imbrued-lien": "https://static.wikia.nocookie.net/hellcard/images/d/dd/Imbrued_Lien.png/revision/latest?cb=20240908165716",
+  "imbue": "https://static.wikia.nocookie.net/hellcard/images/d/d1/Imbue.png/revision/latest?cb=20240908164842",
+  "inner-well": "https://static.wikia.nocookie.net/hellcard/images/6/6e/Inner_Well.png/revision/latest?cb=20240908165633",
+  "insolence": "https://static.wikia.nocookie.net/hellcard/images/8/8b/Insolence.png/revision/latest?cb=20240908164815",
+  "knead-cobwebs": "https://static.wikia.nocookie.net/hellcard/images/a/a9/Knead_Cobwebs.png/revision/latest?cb=20240908165831",
+  "last-favor": "https://static.wikia.nocookie.net/hellcard/images/0/02/Last_Favor.png/revision/latest?cb=20240908165828",
+  "leeches": "https://static.wikia.nocookie.net/hellcard/images/a/af/Leeches.png/revision/latest?cb=20240906210444",
+  "libation": "https://static.wikia.nocookie.net/hellcard/images/a/a4/Libation.png/revision/latest?cb=20240908164836",
+  "lifesteal": "https://static.wikia.nocookie.net/hellcard/images/6/68/Lifesteal.png/revision/latest?cb=20240908165713",
+  "linden-brew": "https://static.wikia.nocookie.net/hellcard/images/d/d2/Linden_Brew.png/revision/latest?cb=20240923185716",
+  "liturgy-of-pain": "https://static.wikia.nocookie.net/hellcard/images/8/88/Liturgy_of_Pain.png/revision/latest?cb=20240908164711",
+  "malevolent-glare": "https://static.wikia.nocookie.net/hellcard/images/6/62/Malevolent_Glare.png/revision/latest?cb=20240908164700",
+  "malfeasance": "https://static.wikia.nocookie.net/hellcard/images/8/83/Malfeasance.png/revision/latest?cb=20240908164706",
+  "mandragore-tea": "https://static.wikia.nocookie.net/hellcard/images/2/24/Mandragore_Tea.png/revision/latest?cb=20240908165411",
+  "mercy-plea": "https://static.wikia.nocookie.net/hellcard/images/0/0b/Mercy_Plea.png/revision/latest?cb=20240908165742",
+  "mind-fracture": "https://static.wikia.nocookie.net/hellcard/images/e/e6/Mind_Fracture.png/revision/latest?cb=20240908164736",
+  "necrotize": "https://static.wikia.nocookie.net/hellcard/images/d/df/Necrotize.png/revision/latest?cb=20240908162623",
+  "nefarious-glance": "https://static.wikia.nocookie.net/hellcard/images/4/48/Nefarious_Glance.png/revision/latest?cb=20240908164903",
+  "nick-jugular": "https://static.wikia.nocookie.net/hellcard/images/8/89/Nick_Jugular.png/revision/latest?cb=20240908162554",
+  "oblation-rite": "https://static.wikia.nocookie.net/hellcard/images/8/8d/Oblation_Rite.png/revision/latest?cb=20240908165706",
+  "paint-pentacle": "https://static.wikia.nocookie.net/hellcard/images/d/d5/Paint_Pentacle.png/revision/latest?cb=20240908164811",
+  "patience": "https://static.wikia.nocookie.net/hellcard/images/b/bf/Patience.png/revision/latest?cb=20240908165422",
+  "pinch": "https://static.wikia.nocookie.net/hellcard/images/c/cf/Pinch.png/revision/latest?cb=20240908165624",
+  "puppeteer": "https://static.wikia.nocookie.net/hellcard/images/7/7a/Puppeteer.png/revision/latest?cb=20240908164651",
+  "rattle": "https://static.wikia.nocookie.net/hellcard/images/d/d3/Rattle.png/revision/latest?cb=20240908165614",
+  "reap-rewards": "https://static.wikia.nocookie.net/hellcard/images/a/a7/Reap_Rewards.png/revision/latest?cb=20240908164727",
+  "red-menace": "https://static.wikia.nocookie.net/hellcard/images/b/b4/Red_Menace.png/revision/latest?cb=20240908165636",
+  "red-veil": "https://static.wikia.nocookie.net/hellcard/images/3/33/Red_Veil.png/revision/latest?cb=20240908164845",
+  "renounce": "https://static.wikia.nocookie.net/hellcard/images/9/9a/Renounce.png/revision/latest?cb=20240908164833",
+  "repent": "https://static.wikia.nocookie.net/hellcard/images/f/ff/Repent.png/revision/latest?cb=20240908164853",
+  "ribleaf-compress": "https://static.wikia.nocookie.net/hellcard/images/7/7a/Ribleaf_Compress.png/revision/latest?cb=20240908165703",
+  "salt-circle": "https://static.wikia.nocookie.net/hellcard/images/b/b9/Salt_Circle.png/revision/latest?cb=20240908165756",
+  "sangria": "https://static.wikia.nocookie.net/hellcard/images/3/3f/Sangria.png/revision/latest?cb=20240908162618",
+  "sate": "https://static.wikia.nocookie.net/hellcard/images/c/c5/Sate.png/revision/latest?cb=20240908165803",
+  "scab": "https://static.wikia.nocookie.net/hellcard/images/2/24/Scab.png/revision/latest?cb=20240908164821",
+  "scarring": "https://static.wikia.nocookie.net/hellcard/images/e/ed/Scarring.png/revision/latest?cb=20240908164900",
+  "seeping-wound": "https://static.wikia.nocookie.net/hellcard/images/1/12/Seeping_Wound.png/revision/latest?cb=20240908164534",
+  "sinister-chant": "https://static.wikia.nocookie.net/hellcard/images/1/1f/Sinister_Chant.png/revision/latest?cb=20240908164714",
+  "soul-shatter": "https://static.wikia.nocookie.net/hellcard/images/7/74/Soul_Shatter.png/revision/latest?cb=20240908164739",
+  "soul-shield": "https://static.wikia.nocookie.net/hellcard/images/0/0c/Soul_Shield.png/revision/latest?cb=20240908165647",
+  "soul-swap": "https://static.wikia.nocookie.net/hellcard/images/f/ff/Soul_Swap.png/revision/latest?cb=20240908165621",
+  "surface-pressure": "https://static.wikia.nocookie.net/hellcard/images/e/eb/Surface_Pressure.png/revision/latest?cb=20240908165821",
+  "teeth-necklace": "https://static.wikia.nocookie.net/hellcard/images/1/15/Teeth_Necklace.png/revision/latest?cb=20240908165650",
+  "thoughts-and-slayers": "https://static.wikia.nocookie.net/hellcard/images/d/de/Thoughts_%26_Slayers.png/revision/latest?cb=20240908164610",
+  "thousand-cuts": "https://static.wikia.nocookie.net/hellcard/images/3/34/Thousand_Cuts.png/revision/latest?cb=20240908164717",
+  "tit-for-tat": "https://static.wikia.nocookie.net/hellcard/images/9/9b/Tit_for_Tat.png/revision/latest?cb=20240908164613",
+  "tongue-bite": "https://static.wikia.nocookie.net/hellcard/images/e/e4/Tongue_Bite.png/revision/latest?cb=20240908164856",
+  "transfuse": "https://static.wikia.nocookie.net/hellcard/images/6/6f/Transfuse.png/revision/latest?cb=20240908165353",
+  "trick-death": "https://static.wikia.nocookie.net/hellcard/images/0/02/Trick_Death.png/revision/latest?cb=20240908164839",
+  "veer-anger": "https://static.wikia.nocookie.net/hellcard/images/8/8f/Veer_Anger.png/revision/latest?cb=20240908164530",
+  "vendetta": "https://static.wikia.nocookie.net/hellcard/images/8/84/Vendetta.png/revision/latest?cb=20240908165759",
+  "violent-cycle": "https://static.wikia.nocookie.net/hellcard/images/4/48/Violent_Cycle.png/revision/latest?cb=20240908165752",
+  "violent-delight": "https://static.wikia.nocookie.net/hellcard/images/4/42/Violent_Delight.png/revision/latest?cb=20240908165817",
+  "ward-off": "https://static.wikia.nocookie.net/hellcard/images/b/b5/Blood.png/revision/latest?cb=20240911151633",
+  "wendigo": "https://static.wikia.nocookie.net/hellcard/images/8/8a/Wendigo.png/revision/latest?cb=20240908165656",
+  "wickedness": "https://static.wikia.nocookie.net/hellcard/images/f/fd/Wickedness.png/revision/latest?cb=20240908165730",
+  "withering-stare": "https://static.wikia.nocookie.net/hellcard/images/9/92/Withering_Stare.png/revision/latest?cb=20240908164907",
+  "work-life-balance": "https://static.wikia.nocookie.net/hellcard/images/b/b2/Work_Life_Balance.png/revision/latest?cb=20240908165723",
+  "worm-stew": "https://static.wikia.nocookie.net/hellcard/images/9/9f/Worm_Stew.png/revision/latest?cb=20240908165403",
+  "wound-lick": "https://static.wikia.nocookie.net/hellcard/images/0/09/Wound_Lick.png/revision/latest?cb=20240908164804",
+  "wrathstealer": "https://static.wikia.nocookie.net/hellcard/images/c/c7/Wrathstealer.png/revision/latest?cb=20240908165607"
+};
+
+const CARDS = {
+  "abuse-pity": {
+    "name": "Abuse Pity",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "If your HP is below 50% (X), at the start of your turn, reduce Reckoning by 15. Strain.",
+    "to": [],
+    "from": [
+      "Oblation Rite",
+      "Imbrued Lien",
+      "Appeal to Mercy"
+    ]
+  },
+  "accessorize": {
+    "name": "Accessorize",
+    "type": "Skill",
+    "rarity": "Starter",
+    "cost": 2,
+    "effect": "Gain 3 block.",
+    "to": [
+      "Scab",
+      "Evil Eye",
+      "Forewarn"
+    ],
+    "from": []
+  },
+  "adjourn": {
+    "name": "Adjourn",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Increase Reckoning by 150% of HP lost (X) and gain Grace. Add 1 Black Bile to the draw pile and increase that number by 1.",
+    "to": [
+      "Red Veil",
+      "Repent",
+      "Libation"
+    ],
+    "from": [
+      "Anoint"
+    ]
+  },
+  "anoint": {
+    "name": "Anoint",
+    "type": "Skill",
+    "rarity": "Starter",
+    "cost": 0,
+    "effect": "[Blood Cost: 1] Give 3 block.",
+    "to": [
+      "Paint Pentacle",
+      "Ward Off",
+      "Adjourn"
+    ],
+    "from": []
+  },
+  "appeal-to-mercy": {
+    "name": "Appeal to Mercy",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "If your HP is below 50% (X), at the start of your turn, reduce Reckoning by 6.",
+    "to": [
+      "Mercy Plea",
+      "Eigth Rule",
+      "Abuse Pity"
+    ],
+    "from": [
+      "Drain Essence",
+      "Blame"
+    ]
+  },
+  "appease": {
+    "name": "Appease",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Decrease Reckoning by 5.",
+    "to": [
+      "Atone",
+      "Haruspicy",
+      "Repent"
+    ],
+    "from": []
+  },
+  "arterial-spray": {
+    "name": "Arterial Spray",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Deal 4 damage. If the monster survives, add 2 Healing Drops to your hand.",
+    "to": [
+      "Humoric Attune",
+      "Crimson Tide",
+      "Hollow Blade"
+    ],
+    "from": [
+      "Sangria"
+    ]
+  },
+  "atone": {
+    "name": "Atone",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Decrease your Reckoning by 50% (X). Strain.",
+    "to": [
+      "Patience",
+      "Embrace Ire",
+      "Soul Swap"
+    ],
+    "from": [
+      "Wound Lick",
+      "Appease"
+    ]
+  },
+  "autosarcophagy": {
+    "name": "Autosarcophagy",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 3] Add 2 Black Bile to the draw pile and draw 4 cards. Heal 2 HP and 1 mana for every Black Bile drawn.",
+    "to": [],
+    "from": [
+      "Libation",
+      "Trick Death",
+      "Tongue Bite"
+    ]
+  },
+  "bag-of-bones": {
+    "name": "Bag of Bones",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "At the end of the battle, heal yourself by 1HP for every non-summoned monster you have killed. Unstackable. Exhaust.",
+    "to": [
+      "Lifesteal",
+      "Ribleaf Compress",
+      "Teeth Necklace"
+    ],
+    "from": []
+  },
+  "bargaining": {
+    "name": "Bargaining",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "If Reckoning is active reduce it to 50% (X). Otherwise gain 2 mana and draw 2 cards.",
+    "to": [
+      "Worm Stew",
+      "Corrupt Offering",
+      "Curry Favor"
+    ],
+    "from": [
+      "Scab",
+      "Renounce"
+    ]
+  },
+  "bile-blade": {
+    "name": "Bile Blade",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 1] Deal 6 damage. Take this card when you draw Black Bile.",
+    "to": [
+      "Liturgy of Pain",
+      "Humoric Attune",
+      "Sinister Chant"
+    ],
+    "from": [
+      "Hex",
+      "Sangria"
+    ]
+  },
+  "bitter-incense": {
+    "name": "Bitter Incense",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Deal 8 damage and add Black Bile to your draw pile. If it kills the monster, deal 8 splash damage in a medium radius.",
+    "to": [
+      "Culling",
+      "Soul Shatter",
+      "Liturgy of Pain"
+    ],
+    "from": [
+      "Boils"
+    ]
+  },
+  "black-affinity": {
+    "name": "Black Affinity",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Gain 5 block every time you draw Black Bile",
+    "to": [],
+    "from": [
+      "Soul Shield",
+      "Oblation Rite",
+      "Lifesteal"
+    ]
+  },
+  "blame": {
+    "name": "Blame",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "At the end of your turn, If you have incoming damage, gain block and increase Reckoning by 5. Unstackable. Exhaust.",
+    "to": [
+      "Soul Shield",
+      "Appeal to Mercy",
+      "Imbrued Lien"
+    ],
+    "from": [
+      "Pinch"
+    ]
+  },
+  "boils": {
+    "name": "Boils",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Deal 5 damage. If it kills the monster, deal 5 splash damage in a small radius.",
+    "to": [
+      "Puppeteer",
+      "Thoughts & Slayers",
+      "Bitter Incense"
+    ],
+    "from": [
+      "Leeches"
+    ]
+  },
+  "bone-broth": {
+    "name": "Bone Broth",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "At the end of the battle, heal yourself by 5HP and others by 1 HP for every non-summoned monster you have killed. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Teeth Necklace"
+    ]
+  },
+  "bone-knitting": {
+    "name": "Bone Knitting",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Gain 1 block for each 2 of your missing HP (X total). If Reckoning is above 20, double the block and Strain.",
+    "to": [],
+    "from": [
+      "Scarring"
+    ]
+  },
+  "cabrit-sans-cor": {
+    "name": "Cabrit sans Cor",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 4 damage. If it kills the monster, increase Reckoning by 4 and gain Grace.",
+    "to": [
+      "Ill Intent",
+      "Tit for Tat",
+      "Seeping Wound"
+    ],
+    "from": [
+      "Nick Jugular"
+    ]
+  },
+  "channel-wrath": {
+    "name": "Channel Wrath",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "Deal damage equal to Reckoning (X) in a small radius. Strain.",
+    "to": [
+      "Malevolent Glare",
+      "Echoing Whimper",
+      "Veer Anger"
+    ],
+    "from": []
+  },
+  "choir-of-agony": {
+    "name": "Choir of Agony",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 3 damage for every damaged monster (X total). If it kills the monster, lower the Strength of all damaged monsters by 3 this turn.",
+    "to": [],
+    "from": [
+      "Tit for Tat",
+      "Echoing Whimper",
+      "Puppeteer"
+    ]
+  },
+  "corrupt-offering": {
+    "name": "Corrupt Offering",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 4] Increase Reckoning by 50% of HP lost (X) and gain Grace. Add 1 Black Bile to the draw pile and increase that number by 1.",
+    "to": [],
+    "from": [
+      "Libation",
+      "Imbue",
+      "Bargaining"
+    ]
+  },
+  "crimson-tide": {
+    "name": "Crimson Tide",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 6] Deal 11 damage in a long medium cone.",
+    "to": [],
+    "from": [
+      "Arterial Spray",
+      "Thoughts & Slayers",
+      "Echoing Whimper"
+    ]
+  },
+  "crumple": {
+    "name": "Crumple",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Lower the Strength of all monsters by 5 this turn.",
+    "to": [],
+    "from": [
+      "Trick Death",
+      "Nefarious Glance",
+      "Withering Stare"
+    ]
+  },
+  "culling": {
+    "name": "Culling",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 13] All damaged non-boss monsters lose half their current HP. Exhaust.",
+    "to": [],
+    "from": [
+      "Bitter Incense",
+      "Malevolent Glare"
+    ]
+  },
+  "curry-favor": {
+    "name": "Curry Favor",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 3,
+    "effect": "If Reckoning is active reduce it to 25% (X). Otherwise gain 4 mana and draw Cards until your hand is full. Exhaust.",
+    "to": [],
+    "from": [
+      "Scarring",
+      "Bargaining"
+    ]
+  },
+  "dark-embrace": {
+    "name": "Dark Embrace",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Every time you kill a monster, increase Reckoning by 5 and gain 5 block. Reckoning alone cannot kill you. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Linden Brew",
+      "Deadlines"
+    ]
+  },
+  "deadlines": {
+    "name": "Deadlines",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "At the start of your turn, gain +1 mana for every 15 Reckoning. Unstackable. Exhaust.",
+    "to": [
+      "Edgerunner",
+      "Dark Embrace",
+      "Surface Pressure"
+    ],
+    "from": []
+  },
+  "double-cut": {
+    "name": "Double Cut",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 2 damage. Deal +4 if your HP is below 70%(X).",
+    "to": [
+      "Ill Intent",
+      "Puppeteer",
+      "Seeping Wound"
+    ],
+    "from": [
+      "Nick Jugular"
+    ]
+  },
+  "drain-essence": {
+    "name": "Drain Essence",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "Every time you kill a monster, gain 2 block. Unstackable. Exhaust.",
+    "to": [
+      "Soul Shield",
+      "Appeal to Mercy",
+      "Linden Brew"
+    ],
+    "from": []
+  },
+  "echoing-whimper": {
+    "name": "Echoing Whimper",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 2 damage for every damaged monster (X total).",
+    "to": [
+      "Crimson Tide",
+      "Thousand Cuts",
+      "Choir of Agony"
+    ],
+    "from": [
+      "Channel Wrath",
+      "Necrotize"
+    ]
+  },
+  "edgerunner": {
+    "name": "Edgerunner",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 3,
+    "effect": "If your HP is below 75% (X) ignore 1HP loss paying for cards. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Work Life Balance",
+      "Deadlines"
+    ]
+  },
+  "eigth-rule": {
+    "name": "Eigth Rule",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "If you've lost at least 10 HP this turn, your attacks deal bonus damage equal to 50% your total HP loss (X). Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Engorge",
+      "Appeal to Mercy"
+    ]
+  },
+  "embrace-ire": {
+    "name": "Embrace Ire",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Draw 1 cards and gain 2 mana for every 5 Reckoning (X cards and X mana). Lose Grace. You cannot gain Grace this turn. Strain.",
+    "to": [],
+    "from": [
+      "Haruspicy",
+      "Repent",
+      "Atone"
+    ]
+  },
+  "engorge": {
+    "name": "Engorge",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "If you've lost HP on your turn, your attacks deal +2 damage. Exhaust.",
+    "to": [
+      "Violent Delight",
+      "Eigth Rule",
+      "Vendetta"
+    ],
+    "from": [
+      "Red Menace"
+    ]
+  },
+  "evil-eye": {
+    "name": "Evil Eye",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Lower the Strength of a monster by 3 this turn. Gain 2 block.",
+    "to": [
+      "Scarring",
+      "Withering Stare",
+      "Nefarious Glance"
+    ],
+    "from": [
+      "Accessorize"
+    ]
+  },
+  "forewarn": {
+    "name": "Forewarn",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "Give 4 block. Heal 1 HP. Add Black Bile to your hand.",
+    "to": [
+      "Withering Stare",
+      "Trick Death",
+      "Nefarious Glance"
+    ],
+    "from": [
+      "Accessorize"
+    ]
+  },
+  "haruspicy": {
+    "name": "Haruspicy",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "If you have Grace, lose it to draw 1 card and 1 mana for every 10 Reckoning (1 cards and 1 mana). Strain.",
+    "to": [
+      "Wrathstealer",
+      "Heptomancy",
+      "Embrace Ire"
+    ],
+    "from": [
+      "Insolence",
+      "Appease",
+      "Scab"
+    ]
+  },
+  "heptomancy": {
+    "name": "Heptomancy",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Give 11 block. Increase block given by 2, Strain and return this card to your hand. Reset the card at discard.",
+    "to": [],
+    "from": [
+      "Imbue",
+      "Red Veil",
+      "Haruspicy"
+    ]
+  },
+  "hex": {
+    "name": "Hex",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal 5 damage in a small radius. Increase Reckoning by 3.",
+    "to": [
+      "Ill Intent",
+      "Malevolent Glare",
+      "Bile Blade"
+    ],
+    "from": [
+      "Leeches"
+    ]
+  },
+  "hollow-blade": {
+    "name": "Hollow Blade",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 3] Deal 4 damage. If the monster survives, add 2 Healing Drops to your hand. Otherwise, Increase damage by 1 and return this card to your hand.",
+    "to": [],
+    "from": [
+      "Arterial Spray",
+      "Thoughts & Slayers"
+    ]
+  },
+  "humoric-attune": {
+    "name": "Humoric Attune",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Deal 2 damage +3 damage for every Black Bile in your deck (X) total. Take this card when you draw Black Bile.",
+    "to": [],
+    "from": [
+      "Bile Blade",
+      "Arterial Spray",
+      "Puppeteer"
+    ]
+  },
+  "ill-intent": {
+    "name": "Ill Intent",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 6 damage. If it kills the monster, increase Reckoning by 6 and gain Grace.",
+    "to": [
+      "Thousand Cuts",
+      "Reap Rewards",
+      "Mind Fracture"
+    ],
+    "from": [
+      "Hex",
+      "Double Cut",
+      "Cabrit sans Cor"
+    ]
+  },
+  "imbrued-lien": {
+    "name": "Imbrued Lien",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "At the end of your turn, If you have incoming damage, gain block and increase Reckoning by 20% of the damage. Unstackable. Exhaust.",
+    "to": [
+      "Abuse Pity",
+      "Surface Pressure",
+      "Salt Circle"
+    ],
+    "from": [
+      "Blame"
+    ]
+  },
+  "imbue": {
+    "name": "Imbue",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Give 6 block. Strain. and return this card to your hand. Reset the card at discard.",
+    "to": [
+      "Mandragore Tea",
+      "Corrupt Offering",
+      "Heptomancy"
+    ],
+    "from": [
+      "Ward Off",
+      "Paint Pentacle",
+      "Insolence"
+    ]
+  },
+  "inner-well": {
+    "name": "Inner Well",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 3,
+    "effect": "If your HP is below 30% (X) ignore 1 HP loss paying for cards. Unstackable. Exhaust.",
+    "to": [
+      "Wickedness",
+      "Teeth Necklace",
+      "Work Life Balance"
+    ],
+    "from": [
+      "Pinch"
+    ]
+  },
+  "insolence": {
+    "name": "Insolence",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "If you have Grace, lose it to draw 2 cards.",
+    "to": [
+      "Scarring",
+      "Imbue",
+      "Haruspicy"
+    ],
+    "from": []
+  },
+  "knead-cobwebs": {
+    "name": "Knead Cobwebs",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Heal 1 HP for every unused mana at the end of your turn. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Teeth Necklace",
+      "Ribleaf Compress",
+      "Lifesteal"
+    ]
+  },
+  "last-favor": {
+    "name": "Last Favor",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "If your HP is below 10% (X), gain 10 block, +2 mana and draw +2 cards at the start of your turn. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Work Life Balance",
+      "Wickedness"
+    ]
+  },
+  "leeches": {
+    "name": "Leeches",
+    "type": "Attack",
+    "rarity": "Starter",
+    "cost": 0,
+    "effect": "[Blood Cost: 1] Deal 2 damage. If the monster survives, add 1 Healing Drops to your hand.",
+    "to": [
+      "Hex",
+      "Boils",
+      "Sangria"
+    ],
+    "from": []
+  },
+  "libation": {
+    "name": "Libation",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 3] Increase Reckoning by HP lost (X) and gain Grace. Add 1 Black Bile to the draw pile and increase that number by 1.",
+    "to": [
+      "Autosarcophagy",
+      "Patience",
+      "Corrupt Offering"
+    ],
+    "from": [
+      "Adjourn",
+      "Ward Off",
+      "Renounce"
+    ]
+  },
+  "lifesteal": {
+    "name": "Lifesteal",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "For the next 3 turn(s), add 1 Healing Drops to your hand for every 2 non-summoned monsters killed.",
+    "to": [
+      "Knead Cobwebs",
+      "Black Affinity",
+      "Violent Cycle"
+    ],
+    "from": [
+      "Bag of Bones"
+    ]
+  },
+  "linden-brew": {
+    "name": "Linden Brew",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "For every 5th monster you kill, remove all Black Bile from your deck. Draw 1 card for each Black Bile removed. Unstackable. Exhaust.",
+    "to": [
+      "Mercy Plea",
+      "Surface Pressure",
+      "Dark Embrace"
+    ],
+    "from": [
+      "Drain Essence"
+    ]
+  },
+  "liturgy-of-pain": {
+    "name": "Liturgy of Pain",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 4] Deal 12 damage and add 2 Black Bile to your draw pile. If it kills the monster, deal 12 splash damage in a medium radius. If it kills again, repeat once.",
+    "to": [],
+    "from": [
+      "Bile Blade",
+      "Bitter Incense"
+    ]
+  },
+  "malevolent-glare": {
+    "name": "Malevolent Glare",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 15 damage in a small radius. Increase Reckoning by 10.",
+    "to": [
+      "Culling",
+      "Mind Fracture",
+      "Sinister Chant"
+    ],
+    "from": [
+      "Hex",
+      "Channel Wrath"
+    ]
+  },
+  "malfeasance": {
+    "name": "Malfeasance",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "Deal damage equal to Reckoning (X) in a large radius. Strain.",
+    "to": [],
+    "from": [
+      "Veer Anger",
+      "Tit for Tat"
+    ]
+  },
+  "mandragore-tea": {
+    "name": "Mandragore Tea",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 5] Give 10 block to all Heroes. Their block stays for the next round.",
+    "to": [],
+    "from": [
+      "Imbue",
+      "Red Veil",
+      "Tongue Bite"
+    ]
+  },
+  "mercy-plea": {
+    "name": "Mercy Plea",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "When you lose at least 5 HP in your turn, gain Grace. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Linden Brew",
+      "Oblation Rite",
+      "Appeal to Mercy"
+    ]
+  },
+  "mind-fracture": {
+    "name": "Mind Fracture",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 10 damage. If it kills the monster, Increase Reckoning by 10 and gain Grace.",
+    "to": [],
+    "from": [
+      "Veer Anger",
+      "Seeping Wound",
+      "Malevolent Glare",
+      "Ill Intent"
+    ]
+  },
+  "necrotize": {
+    "name": "Necrotize",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Deal damage equal to 50% of your missing HP (X) Strain.",
+    "to": [
+      "Veer Anger",
+      "Echoing Whimper",
+      "Tit for Tat"
+    ],
+    "from": [
+      "Nick Jugular"
+    ]
+  },
+  "nefarious-glance": {
+    "name": "Nefarious Glance",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Lower the Strength of a monster by 8 this turn. Gain 5 block.",
+    "to": [
+      "Crumple",
+      "Transfuse",
+      "Rattle"
+    ],
+    "from": [
+      "Paint Pentacle",
+      "Forewarn",
+      "Evil Eye"
+    ]
+  },
+  "nick-jugular": {
+    "name": "Nick Jugular",
+    "type": "Attack",
+    "rarity": "Starter",
+    "cost": 1,
+    "effect": "Deal 1 damage. Deal +2 if your HP is below 80%(X).",
+    "to": [
+      "Cabrit sans Cor",
+      "Double Cut",
+      "Necrotize"
+    ],
+    "from": []
+  },
+  "oblation-rite": {
+    "name": "Oblation Rite",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Every time you lose HP during your turn, reduce Reckoning by the same amount. Unstackable, Exhaust.",
+    "to": [
+      "Abuse Pity",
+      "Black Affinity",
+      "Mercy Plea"
+    ],
+    "from": [
+      "Red Menace"
+    ]
+  },
+  "paint-pentacle": {
+    "name": "Paint Pentacle",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "[Blood Cost: 3] Give 6 block to all Heroes.",
+    "to": [
+      "Nefarious Glance",
+      "Red Veil",
+      "Imbue"
+    ],
+    "from": [
+      "Anoint"
+    ]
+  },
+  "patience": {
+    "name": "Patience",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Decrease Reckoning by 50% (X).",
+    "to": [],
+    "from": [
+      "Libation",
+      "Repent",
+      "Atone"
+    ]
+  },
+  "pinch": {
+    "name": "Pinch",
+    "type": "Influence",
+    "rarity": "Starter",
+    "cost": 2,
+    "effect": "For the next 3 turns, if you've lost HP on your turn, your attacks deal +1 damage.",
+    "to": [
+      "Blame",
+      "Inner Well",
+      "Red Menace"
+    ],
+    "from": []
+  },
+  "puppeteer": {
+    "name": "Puppeteer",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Deal 5 damage. If it kills a monster, give all heroes block equal to that monster's Strength.",
+    "to": [
+      "Humoric Attune",
+      "Choir of Agony",
+      "Soul Shatter"
+    ],
+    "from": [
+      "Boils",
+      "Double Cut"
+    ]
+  },
+  "rattle": {
+    "name": "Rattle",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Lower the Strength of monsters in a medium radius by 8 this turn. Gain 2 block for each monster affected.",
+    "to": [],
+    "from": [
+      "Red Veil",
+      "Nefarious Glance",
+      "Withering Stare"
+    ]
+  },
+  "reap-rewards": {
+    "name": "Reap Rewards",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal damage equal to your missing HP (X).",
+    "to": [],
+    "from": [
+      "Thoughts & Slayers",
+      "Tit for Tat",
+      "Ill Intent"
+    ]
+  },
+  "red-menace": {
+    "name": "Red Menace",
+    "type": "Influence",
+    "rarity": "Common",
+    "cost": 2,
+    "effect": "If you've lost HP on your turn, your attacks deal +1 damage. Exhaust.",
+    "to": [
+      "Wickedness",
+      "Oblation Rite",
+      "Engorge"
+    ],
+    "from": [
+      "Pinch"
+    ]
+  },
+  "red-veil": {
+    "name": "Red Veil",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 5] Give 10 block to all Heroes.",
+    "to": [
+      "Rattle",
+      "Heptomancy",
+      "Mandragore Tea"
+    ],
+    "from": [
+      "Adjourn",
+      "Ward Off",
+      "Paint Pentacle"
+    ]
+  },
+  "renounce": {
+    "name": "Renounce",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "If Reckoning is active reduce it to 75% (X). Otherwise gain 1 mana and draw 1 card.",
+    "to": [
+      "Libation",
+      "Repent",
+      "Bargaining"
+    ],
+    "from": []
+  },
+  "repent": {
+    "name": "Repent",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Decrease Reckoning by 15.",
+    "to": [
+      "Soul Swap",
+      "Embrace Ire",
+      "Patience"
+    ],
+    "from": [
+      "Adjourn",
+      "Appease",
+      "Renounce"
+    ]
+  },
+  "ribleaf-compress": {
+    "name": "Ribleaf Compress",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "For the next 3 turns, heal 1 HP for every unused mana at the end of your turn.",
+    "to": [
+      "Sate",
+      "Salt Circle",
+      "Knead Cobwebs"
+    ],
+    "from": [
+      "Bag of Bones"
+    ]
+  },
+  "salt-circle": {
+    "name": "Salt Circle",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "At the end of your turn, If you have incoming damage, gain block and increase Reckoning by 40% of the damage. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Ribleaf Compress",
+      "Imbrued Lien"
+    ]
+  },
+  "sangria": {
+    "name": "Sangria",
+    "type": "Attack",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "[Blood Cost: 2] Deal 4 damage. If the monster survives, add 2 Healing Drops to your hand.",
+    "to": [
+      "Bile Blade",
+      "Arterial Spray",
+      "Thoughts & Slayers"
+    ],
+    "from": [
+      "Leeches"
+    ]
+  },
+  "sate": {
+    "name": "Sate",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Gain Grace when you kill at least 4 monsters in a turn. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Soul Shield",
+      "Ribleaf Compress"
+    ]
+  },
+  "scab": {
+    "name": "Scab",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Gain 1 block for each 3 of your missing HP (X total).",
+    "to": [
+      "Bargaining",
+      "Haruspicy",
+      "Scarring"
+    ],
+    "from": [
+      "Accessorize"
+    ]
+  },
+  "scarring": {
+    "name": "Scarring",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Gain 1 block for each 2 of your missing HP (X total).",
+    "to": [
+      "Wrathstealer",
+      "Curry Favor",
+      "Bone Knitting"
+    ],
+    "from": [
+      "Insolence",
+      "Scab",
+      "Evil Eye"
+    ]
+  },
+  "seeping-wound": {
+    "name": "Seeping Wound",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal 3 damage. Deal +6 damage if your HP is below 60%(X)",
+    "to": [
+      "Soul Shatter",
+      "Mind Fracture",
+      "Thousand Cuts"
+    ],
+    "from": [
+      "Double Cut",
+      "Cabrit sans Cor"
+    ]
+  },
+  "sinister-chant": {
+    "name": "Sinister Chant",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Deal 25 damage in a small radius. Increase Reckoning by 20.",
+    "to": [],
+    "from": [
+      "Bile Blade",
+      "Veer Anger",
+      "Malevolent Glare"
+    ]
+  },
+  "soul-shatter": {
+    "name": "Soul Shatter",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 4] Deal 10 damage. If it kills the monster, deal damage equal to its Strength to the Monster closest to it and give all Heroes block equal to its Strength.",
+    "to": [],
+    "from": [
+      "Bitter Incense",
+      "Seeping Wound",
+      "Puppeteer"
+    ]
+  },
+  "soul-shield": {
+    "name": "Soul Shield",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Every time you kill a monster, gain 4 block. Unstackable. Exhaust.",
+    "to": [
+      "Sate",
+      "Black Affinity",
+      "Wendigo"
+    ],
+    "from": [
+      "Drain Essence",
+      "Blame"
+    ]
+  },
+  "soul-swap": {
+    "name": "Soul Swap",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Remove Reckoning and lose Grace. Strain.",
+    "to": [],
+    "from": [
+      "Repent",
+      "Atone"
+    ]
+  },
+  "surface-pressure": {
+    "name": "Surface Pressure",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "At the start of your turn, gain +1 mana and draw +1 cards for every 15 Reckoning. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Linden Brew",
+      "Imbrued Lien",
+      "Deadlines"
+    ]
+  },
+  "teeth-necklace": {
+    "name": "Teeth Necklace",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "At the end of the battle, heal yourself by 2HP for every non-summoned monster you have killed. Unstackable. Exhaust.",
+    "to": [
+      "Knead Cobwebs",
+      "Violent Cycle",
+      "Bone Broth"
+    ],
+    "from": [
+      "Bag of Bones",
+      "Inner Well"
+    ]
+  },
+  "thoughts-and-slayers": {
+    "name": "Thoughts & Slayers",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 3] Deal 5 damage in a long medium cone.",
+    "to": [
+      "Reap Rewards",
+      "Hollow Blade",
+      "Crimson Tide"
+    ],
+    "from": [
+      "Boils",
+      "Sangria"
+    ]
+  },
+  "thousand-cuts": {
+    "name": "Thousand Cuts",
+    "type": "Attack",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Deal 2 damage. Deal +4 damage for every 4 HP you are below your max HP (X total).",
+    "to": [],
+    "from": [
+      "Seeping Wound",
+      "Echoing Whimper",
+      "Ill Intent"
+    ]
+  },
+  "tit-for-tat": {
+    "name": "Tit for Tat",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Deal damage equal to 50% of your missing HP (X).",
+    "to": [
+      "Choir of Agony",
+      "Malfeasance",
+      "Reap Rewards"
+    ],
+    "from": [
+      "Necrotize",
+      "Cabrit sans Cor"
+    ]
+  },
+  "tongue-bite": {
+    "name": "Tongue Bite",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "[Blood Cost: 1] Add Black Bile to the draw pile and draw 3 cards. Heal 2 HP for every Black Bile drawn.",
+    "to": [
+      "Mandragore Tea",
+      "Worm Stew",
+      "Autosarcophagy"
+    ],
+    "from": []
+  },
+  "transfuse": {
+    "name": "Transfuse",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 0,
+    "effect": "[Blood Cost: 4] Add Healing Blood to the hero's hand. Add Black Bile to your draw pile. Strain.",
+    "to": [],
+    "from": [
+      "Nefarious Glance",
+      "Withering Stare"
+    ]
+  },
+  "trick-death": {
+    "name": "Trick Death",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Add 1 Healing Drops and 1 Healing Blood to your hand. Increase Reckoning by 12.",
+    "to": [
+      "Autosarcophagy",
+      "Crumple",
+      "Worm Stew"
+    ],
+    "from": [
+      "Wound Lick",
+      "Forewarn"
+    ]
+  },
+  "veer-anger": {
+    "name": "Veer Anger",
+    "type": "Attack",
+    "rarity": "Rare",
+    "cost": 0,
+    "effect": "Deal damage equal to Reckoning (X) in a medium radius. Strain.",
+    "to": [
+      "Malfeasance",
+      "Mind Fracture",
+      "Sinister Chant"
+    ],
+    "from": [
+      "Channel Wrath",
+      "Necrotize"
+    ]
+  },
+  "vendetta": {
+    "name": "Vendetta",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "If you've lost more than 2 HP on your turn, all heroes attacks deal +2 damage. Strain.",
+    "to": [],
+    "from": [
+      "Engorge",
+      "Wickedness"
+    ]
+  },
+  "violent-cycle": {
+    "name": "Violent Cycle",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "For the next 3 turn(s), add 1 Healing Drops to your hand for every non-summoned monsters killed.",
+    "to": [],
+    "from": [
+      "Teeth Necklace",
+      "Lifesteal"
+    ]
+  },
+  "violent-delight": {
+    "name": "Violent Delight",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Your attacks deal +1 damage for every 10 Reckoning. Unstackable. Strain.",
+    "to": [],
+    "from": [
+      "Engorge",
+      "Work Life Balance",
+      "Wickedness"
+    ]
+  },
+  "ward-off": {
+    "name": "Ward Off",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 0,
+    "effect": "[Blood Cost: 1] Give 6 block.",
+    "to": [
+      "Imbue",
+      "Red Veil",
+      "Libation"
+    ],
+    "from": [
+      "Anoint"
+    ]
+  },
+  "wendigo": {
+    "name": "Wendigo",
+    "type": "Influence",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Every time you kill a monster, gain 8 block and draw 1 card. Unstackable. Exhaust.",
+    "to": [],
+    "from": [
+      "Soul Shield"
+    ]
+  },
+  "wickedness": {
+    "name": "Wickedness",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 2,
+    "effect": "Your attacks deal +1 damage for every 10 Reckoning. Unstackable. Exhaust.",
+    "to": [
+      "Last Favor",
+      "Vendetta",
+      "Violent Delight"
+    ],
+    "from": [
+      "Inner Well",
+      "Red Menace"
+    ]
+  },
+  "withering-stare": {
+    "name": "Withering Stare",
+    "type": "Skill",
+    "rarity": "Rare",
+    "cost": 1,
+    "effect": "Lower the Strength of a monster by 1 this turn.",
+    "to": [
+      "Rattle",
+      "Transfuse",
+      "Crumple"
+    ],
+    "from": [
+      "Wound Lick",
+      "Forewarn",
+      "Evil Eye"
+    ]
+  },
+  "work-life-balance": {
+    "name": "Work Life Balance",
+    "type": "Influence",
+    "rarity": "Rare",
+    "cost": 3,
+    "effect": "If your HP is below 50% (X) ignore 1 HP loss paying for cards. Unstackable. Exhaust.",
+    "to": [
+      "Violent Delight",
+      "Last Favor",
+      "Edgerunner"
+    ],
+    "from": [
+      "Inner Well"
+    ]
+  },
+  "worm-stew": {
+    "name": "Worm Stew",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 2,
+    "effect": "Add 3 Healing Drops and 1 Healing Blood to your hand. Increase Reckoning by 30.",
+    "to": [],
+    "from": [
+      "Trick Death",
+      "Tongue Bite",
+      "Bargaining"
+    ]
+  },
+  "wound-lick": {
+    "name": "Wound Lick",
+    "type": "Skill",
+    "rarity": "Common",
+    "cost": 1,
+    "effect": "Add 2 Healing Drops to your hand. Increase Reckoning by 4.",
+    "to": [
+      "Withering Stare",
+      "Trick Death",
+      "Atone"
+    ],
+    "from": []
+  },
+  "wrathstealer": {
+    "name": "Wrathstealer",
+    "type": "Skill",
+    "rarity": "Legendary",
+    "cost": 1,
+    "effect": "Give all Heroes block equal to their incoming damage. Increase Reckoning by half of each incoming damage.",
+    "to": [],
+    "from": [
+      "Haruspicy",
+      "Scarring"
+    ]
+  }
+};
+
+// Build name->id lookup and backfill from[] using to[]
+const nameToId = {};
+for (const [id, c] of Object.entries(CARDS)) nameToId[c.name] = id;
+for (const [id, c] of Object.entries(CARDS)) {
+  c.to.forEach(targetName => {
+    const tid = nameToId[targetName];
+    if (tid && !CARDS[tid].from.includes(c.name)) CARDS[tid].from.push(c.name);
+  });
+}
+// Starters evolve to all Commons of the same type
+const starters = Object.entries(CARDS).filter(([,c]) => c.rarity === 'Starter');
+for (const [sid, sc] of starters) {
+  Object.entries(CARDS).filter(([,c]) => c.rarity === 'Common' && c.type === sc.type).forEach(([cid, cc]) => {
+    if (!sc.to.includes(cc.name)) sc.to.push(cc.name);
+    if (!cc.from.includes(sc.name)) cc.from.push(sc.name);
+  });
+}
+
+// Build the 3 unified trees from card data
+const RARITY_ORDER = { Starter: 0, Common: 1, Rare: 2, Legendary: 3 };
+const TYPE_CONFIG = {
+  Attack:    { color: 'var(--attack)',    desc: 'Deal damage to enemies &mdash; blood magic, curses, and pain', count: 0 },
+  Skill:     { color: 'var(--skill)',     desc: 'Blood rituals, healing, wards, and transformation', count: 0 },
+  Influence: { color: 'var(--influence)', desc: 'Persistent effects &mdash; curses, shields, and dark pacts', count: 0 }
+};
+
+// Group cards by type and rarity
+const grouped = {};
+for (const type of ['Attack','Skill','Influence']) {
+  grouped[type] = { Starter: [], Common: [], Rare: [], Legendary: [] };
+}
+for (const [id, c] of Object.entries(CARDS)) {
+  grouped[c.type][c.rarity].push(id);
+  TYPE_CONFIG[c.type].count++;
+}
+
+// Sort within each rarity: roots first (no from), then alphabetical
+for (const type of Object.keys(grouped)) {
+  for (const rarity of Object.keys(grouped[type])) {
+    grouped[type][rarity].sort((a, b) => {
+      const ca = CARDS[a], cb = CARDS[b];
+      if (ca.from.length === 0 && cb.from.length > 0) return -1;
+      if (ca.from.length > 0 && cb.from.length === 0) return 1;
+      return ca.name.localeCompare(cb.name);
+    });
+  }
+}
+
+function cardHTML(id) {
+  const c = CARDS[id];
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+  const legendaryClass = c.rarity === 'Legendary' ? ' legendary' : '';
+  const fromIds = c.from.map(n => nameToId[n]).filter(Boolean).join(',');
+  const dataFrom = fromIds ? ` data-from="${fromIds}"` : '';
+  return `<div class="card-node ${typeClass}${legendaryClass}" data-card="${id}"${dataFrom}>
+    <div class="card-img">${img ? `<img src="${img}" alt="${c.name}" loading="lazy">` : ''}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-meta"><span class="card-cost">${c.cost}</span><span class="card-rarity ${rarityClass}">${c.rarity}</span></div>
+  </div>`;
+}
+
+const container = document.getElementById('all-trees');
+let html = '';
+
+for (const type of ['Attack','Skill','Influence']) {
+  const cfg = TYPE_CONFIG[type];
+  const g = grouped[type];
+  const typeClass = type.toLowerCase();
+
+  html += `<div class="type-section">
+    <h2 style="color:${cfg.color}">${type} Cards</h2>
+    <div class="type-count">${cfg.count} cards</div>
+    <p class="type-desc">${cfg.desc}</p>
+  </div>`;
+  html += `<div class="tree-wrapper"><div class="flat-tree tree-${typeClass}">`;
+
+  const tiers = [];
+  if (g.Starter.length) tiers.push({ label:'starter', title:'Starter', star:true, cards:g.Starter });
+  if (g.Common.length)  tiers.push({ label:'common',  title:'Common',  star:false, cards:g.Common });
+  if (g.Rare.length)    tiers.push({ label:'rare',    title:'Rare',    star:false, cards:g.Rare });
+  if (g.Legendary.length) tiers.push({ label:'legendary', title:'Legendary', star:true, cards:g.Legendary });
+
+  tiers.forEach(tier => {
+    html += `<div class="tier-label ${tier.label}-tier">${tier.star ? '★ ' : ''}${tier.title}</div>`;
+    html += `<div class="flat-tier" data-tier="${tier.label}">`;
+    tier.cards.forEach(id => { html += cardHTML(id); });
+    html += `</div><div class="flat-spacer"></div>`;
+  });
+
+  html += `</div></div>`;
+}
+
+container.innerHTML = html;
+
+// Draw connector lines
+function drawConnectors() {
+  document.querySelectorAll('.flat-tree').forEach(tree => {
+    const existing = tree.querySelector('.tree-svg');
+    if (existing) existing.remove();
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('tree-svg');
+    svg.style.width = tree.scrollWidth + 'px';
+    svg.style.height = tree.scrollHeight + 'px';
+
+    const treeRect = tree.getBoundingClientRect();
+    tree.querySelectorAll('.card-node[data-from]').forEach(card => {
+      const fromIds = card.dataset.from.split(',');
+      const cardRect = card.getBoundingClientRect();
+      const toX = cardRect.left + cardRect.width / 2 - treeRect.left + tree.scrollLeft;
+      const toY = cardRect.top - treeRect.top + tree.scrollTop;
+
+      fromIds.forEach(fid => {
+        const fromCard = tree.querySelector(`[data-card="${fid.trim()}"]`);
+        if (!fromCard) return;
+        const fromRect = fromCard.getBoundingClientRect();
+        const fromX = fromRect.left + fromRect.width / 2 - treeRect.left + tree.scrollLeft;
+        const fromY = fromRect.bottom - treeRect.top + tree.scrollTop;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX);
+        line.setAttribute('y2', toY);
+        line.dataset.from = fid.trim();
+        line.dataset.to = card.dataset.card;
+        svg.appendChild(line);
+      });
+    });
+
+    tree.style.position = 'relative';
+    tree.insertBefore(svg, tree.firstChild);
+  });
+}
+
+setTimeout(drawConnectors, 300);
+window.addEventListener('resize', () => setTimeout(drawConnectors, 100));
+
+// Detail pane
+const detailPane = document.getElementById('detailPane');
+
+function showDetail(node) {
+  const id = node.dataset.card;
+  const c = CARDS[id];
+  if (!c) return;
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+
+  let h = `<div class="tt-header">`;
+  h += `<div class="tt-img">${img ? `<img src="${img}" alt="${c.name}">` : ''}</div>`;
+  h += `<div class="tt-info">`;
+  h += `<div class="tt-name" style="color:var(--${typeClass})">${c.name}</div>`;
+  h += `<div class="tt-badges"><span class="tt-badge type-${typeClass}">${c.type}</span><span class="tt-badge rarity-${rarityClass}">${c.rarity}</span></div>`;
+  h += `<div class="tt-mana"><span class="tt-mana-gem">${c.cost}</span> Mana Cost</div>`;
+  h += `</div></div><div class="tt-body">`;
+  h += `<div class="tt-effect" style="border-left-color:var(--${typeClass})">${c.effect}</div>`;
+  if (c.to.length) h += `<div class="tt-transforms"><span class="tt-arrow-up">▲</span> <strong>Evolves to:</strong> ${c.to.join(', ')}</div>`;
+  if (c.from.length) h += `<div class="tt-transforms"><span class="tt-arrow-down">▼</span> <strong>Evolves from:</strong> ${c.from.join(', ')}</div>`;
+  h += `</div>`;
+  detailPane.innerHTML = h;
+  detailPane.classList.add('visible');
+}
+
+// Path highlight: walk up ancestors
+function getAncestors(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const fromStr = cardEl.dataset.from;
+  if (!fromStr) return ids;
+  fromStr.split(',').forEach(fid => {
+    const parent = tree.querySelector(`[data-card="${fid.trim()}"]`);
+    if (parent) getAncestors(tree, parent, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+function getDescendants(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const c = CARDS[cardId];
+  if (!c || !c.to.length) return ids;
+  c.to.forEach(name => {
+    const childId = nameToId[name];
+    if (!childId) return;
+    const child = tree.querySelector(`[data-card="${childId}"]`);
+    if (child) getDescendants(tree, child, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+document.addEventListener('mouseover', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const tree = node.closest('.flat-tree');
+  if (!tree) return;
+
+  const hoveredId = node.dataset.card;
+  const ancestorIds = getAncestors(tree, node);
+  const descendantIds = getDescendants(tree, node);
+
+  tree.querySelectorAll('.card-node').forEach(c => {
+    const id = c.dataset.card;
+    c.classList.remove('path-highlight', 'path-descendant', 'dimmed');
+    if (ancestorIds.has(id)) c.classList.add('path-highlight');
+    else if (descendantIds.has(id)) c.classList.add('path-descendant');
+    else c.classList.add('dimmed');
+  });
+  tree.querySelectorAll('.tree-svg line').forEach(line => {
+    line.classList.remove('line-highlight', 'line-descendant', 'line-dimmed');
+    const f = line.dataset.from, t = line.dataset.to;
+    const fAnc = ancestorIds.has(f), tAnc = ancestorIds.has(t);
+    const fDesc = descendantIds.has(f), tDesc = descendantIds.has(t);
+    if (fAnc && tAnc) line.classList.add('line-highlight');
+    else if (fDesc && tDesc) line.classList.add('line-descendant');
+    else line.classList.add('line-dimmed');
+  });
+  showDetail(node);
+});
+
+document.addEventListener('mouseout', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const related = e.relatedTarget;
+  if (related && related.closest && related.closest('.card-node') === node) return;
+  const tree = node.closest('.flat-tree');
+  if (tree) {
+    tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+    tree.querySelectorAll('.tree-svg line').forEach(l => { l.classList.remove('line-highlight','line-descendant','line-dimmed'); });
+  }
+  detailPane.classList.remove('visible');
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.card-node').forEach(node => {
+    const c = CARDS[node.dataset.card];
+    if (!q) { node.classList.remove('dimmed','search-match'); return; }
+    if (!c) { node.classList.add('dimmed'); return; }
+    const text = `${c.name} ${c.type} ${c.rarity} ${c.effect}`.toLowerCase();
+    if (text.includes(q)) { node.classList.remove('dimmed'); node.classList.add('search-match'); }
+    else { node.classList.add('dimmed'); node.classList.remove('search-match'); }
+  });
+});
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.card-node:not(.dimmed)'); },
+  matchFn: function(el, query) {
+    var c = CARDS[el.dataset.card];
+    if (!c) return false;
+    var text = (c.name + ' ' + c.type + ' ' + c.rarity + ' ' + c.effect).toLowerCase();
+    return text.includes(query);
+  }
+});
+</script>
+</body>
+</html>

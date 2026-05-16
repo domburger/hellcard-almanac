@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Locations</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="header.css?v=2">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  .location-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 14px;
+    padding: 24px 20px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .location-card {
+    border-radius: 10px; border: 1px solid var(--border);
+    background: var(--bg-card); transition: all 0.2s ease; overflow: hidden;
+  }
+  .location-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(76, 175, 80, 0.4);
+  }
+  .location-card.special-card { border-color: rgba(76, 175, 80, 0.35); }
+  .location-card.special-card:hover { border-color: var(--accent); }
+  .location-card.hidden { display: none; }
+
+  .location-header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .location-icon {
+    width: 48px; height: 48px; border-radius: 10px;
+    background: rgba(255,255,255,0.04); display: flex; align-items: center;
+    justify-content: center; font-size: 1.5em; flex-shrink: 0;
+  }
+  .special-card .location-icon { background: rgba(76, 175, 80, 0.08); }
+  .location-title-area { flex: 1; min-width: 0; }
+  .location-name { font-weight: 700; font-size: 1.1em; line-height: 1.2; }
+  .special-card .location-name { color: var(--accent); }
+  .location-badge {
+    display: inline-block; font-size: 0.55em; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 2px 6px; border-radius: 3px; margin-top: 3px;
+  }
+  .badge-regular { background: rgba(255,255,255,0.06); color: var(--text-dim); }
+  .badge-special { background: rgba(76, 175, 80, 0.15); color: var(--accent); }
+
+  .location-body { padding: 8px 16px 14px; }
+
+  .location-option {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 10px; margin-bottom: 5px;
+    background: rgba(0,0,0,0.15); border-radius: 6px;
+    border-left: 2px solid rgba(255,255,255,0.08);
+  }
+  .special-card .location-option { border-left-color: rgba(76, 175, 80, 0.3); }
+  .location-option:last-child { margin-bottom: 0; }
+
+  .option-gem {
+    display: flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 5px; flex-shrink: 0; margin-top: 1px;
+    background: rgba(184, 145, 42, 0.15); border: 1px solid rgba(184, 145, 42, 0.3);
+    font-size: 0.75em; font-weight: 800; color: #b8912a;
+  }
+  .option-text {
+    font-size: 0.9em; line-height: 1.5; color: var(--text); flex: 1;
+  }
+
+  @media (max-width: 720px) {
+    .location-grid { grid-template-columns: 1fr; padding: 16px 12px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="site-header">
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search locations... (e.g. Armory, heal, upgrade)">
+  </div>
+</div>
+<script src="header.js?v=3"></script>
+
+<div id="location-content"></div>
+<div class="no-results" id="noResults">No locations match your search.</div>
+
+<script>
+const LOCATIONS = {
+  regular: [
+    {
+      name: "Armory",
+      icon: "⚔️",
+      options: [
+        {cost: 1, text: "Heal other players/companions."},
+        {cost: 1, text: "Get bonus block for the next battle."},
+        {cost: 1, text: "Upgrade a card."}
+      ]
+    },
+    {
+      name: "Camp",
+      icon: "🏕️",
+      options: [
+        {cost: 1, text: "Heal yourself for 50%."},
+        {cost: 1, text: "Gain 3 max HP."},
+        {cost: 1, text: "Heal yourself for 20%."}
+      ]
+    },
+    {
+      name: "Corpses",
+      icon: "💀",
+      options: [
+        {cost: 1, text: "Get a new card."},
+        {cost: 2, text: "Get a new card (choose from 4)."},
+        {cost: 3, text: "Get a new rare card."}
+      ]
+    },
+    {
+      name: "Hideout",
+      icon: "🏠",
+      options: [
+        {cost: 1, text: "Reset companions' location selection changes (SP) / Gift gems to other players (MP)."},
+        {cost: 1, text: "Remove a card."},
+        {cost: 2, text: "Select a card to start future battles with."}
+      ]
+    },
+    {
+      name: "Ruins",
+      icon: "🏛️",
+      options: [
+        {cost: 1, text: "Find gems."},
+        {cost: 1, text: "Get more mana for the next battle."},
+        {cost: 2, text: "Find an Artifact."}
+      ]
+    },
+    {
+      name: "Sage",
+      icon: "🧙",
+      options: [
+        {cost: 1, text: "Remove a card."},
+        {cost: 2, text: "Remove a card (choose from all)."},
+        {cost: 3, text: "Remove 2 cards."}
+      ]
+    },
+    {
+      name: "Smithy",
+      icon: "🔨",
+      options: [
+        {cost: 1, text: "Upgrade a random card."},
+        {cost: 2, text: "Upgrade a card (choose which)."},
+        {cost: 3, text: "Upgrade 2 cards."}
+      ]
+    },
+    {
+      name: "Vault",
+      icon: "🗳️",
+      options: [
+        {cost: 1, text: "Get a random Artifact."},
+        {cost: 2, text: "Get an Artifact (choose from 3)."},
+        {cost: 3, text: "Get a rare Artifact."}
+      ]
+    },
+    {
+      name: "Library",
+      icon: "📚",
+      options: [
+        {cost: 1, text: "Trade Artifacts."},
+        {cost: 1, text: "Get more mana for the next battle."},
+        {cost: 2, text: "Get one more card per turn for the next battle."}
+      ]
+    },
+    {
+      name: "Workshop",
+      icon: "⚙️",
+      options: [
+        {cost: 1, text: "Trade Cards."},
+        {cost: 1, text: "Upgrade a Card (a contraption if Tinkerer)."},
+        {cost: 2, text: "Get a random influence for the next battle."}
+      ]
+    }
+  ],
+  special: [
+    {
+      name: "Altar",
+      icon: "🔥",
+      options: [
+        {cost: 1, text: "Remove any card in exchange for +2/+4/+6 Max HP depending on rarity."},
+        {cost: 2, text: "For the next battle, if you don't have enough mana, use 2 HP instead for each missing Mana."},
+        {cost: 3, text: "Lose 5 HP, Gain 5 Block each turn next battle."}
+      ]
+    }
+  ]
+};
+
+function buildPage() {
+  const container = document.getElementById('location-content');
+  container.innerHTML = '<div class="location-grid" id="grid-all"></div>';
+  const grid = document.getElementById('grid-all');
+  for (const loc of LOCATIONS.regular) grid.appendChild(createLocationCard(loc, 'regular'));
+  for (const loc of LOCATIONS.special) grid.appendChild(createLocationCard(loc, 'special'));
+}
+
+function createLocationCard(loc, type) {
+  const card = document.createElement('div');
+  card.className = `location-card ${type}-card`;
+  card.dataset.name = loc.name.toLowerCase();
+  card.dataset.options = loc.options.map(o => o.text).join(' ').toLowerCase();
+
+  const badgeClass = type === 'special' ? 'badge-special' : 'badge-regular';
+  const badgeText = type === 'special' ? 'Special' : 'Regular';
+
+  let optionsHtml = '';
+  for (const opt of loc.options) {
+    optionsHtml += `<div class="location-option"><div class="option-gem">${opt.cost}</div><div class="option-text">${opt.text}</div></div>`;
+  }
+
+  card.innerHTML = `
+    <div class="location-header">
+      <div class="location-icon">${loc.icon}</div>
+      <div class="location-title-area">
+        <div class="location-name">${loc.name}</div>
+        <span class="location-badge ${badgeClass}">${badgeText}</span>
+      </div>
+    </div>
+    <div class="location-body">${optionsHtml}</div>
+  `;
+
+  return card;
+}
+
+document.getElementById('searchInput').addEventListener('input', function() {
+  const query = this.value.toLowerCase().trim();
+  const allCards = document.querySelectorAll('.location-card');
+  let anyVisible = false;
+  if (!query) {
+    allCards.forEach(c => c.classList.remove('hidden'));
+    document.getElementById('noResults').style.display = 'none';
+    return;
+  }
+  allCards.forEach(card => {
+    const match = card.dataset.name.includes(query) || card.dataset.options.includes(query);
+    card.classList.toggle('hidden', !match);
+    if (match) anyVisible = true;
+  });
+  document.getElementById('noResults').style.display = anyVisible ? 'none' : 'block';
+});
+
+buildPage();
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.location-card:not(.hidden)'); },
+  matchFn: function(el, query) { return el.dataset.name.includes(query) || el.dataset.options.includes(query); }
+});
+</script>
+</body>
+</html>

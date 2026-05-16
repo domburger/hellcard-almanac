@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hellcard Almanac - Rogue Tree</title>
+<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
+<link rel="stylesheet" href="search-enhance.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg-dark: #0d0d12;
+    --bg-card: #1a1a24;
+    --bg-panel: #14141e;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --attack: #c62828;
+    --attack-bg: #2a1010;
+    --attack-border: #8b1a1a;
+    --skill: #1565c0;
+    --skill-bg: #0d1a2e;
+    --skill-border: #0d47a1;
+    --influence: #2e7d32;
+    --influence-bg: #0d2010;
+    --influence-border: #1b5e20;
+    --starter: #78909c;
+    --common: #9e9e9e;
+    --rare: #7e57c2;
+    --legendary: #4caf50;
+    --gold-glow: rgba(76, 175, 80, 0.3);
+    --line-color: #2a2a30;
+    --highlight-line: #4caf50;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-dark);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #0a1a0a 0%, var(--bg-dark) 100%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 2.8em;
+    font-weight: 900;
+    background: linear-gradient(135deg, #2e7d32, #66bb6a, #2e7d32);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+  }
+
+  header .subtitle { color: var(--text-dim); font-size: 1.1em; margin-top: 8px; font-weight: 300; }
+
+  .legend {
+    display: flex; justify-content: center; gap: 24px; padding: 16px 20px; flex-wrap: wrap;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border);
+  }
+  .legend-group { display: flex; gap: 12px; align-items: center; }
+  .legend-group .label { color: var(--text-dim); font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.85em; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .legend-dot.attack { background: var(--attack); }
+  .legend-dot.skill { background: var(--skill); }
+  .legend-dot.influence { background: var(--influence); }
+  .legend-dot.starter { background: var(--starter); border: 1px solid #aaa; }
+  .legend-dot.common { background: var(--common); }
+  .legend-dot.rare { background: var(--rare); }
+  .legend-dot.legendary { background: var(--legendary); }
+
+  .stats-bar {
+    display: flex; justify-content: center; gap: 30px; padding: 12px 20px;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border); font-size: 0.85em;
+  }
+  .stat-item { display: flex; align-items: center; gap: 6px; }
+  .stat-num { font-weight: 700; font-size: 1.1em; }
+  .stat-label { color: var(--text-dim); }
+
+  .search-bar {
+    display: flex; justify-content: center; padding: 16px 20px; background: var(--bg-panel);
+    position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border);
+  }
+  .search-bar input {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 10px 16px; color: var(--text); font-size: 0.95em; width: 360px;
+    outline: none; font-family: 'Inter', sans-serif;
+  }
+  .search-bar input::placeholder { color: var(--text-dim); }
+  .search-bar input:focus { border-color: var(--legendary); }
+
+  .type-section {
+    padding: 50px 0 10px;
+    border-top: 3px solid var(--border);
+  }
+  .type-section:first-of-type { border-top: none; }
+  .type-section h2 {
+    font-family: 'Cinzel', serif; font-size: 2.2em; text-align: center; margin-bottom: 4px;
+  }
+  .type-section .type-desc { text-align: center; color: var(--text-dim); font-size: 0.95em; margin-bottom: 20px; }
+  .type-section .type-count {
+    text-align: center; font-size: 0.8em; color: var(--text-dim); margin-bottom: 10px;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+
+  .tier-label {
+    text-align: center; font-size: 0.7em; text-transform: uppercase;
+    letter-spacing: 2px; font-weight: 700; padding: 8px; margin-bottom: 6px;
+  }
+  .tier-label.starter-tier { color: var(--starter); }
+  .tier-label.common-tier { color: var(--common); }
+  .tier-label.rare-tier { color: var(--rare); }
+  .tier-label.legendary-tier { color: var(--legendary); }
+
+  .tree-wrapper { padding: 0 10px 40px; }
+
+  .flat-tree {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    position: relative; padding: 20px 0;
+  }
+  .flat-tier {
+    display: flex; gap: 5px; justify-content: center;
+    position: relative; z-index: 1; flex-wrap: wrap;
+  }
+  .flat-spacer { height: 20px; position: relative; width: 100%; }
+
+  .card-node {
+    position: relative; width: 64px; min-width: 64px; padding: 3px 3px 4px;
+    border-radius: 6px; border: 2px solid var(--border); background: var(--bg-card);
+    cursor: pointer; transition: all 0.25s ease; text-align: center; flex-shrink: 0;
+  }
+  .card-node:hover { transform: translateY(-2px); z-index: 10; }
+
+  .card-node.attack { border-color: var(--attack-border); background: var(--attack-bg); }
+  .card-node.attack:hover { border-color: var(--attack); box-shadow: 0 4px 20px rgba(198,40,40,0.3); }
+  .card-node.skill { border-color: var(--skill-border); background: var(--skill-bg); }
+  .card-node.skill:hover { border-color: var(--skill); box-shadow: 0 4px 20px rgba(21,101,192,0.3); }
+  .card-node.influence { border-color: var(--influence-border); background: var(--influence-bg); }
+  .card-node.influence:hover { border-color: var(--influence); box-shadow: 0 4px 20px rgba(46,125,50,0.3); }
+
+  .card-node.legendary { border-width: 2px; }
+  .card-node.legendary.attack,
+  .card-node.legendary.skill,
+  .card-node.legendary.influence { border-color: var(--legendary); box-shadow: 0 0 8px var(--gold-glow); }
+  .card-node.legendary:hover { box-shadow: 0 4px 25px var(--gold-glow); }
+
+  .card-img { width: 48px; height: 48px; margin: 0 auto 2px; border-radius: 4px; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .card-name { font-weight: 700; font-size: 0.52em; line-height: 1.1; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { display: flex; justify-content: center; gap: 2px; align-items: center; font-size: 0.48em; }
+  .card-cost { background: rgba(255,255,255,0.1); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+  .card-rarity { text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; font-size: 0.85em; }
+  .card-rarity.starter { color: var(--starter); }
+  .card-rarity.common { color: var(--common); }
+  .card-rarity.rare { color: var(--rare); }
+  .card-rarity.legendary { color: var(--legendary); }
+
+  .card-node.path-highlight { filter: brightness(1.4); z-index: 5; }
+  .card-node.path-highlight.attack { border-color: #ff5252 !important; box-shadow: 0 0 15px rgba(255,82,82,0.5) !important; }
+  .card-node.path-highlight.skill { border-color: #42a5f5 !important; box-shadow: 0 0 15px rgba(66,165,245,0.5) !important; }
+  .card-node.path-highlight.influence { border-color: #66bb6a !important; box-shadow: 0 0 15px rgba(102,187,106,0.5) !important; }
+  .card-node.path-descendant { filter: brightness(1.2); z-index: 4; }
+  .card-node.path-descendant.attack { border-color: #ef9a9a !important; box-shadow: 0 0 12px rgba(239,154,154,0.4) !important; }
+  .card-node.path-descendant.skill { border-color: #90caf9 !important; box-shadow: 0 0 12px rgba(144,202,249,0.4) !important; }
+  .card-node.path-descendant.influence { border-color: #a5d6a7 !important; box-shadow: 0 0 12px rgba(165,214,167,0.4) !important; }
+  .card-node.dimmed { opacity: 0.12; transition: opacity 0.3s; }
+
+  .tree-svg line { stroke: var(--line-color); stroke-width: 1.5; opacity: 0.15; transition: all 0.3s; }
+  .tree-svg line.line-highlight { stroke: var(--highlight-line); stroke-width: 3; opacity: 1; filter: drop-shadow(0 0 4px var(--gold-glow)); }
+  .tree-svg line.line-descendant { stroke-width: 2.5; opacity: 0.75; }
+  .flat-tree.tree-attack .tree-svg line.line-descendant { stroke: #ef9a9a; filter: drop-shadow(0 0 3px rgba(239,154,154,0.4)); }
+  .flat-tree.tree-skill .tree-svg line.line-descendant { stroke: #90caf9; filter: drop-shadow(0 0 3px rgba(144,202,249,0.4)); }
+  .flat-tree.tree-influence .tree-svg line.line-descendant { stroke: #a5d6a7; filter: drop-shadow(0 0 3px rgba(165,214,167,0.4)); }
+  .tree-svg line.line-dimmed { opacity: 0.04; }
+  .tree-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  .detail-pane {
+    position: fixed; top: 80px; right: 12px; z-index: 1000; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 12px; padding: 0;
+    width: 364px; overflow: hidden;
+    opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .detail-pane.visible { opacity: 1; pointer-events: auto; }
+  .detail-pane .tt-header { display: flex; gap: 12px; padding: 16px; align-items: center; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img { width: 84px; height: 84px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.15); }
+  .detail-pane .tt-img img { width: 100%; height: 100%; object-fit: cover; }
+  .detail-pane .tt-info { flex: 1; min-width: 0; }
+  .detail-pane .tt-name { font-size: 1.1em; font-weight: 700; line-height: 1.2; margin-bottom: 6px; }
+  .detail-pane .tt-badges { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
+  .detail-pane .tt-badge { font-size: 0.72em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 8px; border-radius: 4px; }
+  .detail-pane .tt-badge.type-attack { background: rgba(198,40,40,0.2); color: var(--attack); }
+  .detail-pane .tt-badge.type-skill { background: rgba(21,101,192,0.2); color: var(--skill); }
+  .detail-pane .tt-badge.type-influence { background: rgba(46,125,50,0.2); color: var(--influence); }
+  .detail-pane .tt-badge.rarity-starter { background: rgba(120,144,156,0.2); color: var(--starter); }
+  .detail-pane .tt-badge.rarity-common { background: rgba(158,158,158,0.2); color: #9e9e9e; }
+  .detail-pane .tt-badge.rarity-rare { background: rgba(126,87,194,0.2); color: var(--rare); }
+  .detail-pane .tt-badge.rarity-legendary { background: rgba(76,175,80,0.2); color: var(--legendary); }
+  .detail-pane .tt-mana { display: flex; align-items: center; gap: 4px; font-size: 0.88em; margin-top: 6px; color: #90caf9; font-weight: 600; }
+  .detail-pane .tt-mana-gem { width: 18px; height: 18px; background: #3366dd; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75em; color: #fff; font-weight: 800; }
+  .detail-pane .tt-body { padding: 0 16px 16px; }
+  .detail-pane .tt-effect { font-size: 0.88em; line-height: 1.55; color: var(--text); padding: 10px 12px; background: rgba(0,0,0,0.15); border-radius: 6px; border-left: 2px solid rgba(76, 175, 80, 0.25); }
+  .detail-pane .tt-transforms { margin-top: 8px; font-size: 0.8em; color: var(--text-dim); line-height: 1.5; }
+  .detail-pane .tt-transforms strong { color: var(--text); }
+  .detail-pane .tt-arrow-up { color: var(--accent); }
+  .detail-pane .tt-arrow-down { color: #ef5350; }
+
+  .card-node.search-match { animation: pulse-highlight 1s ease-in-out 3; }
+  @keyframes pulse-highlight { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.5); } }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>ROGUE</h1>
+  <div class="subtitle">Hellcard Evolution Tree &mdash; All Cards & Upgrade Paths</div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-item"><span class="stat-num">112</span><span class="stat-label">Total Cards</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--attack)">36</span><span class="stat-label">Attack</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--skill)">48</span><span class="stat-label">Skill</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--influence)">28</span><span class="stat-label">Influence</span></div>
+  <div class="stat-item"><span class="stat-num" style="color:var(--legendary)">42</span><span class="stat-label">Legendary</span></div>
+</div>
+
+<div class="legend">
+  <div class="legend-group">
+    <span class="label">Type</span>
+    <div class="legend-item"><div class="legend-dot attack"></div> Attack</div>
+    <div class="legend-item"><div class="legend-dot skill"></div> Skill</div>
+    <div class="legend-item"><div class="legend-dot influence"></div> Influence</div>
+  </div>
+  <div class="legend-group">
+    <span class="label">Rarity</span>
+    <div class="legend-item"><div class="legend-dot starter"></div> Starter</div>
+    <div class="legend-item"><div class="legend-dot common"></div> Common</div>
+    <div class="legend-item"><div class="legend-dot rare"></div> Rare</div>
+    <div class="legend-item"><div class="legend-dot legendary"></div> Legendary</div>
+  </div>
+</div>
+
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="Search cards... (e.g. Arrow Split, Vanish, stun)">
+</div>
+
+<div class="detail-pane" id="detailPane"></div>
+<div id="all-trees"></div>
+
+<script>
+const IMGS = {
+  "adapt":"https://static.wikia.nocookie.net/hellcard/images/b/b9/Adapt.png/revision/latest?cb=20230402215911",
+  "arrow-split":"https://static.wikia.nocookie.net/hellcard/images/a/a3/Arrow_Split.png/revision/latest?cb=20230402220307",
+  "backflip":"https://static.wikia.nocookie.net/hellcard/images/7/74/Backflip.png/revision/latest?cb=20230402224838",
+  "bargain":"https://static.wikia.nocookie.net/hellcard/images/1/12/Bargain.png/revision/latest?cb=20230402225125",
+  "barrage":"https://static.wikia.nocookie.net/hellcard/images/2/2c/Barrage.png/revision/latest?cb=20230402220324",
+  "battle-snack":"https://static.wikia.nocookie.net/hellcard/images/d/d0/Battle_Snack.png/revision/latest?cb=20230402220749",
+  "blindsided":"https://static.wikia.nocookie.net/hellcard/images/e/e5/Blindsided.png/revision/latest?cb=20230402220246",
+  "bling":"https://static.wikia.nocookie.net/hellcard/images/c/ca/Bling.png/revision/latest?cb=20230402215935",
+  "bottomless-purse":"https://static.wikia.nocookie.net/hellcard/images/4/4f/Bottomless_Purse.png/revision/latest?cb=20230402220102",
+  "bouncy-bomb":"https://static.wikia.nocookie.net/hellcard/images/c/cd/Bouncy_Bomb.png/revision/latest?cb=20230402224859",
+  "breath-control":"https://static.wikia.nocookie.net/hellcard/images/3/3f/Breath_Control.png/revision/latest?cb=20230402224917",
+  "buckler":"https://static.wikia.nocookie.net/hellcard/images/7/74/Buckler.png/revision/latest?cb=20230402220128",
+  "bulwark":"https://static.wikia.nocookie.net/hellcard/images/8/82/Bulwark.png/revision/latest?cb=20230402220806",
+  "buster-bomb":"https://static.wikia.nocookie.net/hellcard/images/f/f9/Buster_Bomb.png/revision/latest?cb=20230402224723",
+  "caltrops":"https://static.wikia.nocookie.net/hellcard/images/3/31/Caltrops.png/revision/latest?cb=20230402220159",
+  "chainshirt":"https://static.wikia.nocookie.net/hellcard/images/1/12/Chainshirt.png/revision/latest?cb=20230402220005",
+  "chainshot-arrow":"https://static.wikia.nocookie.net/hellcard/images/9/9f/Chainshot_Arrow.png/revision/latest?cb=20240913142244",
+  "cheek-rest":"https://static.wikia.nocookie.net/hellcard/images/c/cb/Cheek_Rest.png/revision/latest?cb=20240912232346",
+  "clockwork-arrow":"https://static.wikia.nocookie.net/hellcard/images/0/01/Clockwork_Arrow.png/revision/latest?cb=20230402220216",
+  "clothesline":"https://static.wikia.nocookie.net/hellcard/images/8/8f/Clothesline.png/revision/latest?cb=20230402220827",
+  "clout":"https://static.wikia.nocookie.net/hellcard/images/6/61/Clout.png/revision/latest?cb=20230402220845",
+  "copycat":"https://static.wikia.nocookie.net/hellcard/images/4/49/Copycat.png/revision/latest?cb=20230402220903",
+  "cornucopia":"https://static.wikia.nocookie.net/hellcard/images/b/be/Cornucopia.png/revision/latest?cb=20230402220022",
+  "cover":"https://static.wikia.nocookie.net/hellcard/images/b/b3/Cover.png/revision/latest?cb=20230402220448",
+  "cranequin":"https://static.wikia.nocookie.net/hellcard/images/a/a1/Cranequin.png/revision/latest?cb=20240912232353",
+  "damocles-sword":"https://static.wikia.nocookie.net/hellcard/images/c/c6/Damocles%27_Sword.png/revision/latest?cb=20230402224939",
+  "deadly-roulette":"https://static.wikia.nocookie.net/hellcard/images/1/14/Deadly_Roulette.png/revision/latest?cb=20230402224957",
+  "deadly-streak":"https://static.wikia.nocookie.net/hellcard/images/3/34/Deadly_Streak.png/revision/latest?cb=20230402225140",
+  "death-mark":"https://static.wikia.nocookie.net/hellcard/images/3/34/Death_Mark.png/revision/latest?cb=20230402220504",
+  "deflect":"https://static.wikia.nocookie.net/hellcard/images/2/29/Deflect.png/revision/latest?cb=20230402220409",
+  "dig":"https://static.wikia.nocookie.net/hellcard/images/e/ef/Dig.png/revision/latest?cb=20230402220924",
+  "diversify":"https://static.wikia.nocookie.net/hellcard/images/2/2b/Diversify.png/revision/latest?cb=20230402220553",
+  "dragons-breath":"https://static.wikia.nocookie.net/hellcard/images/c/c6/Dragon%27s_Breath.png/revision/latest?cb=20240912232338",
+  "eagle-trick":"https://static.wikia.nocookie.net/hellcard/images/0/04/Eagle_Trick.png/revision/latest?cb=20230402220529",
+  "eagles-eye":"https://static.wikia.nocookie.net/hellcard/images/f/f6/Eagle%27s_Eye.png/revision/latest?cb=20230402224739",
+  "emergency-tonic":"https://static.wikia.nocookie.net/hellcard/images/f/fc/Emergency_Tonic.png/revision/latest?cb=20230402220940",
+  "enchufla":"https://static.wikia.nocookie.net/hellcard/images/8/8c/Enchufla.png/revision/latest?cb=20230402220608",
+  "entrench":"https://static.wikia.nocookie.net/hellcard/images/a/a2/Entrench.png/revision/latest?cb=20230402220625",
+  "finesse":"https://static.wikia.nocookie.net/hellcard/images/6/67/Finesse.png/revision/latest?cb=20230402220957",
+  "flash":"https://static.wikia.nocookie.net/hellcard/images/7/74/Flash.png/revision/latest?cb=20230402220642",
+  "flashbang-bomb":"https://static.wikia.nocookie.net/hellcard/images/a/ae/Flashbang_Bomb.png/revision/latest?cb=20230402225016",
+  "forgery-kit":"https://static.wikia.nocookie.net/hellcard/images/e/ee/Forgery_Kit.png/revision/latest?cb=20230402225158",
+  "fortify":"https://static.wikia.nocookie.net/hellcard/images/c/c7/Fortify.png/revision/latest?cb=20230402220710",
+  "gancho":"https://static.wikia.nocookie.net/hellcard/images/0/01/Gancho.png/revision/latest?cb=20230402220730",
+  "garbage-day":"https://static.wikia.nocookie.net/hellcard/images/6/63/Garbage_Day.png/revision/latest?cb=20230402225034",
+  "hamstring":"https://static.wikia.nocookie.net/hellcard/images/7/78/Hamstring.png/revision/latest?cb=20230402225333",
+  "hired-help":"https://static.wikia.nocookie.net/hellcard/images/b/bd/Hired_Help.png/revision/latest?cb=20230402224620",
+  "hot-potato":"https://static.wikia.nocookie.net/hellcard/images/3/34/Hot_Potato.png/revision/latest?cb=20230402225231",
+  "improvise":"https://static.wikia.nocookie.net/hellcard/images/c/cd/Improvise.png/revision/latest?cb=20230402225417",
+  "incendiary-tip":"https://static.wikia.nocookie.net/hellcard/images/a/ac/Incendiary_Tip.png/revision/latest?cb=20240912232342",
+  "ivy-extract":"https://static.wikia.nocookie.net/hellcard/images/1/15/Ivy_Extract.png/revision/latest?cb=20230402225052",
+  "keeping-distance":"https://static.wikia.nocookie.net/hellcard/images/3/3b/Keeping_Distance.png/revision/latest?cb=20230402224640",
+  "kick":"https://static.wikia.nocookie.net/hellcard/images/e/e5/Kick.png/revision/latest?cb=20230402225835",
+  "knockback":"https://static.wikia.nocookie.net/hellcard/images/c/ca/Knockback.png/revision/latest?cb=20230402224755",
+  "lash-out":"https://static.wikia.nocookie.net/hellcard/images/a/a4/Lash_Out.png/revision/latest?cb=20230402225507",
+  "loaded-die":"https://static.wikia.nocookie.net/hellcard/images/8/89/Loaded_Die.png/revision/latest?cb=20230402225903",
+  "lokis-quarrel":"https://static.wikia.nocookie.net/hellcard/images/0/04/Loki%27s_Quarrel.png/revision/latest?cb=20240912232416",
+  "lovers-quarrel":"https://static.wikia.nocookie.net/hellcard/images/e/e6/Lovers%27_Quarrel.png/revision/latest?cb=20240912232401",
+  "luck":"https://static.wikia.nocookie.net/hellcard/images/f/f0/Luck.png/revision/latest?cb=20230402225920",
+  "mad-skills":"https://static.wikia.nocookie.net/hellcard/images/e/eb/Mad_Skills.png/revision/latest?cb=20230402230155",
+  "marked-deck":"https://static.wikia.nocookie.net/hellcard/images/2/26/Marked_Deck.png/revision/latest?cb=20230402230524",
+  "mastery":"https://static.wikia.nocookie.net/hellcard/images/5/58/Mastery.png/revision/latest?cb=20230402224818",
+  "maximum-effort":"https://static.wikia.nocookie.net/hellcard/images/8/85/Maximum_Effort.png/revision/latest?cb=20230402225248",
+  "minesweep":"https://static.wikia.nocookie.net/hellcard/images/f/fb/Minesweep.png/revision/latest?cb=20230402225724",
+  "mordhau":"https://static.wikia.nocookie.net/hellcard/images/a/ab/Mordhau.png/revision/latest?cb=20230402225432",
+  "multi-arrow":"https://static.wikia.nocookie.net/hellcard/images/c/cd/Multi_Arrow.png/revision/latest?cb=20230402225524",
+  "not-today":"https://static.wikia.nocookie.net/hellcard/images/e/ef/Not_Today.png/revision/latest?cb=20230402230540",
+  "osoto-gari":"https://static.wikia.nocookie.net/hellcard/images/f/f3/Osoto_Gari.png/revision/latest?cb=20230402225959",
+  "overexertion":"https://static.wikia.nocookie.net/hellcard/images/c/c2/Overexertion.png/revision/latest?cb=20230402230221",
+  "paint-balloon":"https://static.wikia.nocookie.net/hellcard/images/0/09/Paint_Balloon.png/revision/latest?cb=20230402230235",
+  "payback":"https://static.wikia.nocookie.net/hellcard/images/a/a0/Payback.png/revision/latest?cb=20230402230017",
+  "perfect-balance":"https://static.wikia.nocookie.net/hellcard/images/3/32/Perfect_Balance.png/revision/latest?cb=20230402225108",
+  "persevere":"https://static.wikia.nocookie.net/hellcard/images/9/94/Persevere.png/revision/latest?cb=20230402230249",
+  "piercing-arrow":"https://static.wikia.nocookie.net/hellcard/images/a/ac/Piercing_Arrow.png/revision/latest?cb=20230402225740",
+  "porcupine":"https://static.wikia.nocookie.net/hellcard/images/1/1c/Porcupine.png/revision/latest?cb=20230402225304",
+  "precision-bomb":"https://static.wikia.nocookie.net/hellcard/images/f/f5/Precision_Bomb.png/revision/latest?cb=20230402230715",
+  "qi-quarrel":"https://static.wikia.nocookie.net/hellcard/images/3/37/Qi_Quarrel.png/revision/latest?cb=20240912232427",
+  "quackery-quarrel":"https://static.wikia.nocookie.net/hellcard/images/9/97/Quackery_Quarrel.png/revision/latest?cb=20240912232409",
+  "quail-quarrel":"https://static.wikia.nocookie.net/hellcard/images/a/a0/Quail_Quarrel.png/revision/latest?cb=20240912232420",
+  "quality-quarrel":"https://static.wikia.nocookie.net/hellcard/images/4/45/Quality_Quarrel.png/revision/latest?cb=20240912232431",
+  "quick-draw":"https://static.wikia.nocookie.net/hellcard/images/3/39/Quick_Draw.png/revision/latest?cb=20240912232350",
+  "quiver":"https://static.wikia.nocookie.net/hellcard/images/6/63/Quiver.png/revision/latest?cb=20230402230041",
+  "rallying-cry":"https://static.wikia.nocookie.net/hellcard/images/5/53/Rallying_Cry.png/revision/latest?cb=20230402230556",
+  "ram-quarrel":"https://static.wikia.nocookie.net/hellcard/images/2/28/Ram_Quarrel.png/revision/latest?cb=20240912232424",
+  "risky-draw":"https://static.wikia.nocookie.net/hellcard/images/0/0d/Risky_Draw.png/revision/latest?cb=20230402230447",
+  "rogue-knuckles":"https://static.wikia.nocookie.net/hellcard/images/2/26/Rogue_Knuckles.png/revision/latest?cb=20230402225547",
+  "rogue-tactics":"https://static.wikia.nocookie.net/hellcard/images/6/6a/Rogue_Tactics.png/revision/latest?cb=20230402225447",
+  "salve":"https://static.wikia.nocookie.net/hellcard/images/a/a8/Salve.png/revision/latest?cb=20230402230503",
+  "scissor-strike":"https://static.wikia.nocookie.net/hellcard/images/f/f4/Scissor_Strike.png/revision/latest?cb=20230402225606",
+  "secret-stash":"https://static.wikia.nocookie.net/hellcard/images/e/e8/Secret_Stash.png/revision/latest?cb=20230402230613",
+  "shadow-stance":"https://static.wikia.nocookie.net/hellcard/images/7/72/Shadow_Stance.png/revision/latest?cb=20230402230758",
+  "shakedown":"https://static.wikia.nocookie.net/hellcard/images/c/c2/Shakedown.png/revision/latest?cb=20230402225639",
+  "sharp-arrow":"https://static.wikia.nocookie.net/hellcard/images/2/2a/Sharp_Arrow.png/revision/latest?cb=20230402225624",
+  "sharp-rain":"https://static.wikia.nocookie.net/hellcard/images/8/8e/Sharp_Rain.png/revision/latest?cb=20230402225711",
+  "shockwave-bomb":"https://static.wikia.nocookie.net/hellcard/images/3/37/Shockwave_Bomb.png/revision/latest?cb=20230402230812",
+  "shrapnel":"https://static.wikia.nocookie.net/hellcard/images/c/ce/Shrapnel.png/revision/latest?cb=20230402225756",
+  "shredder-strike":"https://static.wikia.nocookie.net/hellcard/images/0/0a/Shredder_Strike.png/revision/latest?cb=20230402225813",
+  "sick-and-tired-arrow":"https://static.wikia.nocookie.net/hellcard/images/6/6c/Sick_%26_Tired_Arrow.png/revision/latest?cb=20230402230310",
+  "sleeve-trick":"https://static.wikia.nocookie.net/hellcard/images/6/6b/Sleeve_Trick.png/revision/latest?cb=20230402230827",
+  "speed":"https://static.wikia.nocookie.net/hellcard/images/9/94/Speed.png/revision/latest?cb=20230402230629",
+  "stonks":"https://static.wikia.nocookie.net/hellcard/images/7/76/Stonks.png/revision/latest?cb=20230402230408",
+  "teamwork":"https://static.wikia.nocookie.net/hellcard/images/0/05/Teamwork.png/revision/latest?cb=20230402230100",
+  "throw-knives":"https://static.wikia.nocookie.net/hellcard/images/9/9e/Throw_Knives.png/revision/latest?cb=20230402230325",
+  "tinker":"https://static.wikia.nocookie.net/hellcard/images/e/ec/Tinker.png/revision/latest?cb=20230402230644",
+  "too-old-for-this":"https://static.wikia.nocookie.net/hellcard/images/c/c6/Too_Old_For_This.png/revision/latest?cb=20230402230741",
+  "trickle-down":"https://static.wikia.nocookie.net/hellcard/images/9/96/Trickle_Down.png/revision/latest?cb=20230402230345",
+  "vanish":"https://static.wikia.nocookie.net/hellcard/images/b/b6/Vanish.png/revision/latest?cb=20230402230701",
+  "violence":"https://static.wikia.nocookie.net/hellcard/images/e/e4/Violence.png/revision/latest?cb=20230402230423",
+  "wasp-quarrel":"https://static.wikia.nocookie.net/hellcard/images/c/cc/Wasp_Quarrel.png/revision/latest?cb=20240912232412",
+  "wildcard":"https://static.wikia.nocookie.net/hellcard/images/4/46/Wildcard.png/revision/latest?cb=20230402230838",
+  "zero-in":"https://static.wikia.nocookie.net/hellcard/images/3/3c/Zero_in.png/revision/latest?cb=20240912232357",
+  "zhuge-crossbow":"https://static.wikia.nocookie.net/hellcard/images/4/45/Zhuge_Crossbow.png/revision/latest?cb=20240912232405"
+};
+
+const CARDS = {
+  "adapt":{name:"Adapt",type:"Skill",rarity:"Rare",cost:0,effect:"Draw a card. If it costs 0 mana, repeat.",to:["Rallying Cry","Finesse","Tinker"],from:["Luck","Quiver","Teamwork"]},
+  "arrow-split":{name:"Arrow Split",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 4 damage. Deal 2 damage instead if the target is near. Add a copy of this card to draw pile.",to:[],from:["Multi Arrow","Sick & Tired Arrow"]},
+  "backflip":{name:"Backflip",type:"Influence",rarity:"Rare",cost:2,effect:"Every turn 1 most powerful attack(s) on you will deal no more that 10 damage. Unstackable. Exhaust.",to:["Porcupine","Shadow Stance"],from:[]},
+  "bargain":{name:"Bargain",type:"Influence",rarity:"Legendary",cost:2,effect:"Set the cost of 1 random card in your hand to 0 at the start of the turn. Exhaust.",to:[],from:["Breath Control","Garbage Day","Too Old For This"]},
+  "barrage":{name:"Barrage",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 12 damage to all monsters with move or flank intents.",to:[],from:["Blindsided","Hamstring"]},
+  "battle-snack":{name:"Battle Snack",type:"Skill",rarity:"Legendary",cost:1,effect:"Selected hero is healed for 4HP, gets 1 mana and draws 1 card(s). Strain.",to:[],from:["Overexertion","Salve","Cranequin"]},
+  "blindsided":{name:"Blindsided",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 15 damage. Exhaust",to:["Barrage","Violence","Shrapnel"],from:["Improvise","Rogue Tactics"]},
+  "bling":{name:"Bling",type:"Skill",rarity:"Rare",cost:1,effect:"Stun 1 random monster(s) in a medium radius. If you have 4 or more gemstones, stun all of them and get 1 mana. (Gems: X).",to:["Vanish","Clothesline"],from:["Payback"]},
+  "bottomless-purse":{name:"Bottomless Purse",type:"Skill",rarity:"Common",cost:1,effect:"Selected hero draws 2 cards. Focus with +1 card. Reset to 2 cards on play.",to:["Salve","Diversify","Overexertion"],from:[]},
+  "bouncy-bomb":{name:"Bouncy Bomb",type:"Influence",rarity:"Common",cost:0,effect:"Bomb. Deal 6 piercing damage to all monsters in a section.",to:["Flashbang Bomb","Buster Bomb"],from:[]},
+  "breath-control":{name:"Breath Control",type:"Influence",rarity:"Rare",cost:0,effect:"Get 1 additional mana next turn and remove this influence. Unstackable.",to:["Bargain","Maximum Effort"],from:[]},
+  "buckler":{name:"Buckler",type:"Skill",rarity:"Starter",cost:1,effect:"Gain 2 block.",to:["Death Mark","Cover"],from:[]},
+  "bulwark":{name:"Bulwark",type:"Skill",rarity:"Legendary",cost:1,effect:"Gain 4 block, plus an additional 4 for every Bomb on the battleground. Other heroes get half that.",to:[],from:["Chainshirt","Cornucopia","Fortify"]},
+  "buster-bomb":{name:"Buster Bomb",type:"Influence",rarity:"Rare",cost:0,effect:"Bomb. Deal 7 unblockable damage to all monsters in a secition and break thier block.",to:["Hot Potato","Shockwave Bomb"],from:["Bouncy Bomb","Precision Bomb"]},
+  "caltrops":{name:"Caltrops",type:"Attack",rarity:"Common",cost:2,effect:"Deal 4 damage to monsters in far range with the move or flank intent.",to:["Loki's Quarrel","Sharp Rain","Hamstring"],from:[]},
+  "chainshirt":{name:"Chainshirt",type:"Skill",rarity:"Rare",cost:1,effect:"Give as much block as the selected hero has incoming damage. Get Tired. Strain",to:["Bulwark","Clout"],from:["Death Mark","Payback"]},
+  "chainshot-arrow":{name:"Chainshot Arrow",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 5 damage to monster. If this kills it, draw a card and repeat for the nearest monster.",to:[],from:["Sharp Rain","Throw Knives"]},
+  "cheek-rest":{name:"Cheek Rest",type:"Influence",rarity:"Common",cost:1,effect:"Quarrels deal +1 damage in near range for 3 turns.",to:["Ivy Extract","Incendiary Tip"],from:[]},
+  "clockwork-arrow":{name:"Clockwork Arrow",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage. 2 damage if the target is near.",to:["Rogue Knuckles","Sharp Rain","Multi Arrow"],from:["Sharp Arrow","Quality Quarrel"]},
+  "clothesline":{name:"Clothesline",type:"Skill",rarity:"Legendary",cost:1,effect:"Stun all monsters in a medium radius and draw a card.",to:[],from:["Bling","Flash","Paint Balloon"]},
+  "clout":{name:"Clout",type:"Skill",rarity:"Legendary",cost:1,effect:"Give as much block to all heroes as the incoming damage each one has. Get Tired. Strain.",to:[],from:["Chainshirt","Entrench","Persevere"]},
+  "copycat":{name:"Copycat",type:"Skill",rarity:"Legendary",cost:1,effect:"Gain block equal to another hero's block.",to:[],from:["Fortify","Persevere"]},
+  "cornucopia":{name:"Cornucopia",type:"Skill",rarity:"Rare",cost:1,effect:"Add 1 random Bomb to your draw pile. Take Ignite.",to:["Dig","Bulwark"],from:["Eagle Trick","Loaded Die"]},
+  "cover":{name:"Cover",type:"Skill",rarity:"Common",cost:1,effect:"Gain 3 block. Other heroes get 1 block.",to:["Fortify","Persevere","Mad Skills"],from:["Buckler"]},
+  "cranequin":{name:"Cranequin",type:"Skill",rarity:"Rare",cost:1,effect:"Everyone draws 2 card(s). Take random Quarrel to hand.",to:["Secret Stash","Battle Snack","Quick Draw"],from:["Teamwork","Zero in"]},
+  "damocles-sword":{name:"Damocles&#x27; Sword",type:"Influence",rarity:"Rare",cost:1,effect:"At the start of the turn, move a random monster from your near to far section and stun it. Exhaust.",to:["Forgery Kit","Wildcard"],from:["Knockback"]},
+  "deadly-roulette":{name:"Deadly Roulette",type:"Influence",rarity:"Rare",cost:1,effect:"At the end of the turn, if there is no marked monster, add 2 mark to a random monster. Exhaust.",to:["Wildcard","Forgery Kit"],from:["Knockback"]},
+  "deadly-streak":{name:"Deadly Streak",type:"Influence",rarity:"Legendary",cost:2,effect:"Arrows deal +1 damage. each Arrow you play increases this bonus by 1. Playing a non-Arrow card resets the bonus to 1. Exhaust. Unstackable.",to:[],from:["Ivy Extract","Perfect Balance"]},
+  "death-mark":{name:"Death Mark",type:"Skill",rarity:"Common",cost:1,effect:"Add 1 mark.",to:["Chainshirt","Enchufla","Paint Balloon"],from:["Buckler"]},
+  "deflect":{name:"Deflect",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal damage equal to your incoming damage. Exhaust a random card.",to:[],from:["Lash Out","Scissor Strike"]},
+  "dig":{name:"Dig",type:"Skill",rarity:"Legendary",cost:1,effect:"Add 1 random Bomb to your draw pile. Select a Bomb on the battlefield. Add a copy of it to your draw pile. Take Ignite.",to:[],from:["Cornucopia","Diversify","Risky Draw"]},
+  "diversify":{name:"Diversify",type:"Skill",rarity:"Rare",cost:3,effect:"Take 1 Skill, 1 Attack and 1 Influence cards. They cost 2 mana less this turn.",to:["Finesse","Dig","Emergency Tonic"],from:["Bottomless Purse","Eagle Trick","Quiver"]},
+  "dragons-breath":{name:"Dragon&#x27;s Breath",type:"Influence",rarity:"Legendary",cost:2,effect:"Your Arrows and Quarrels deal +2 damage per stack and double damage to frozen monsters.",to:[],from:["Ivy Extract","Incendiary Tip"]},
+  "eagle-trick":{name:"Eagle Trick",type:"Skill",rarity:"Common",cost:1,effect:"Lower cost of a random card in hand to 0 mana until it's played or the turn ends.",to:["Cornucopia","Diversify","Overexertion"],from:[]},
+  "eagles-eye":{name:"Eagle&#x27;s Eye",type:"Influence",rarity:"Common",cost:1,effect:"Arrows deal +1 damage in far range for 3 turns.",to:["Incendiary Tip","Ivy Extract","Garbage Day"],from:[]},
+  "emergency-tonic":{name:"Emergency Tonic",type:"Skill",rarity:"Legendary",cost:1,effect:"Gain 1 mana and 3 block. Take this card to hand every time you get Tired or Shaky Hands.",to:[],from:["Diversify","Entrench","Persevere"]},
+  "enchufla":{name:"Enchufla",type:"Skill",rarity:"Rare",cost:1,effect:"Move monsters in radius to opposite distance (from far to near and vice versa).",to:["Speed"],from:["Death Mark","Kick"]},
+  "entrench":{name:"Entrench",type:"Skill",rarity:"Rare",cost:0,effect:"Give block equal to number of Arrows in the draw pile (X).",to:["Keeping Distance","Clout","Emergency Tonic"],from:["Loaded Die","Luck"]},
+  "finesse":{name:"Finesse",type:"Skill",rarity:"Legendary",cost:3,effect:"All heroes draw 2 cards that cost 2 less until played or turn ends.",to:[],from:["Adapt","Diversify","Salve"]},
+  "flash":{name:"Flash",type:"Skill",rarity:"Rare",cost:2,effect:"Stun all monsters with Attack intent in near range. Get Tired.",to:["Vanish","Clothesline"],from:["Kick","Osoto Gari","Payback"]},
+  "flashbang-bomb":{name:"Flashbang Bomb",type:"Influence",rarity:"Rare",cost:0,effect:"Bomb. Deal 8 damage to all monsters in a section and stun them.",to:["Shockwave Bomb","Hot Potato"],from:["Bouncy Bomb","Precision Bomb"]},
+  "forgery-kit":{name:"Forgery Kit",type:"Influence",rarity:"Legendary",cost:1,effect:"At the start of your turn, add 2 mark to an already marked monster or a random one. Exhaust.",to:[],from:["Damocles' Sword","Deadly Roulette"]},
+  "fortify":{name:"Fortify",type:"Skill",rarity:"Rare",cost:1,effect:"Gain 4 block. Other heroes get 2 block.",to:["Bulwark","Copycat","Keeping Distance"],from:["Cover"]},
+  "gancho":{name:"Gancho",type:"Skill",rarity:"Rare",cost:0,effect:"Move a monster to the opposite distance (from far to near and vice versa).",to:["Not Today","Speed"],from:["Kick","Osoto Gari"]},
+  "garbage-day":{name:"Garbage Day",type:"Influence",rarity:"Rare",cost:1,effect:"Add 1 Concussive Arrow to your hand at the start of your turn. Strain.",to:["Porcupine","Bargain","Sleeve Trick"],from:["Eagle's Eye","Mastery"]},
+  "hamstring":{name:"Hamstring",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 8 damage to monsters in far range with move or flank intent.",to:["Violence","Barrage"],from:["Caltrops","Shakedown"]},
+  "hired-help":{name:"Hired Help",type:"Skill",rarity:"Legendary",cost:1,effect:"Give mana for every gemstone you have. Exhaust a random card.",to:[],from:["Overexertion"]},
+  "hot-potato":{name:"Hot Potato",type:"Influence",rarity:"Legendary",cost:2,effect:"All heroes get 1 mana and you add a random Bomb to draw pile every time you detonate a Bomb. Strain.",to:[],from:["Buster Bomb","Flashbang Bomb"]},
+  "improvise":{name:"Improvise",type:"Attack",rarity:"Common",cost:2,effect:"Deal 3 damage to all monsters in near range. +3 damage if you have at least one Arrow in hand.",to:["Quail Quarrel","Rogue Knuckles","Blindsided"],from:[]},
+  "incendiary-tip":{name:"Incendiary Tip",type:"Influence",rarity:"Rare",cost:1,effect:"Your Arrows and Quarrels deal double damage to frozen monsters. Exhaust. Unstackable.",to:["Forgery Kit","Dragon's Breath"],from:["Cheek Rest"]},
+  "ivy-extract":{name:"Ivy Extract",type:"Influence",rarity:"Rare",cost:1,effect:"Arrows and Quarrels deal +1 damage for 3 turns.",to:["Dragon's Breath","Deadly Streak"],from:["Cheek Rest","Eagle's Eye","Mastery"]},
+  "keeping-distance":{name:"Keeping Distance",type:"Skill",rarity:"Legendary",cost:0,effect:"Give block equal to the number of Arrows in your deck (0).",to:[],from:["Entrench","Fortify"]},
+  "kick":{name:"Kick",type:"Skill",rarity:"Common",cost:0,effect:"Move a monster from near to far range.",to:["Gancho","Enchufla","Flash"],from:[]},
+  "knockback":{name:"Knockback",type:"Influence",rarity:"Common",cost:1,effect:"Move a random monster from your near to far section at the start of your turn. Exhaust.",to:["Deadly Roulette","Too Old For This","Damocles' Sword"],from:[]},
+  "lash-out":{name:"Lash Out",type:"Attack",rarity:"Rare",cost:2,effect:"Deal damage to a monster in a near range equal to your incoming damage. Exhaust a random card.",to:["Shredder Strike","Deflect"],from:["Mordhau","Rogue Tactics"]},
+  "loaded-die":{name:"Loaded Die",type:"Skill",rarity:"Common",cost:0,effect:"Add 1 mark to random monster.",to:["Entrench","Cornucopia","Paint Balloon"],from:[]},
+  "lokis-quarrel":{name:"Loki&#x27;s Quarrel",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 4 damage. Move a monster from near to far range. Get Shaky Hands.",to:["Lovers' Quarrel","Quackery Quarrel","Zhuge Crossbow"],from:["Caltrops","Ram Quarrel"]},
+  "lovers-quarrel":{name:"Lovers&#x27; Quarrel",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 10 damage. Lose 3 HP on discard. Get Shaky Hands.",to:[],from:["Loki's Quarrel","Wasp Quarrel"]},
+  "luck":{name:"Luck",type:"Skill",rarity:"Common",cost:1,effect:"Draw a card. If it costs 0 mana, draw another one.",to:["Overexertion","Entrench","Adapt"],from:[]},
+  "mad-skills":{name:"Mad Skills",type:"Skill",rarity:"Rare",cost:1,effect:"Break monsters' block in a medium radius.",to:["Not Today","Rallying Cry"],from:["Cover","Osoto Gari"]},
+  "marked-deck":{name:"Marked Deck",type:"Skill",rarity:"Legendary",cost:1,effect:"Double mark stack or add 1 mark if there isn't any.",to:[],from:["Paint Balloon"]},
+  "mastery":{name:"Mastery",type:"Influence",rarity:"Common",cost:1,effect:"Add 1 Talon Arrow to your hand at the start of your turn. Strain.",to:["Perfect Balance","Garbage Day","Ivy Extract"],from:[]},
+  "maximum-effort":{name:"Maximum Effort",type:"Influence",rarity:"Legendary",cost:0,effect:"Give all heroes 1 additional mana next turn. Unstackable.",to:[],from:["Breath Control","Too Old For This"]},
+  "minesweep":{name:"Minesweep",type:"Attack",rarity:"Legendary",cost:0,effect:"Deal 2 damage to all monsters in the section. Deal 5 damage if there is a Bomb in that section.",to:[],from:["Throw Knives","Trickle Down"]},
+  "mordhau":{name:"Mordhau",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage. Stun if you have Tired or Shaky Hands",to:["Lash Out","Sick & Tired Arrow","Scissor Strike"],from:[]},
+  "multi-arrow":{name:"Multi Arrow",type:"Attack",rarity:"Rare",cost:1,effect:"Fire 2 Clockwork Arrows.",to:["Piercing Arrow","Arrow Split","Shrapnel"],from:["Clockwork Arrow","Qi Quarrel"]},
+  "not-today":{name:"Not Today",type:"Skill",rarity:"Legendary",cost:1,effect:"Break all monster's block.",to:[],from:["Gancho","Mad Skills"]},
+  "osoto-gari":{name:"Osoto Gari",type:"Skill",rarity:"Common",cost:1,effect:"Break block.",to:["Flash","Gancho","Mad Skills"],from:[]},
+  "overexertion":{name:"Overexertion",type:"Skill",rarity:"Rare",cost:1,effect:"Lower cost of 2 random cards in hand to 0 mana until played or turn ends. Get Tired.",to:["Battle Snack","Hired Help","Rallying Cry"],from:["Bottomless Purse","Eagle Trick","Luck"]},
+  "paint-balloon":{name:"Paint Balloon",type:"Skill",rarity:"Rare",cost:1,effect:"Add 1 mark. Add 3 mark instead if a different monster was already marked.",to:["Marked Deck","Clothesline"],from:["Death Mark","Loaded Die"]},
+  "payback":{name:"Payback",type:"Skill",rarity:"Common",cost:1,effect:"Stun 1 random monster(s) in a medium radius. If you have 4 or more gemstones, get 1 mana. (Gems: X).",to:["Chainshirt","Flash","Bling"],from:[]},
+  "perfect-balance":{name:"Perfect Balance",type:"Influence",rarity:"Rare",cost:2,effect:"Gain 2 block every time you play an Arrow.",to:["Deadly Streak","Sleeve Trick","Porcupine"],from:["Mastery"]},
+  "persevere":{name:"Persevere",type:"Skill",rarity:"Rare",cost:1,effect:"Give 5 block . 10 if you have Shaky Hands, Tired or Weak.",to:["Clout","Emergency Tonic","Copycat"],from:["Cover"]},
+  "piercing-arrow":{name:"Piercing Arrow",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 5 unblockable damage. Stun.",to:[],from:["Multi Arrow","Scissor Strike","Sick & Tired Arrow"]},
+  "porcupine":{name:"Porcupine",type:"Influence",rarity:"Legendary",cost:2,effect:"Gain 2 block everytime you play or discard an Arrow.",to:[],from:["Backflip","Garbage Day","Perfect Balance"]},
+  "precision-bomb":{name:"Precision Bomb",type:"Influence",rarity:"Common",cost:0,effect:"Bomb. Deal 6 damage to the monster with the highest Strength in a section and stun it.",to:["Buster Bomb","Flashbang Bomb"],from:[]},
+  "qi-quarrel":{name:"Qi Quarrel",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage to the first monsters in both near and far ranges in a long narrow cone. Get Shaky Hands.",to:["Multi Arrow","Quail Quarrel","Wasp Quarrel"],from:["Sharp Arrow","Quality Quarrel"]},
+  "quackery-quarrel":{name:"Quackery Quarrel",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 7 damage to the first monsters in both near and far ranges in a long narrow cone. Get Shaky Hands.",to:[],from:["Quail Quarrel","Loki's Quarrel"]},
+  "quail-quarrel":{name:"Quail Quarrel",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage to the first monsters in both near and far ranges in a long narrow cone. Get Shaky Hands.",to:["Quackery Quarrel","Zhuge Crossbow"],from:["Improvise","Qi Quarrel"]},
+  "quality-quarrel":{name:"Quality Quarrel",type:"Attack",rarity:"Starter",cost:1,effect:"Deal 2 damage to the first monsters in both near and far ranges in a long narrow cone. Get Shaky Hands.",to:["Clockwork Arrow","Qi Quarrel","Ram Quarrel"],from:[]},
+  "quick-draw":{name:"Quick Draw",type:"Skill",rarity:"Legendary",cost:1,effect:"Everyone draws 3 card(s). Take 2 random Quarrel(s) to hand.",to:[],from:["Salve","Cranequin"]},
+  "quiver":{name:"Quiver",type:"Skill",rarity:"Common",cost:1,effect:"Add 2 Talon Arrows to your hand.",to:["Diversify","Adapt","Risky Draw"],from:[]},
+  "rallying-cry":{name:"Rallying Cry",type:"Skill",rarity:"Legendary",cost:1,effect:"Lower cost of 2 random cards in hand to 0 mana until they are played or the turn ends.",to:[],from:["Adapt","Mad Skills","Overexertion"]},
+  "ram-quarrel":{name:"Ram Quarrel",type:"Attack",rarity:"Common",cost:1,effect:"Deal 3 damage. Move a monster from near to far range. Get Shaky Hands.",to:["Sick & Tired Arrow","Wasp Quarrel","Loki's Quarrel"],from:["Quality Quarrel"]},
+  "risky-draw":{name:"Risky Draw",type:"Skill",rarity:"Rare",cost:0,effect:"Add 3 Talon Arrows to your hand. Get Tired.",to:["Secret Stash","Dig","Tinker"],from:["Quiver","Zero in"]},
+  "rogue-knuckles":{name:"Rogue Knuckles",type:"Attack",rarity:"Rare",cost:2,effect:"Deal 4 damage to all monsters in near range. +2 damage for each Arrow in hand (X).",to:["Stonks","Shredder Strike"],from:["Clockwork Arrow","Improvise"]},
+  "rogue-tactics":{name:"Rogue Tactics",type:"Attack",rarity:"Common",cost:0,effect:"Deal 5 damage. Exhaust.",to:["Throw Knives","Blindsided","Lash Out"],from:["Sharp Arrow"]},
+  "salve":{name:"Salve",type:"Skill",rarity:"Rare",cost:0,effect:"Selected hero is healed for 2 HP and draws 1 card. Strain.",to:["Quick Draw","Battle Snack","Finesse"],from:["Bottomless Purse","Teamwork"]},
+  "scissor-strike":{name:"Scissor Strike",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 4 damage. Stun.",to:["Deflect","Piercing Arrow"],from:["Mordhau"]},
+  "secret-stash":{name:"Secret Stash",type:"Skill",rarity:"Legendary",cost:1,effect:"Add 3 Talon Arrows to your hand and 3 to your draw pile. Get Tired.",to:[],from:["Risky Draw","Cranequin"]},
+  "shadow-stance":{name:"Shadow Stance",type:"Influence",rarity:"Legendary",cost:2,effect:"Every turn 1 most powerful attack(s) on you will deal no more than 5 damage. Unstackable. Exhaust.",to:[],from:["Backflip"]},
+  "shakedown":{name:"Shakedown",type:"Attack",rarity:"Common",cost:1,effect:"Deal twice as much damage as the gemstones you have. (Gems: X).",to:["Trickle Down","Hamstring","Throw Knives"],from:["Sharp Arrow"]},
+  "sharp-arrow":{name:"Sharp Arrow",type:"Attack",rarity:"Starter",cost:1,effect:"Deal 2 damage. 1 damage if the monster is near.",to:["Qi Quarrel","Clockwork Arrow","Rogue Tactics"],from:[]},
+  "sharp-rain":{name:"Sharp Rain",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 2 damage to all far monsters for every Arrow cards in your deck. (X)",to:["Chainshot Arrow","Shrapnel"],from:["Caltrops","Clockwork Arrow"]},
+  "shockwave-bomb":{name:"Shockwave Bomb",type:"Influence",rarity:"Legendary",cost:0,effect:"Bomb. Deal 15 unblockable damage to all monsters in a section and stun them.",to:[],from:["Buster Bomb","Flashbang Bomb"]},
+  "shrapnel":{name:"Shrapnel",type:"Attack",rarity:"Legendary",cost:1,effect:"Deal 2 damage to all far monsters and 1 to near monsters for every Arrow in your hand. Get Tired.",to:[],from:["Blindsided","Multi Arrow","Sharp Rain"]},
+  "shredder-strike":{name:"Shredder Strike",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 4 damage to all monsters in near range. +1 damage for each Arrow in your deck.",to:[],from:["Lash Out","Rogue Knuckles"]},
+  "sick-and-tired-arrow":{name:"Sick &amp; Tired Arrow",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 5 damage. Damage is unblockable if you have Tired or Shaky Hands.",to:["Arrow Split","Piercing Arrow"],from:["Caltrops","Mordhau","Ram Quarrel"]},
+  "sleeve-trick":{name:"Sleeve Trick",type:"Influence",rarity:"Legendary",cost:1,effect:"Add 1 Concussive Arrow(s) to your hand at the start of your turn. Always get Concussive Arrows instead of Talon Arrows. Strain.",to:[],from:["Garbage Day","Perfect Balance"]},
+  "speed":{name:"Speed",type:"Skill",rarity:"Legendary",cost:1,effect:"Move monsters in a large radius to the opposite distance. (from far to near and vice versa).",to:[],from:["Enchufla","Gancho"]},
+  "stonks":{name:"Stonks",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal double the number ot gemstones you have as damage in a small radius. (Gems: X). Exhaust a random card from your hand.",to:[],from:["Rogue Knuckles","Trickle Down"]},
+  "teamwork":{name:"Teamwork",type:"Skill",rarity:"Common",cost:1,effect:"Everyone draws 1 card(s).",to:["Cranequin","Salve","Adapt"],from:[]},
+  "throw-knives":{name:"Throw Knives",type:"Attack",rarity:"Rare",cost:0,effect:"Deal 2 damage to all monsters in a section.",to:["Minesweep","Chainshot Arrow","Violence"],from:["Improvise","Rogue Tactics","Shakedown"]},
+  "tinker":{name:"Tinker",type:"Skill",rarity:"Legendary",cost:1,effect:"Add Concussive Arrow to your draw pile.",to:[],from:["Adapt","Risky Draw"]},
+  "too-old-for-this":{name:"Too Old For This",type:"Influence",rarity:"Rare",cost:1,effect:"Set cost of 1 random card in your hand to 0 if you have Tired at the start of the Turn. Exhaust.",to:["Maximum Effort","Bargain"],from:["Knockback"]},
+  "trickle-down":{name:"Trickle Down",type:"Attack",rarity:"Rare",cost:2,effect:"Deal as much damage in a small radius as the gemstones you have. (Gems: X) Exhaust a random card from hand.",to:["Minesweep","Stonks"],from:["Shakedown"]},
+  "vanish":{name:"Vanish",type:"Skill",rarity:"Legendary",cost:2,effect:"Stun all monsters with attack intent. Get Tired.",to:[],from:["Bling","Flash"]},
+  "violence":{name:"Violence",type:"Attack",rarity:"Legendary",cost:2,effect:"Kill a non-boss monster. Exhaust.",to:[],from:["Blindsided","Hamstring","Throw Knives"]},
+  "wasp-quarrel":{name:"Wasp Quarrel",type:"Attack",rarity:"Rare",cost:1,effect:"Deal 7 damage. Lose 3 HP on discard. Get Shaky Hands.",to:["Zhuge Crossbow","Lovers' Quarrel"],from:["Qi Quarrel","Ram Quarrel"]},
+  "wildcard":{name:"Wildcard",type:"Influence",rarity:"Legendary",cost:1,effect:"At the start of the turn, move a random monster from your near to far section, deal 2 damage and stun it. Exhaust.",to:[],from:["Damocles' Sword","Deadly Roulette"]},
+  "zero-in":{name:"Zero in",type:"Skill",rarity:"Common",cost:0,effect:"Take random Quarrel to hand",to:["Risky Draw","Cranequin"],from:[]},
+  "zhuge-crossbow":{name:"Zhuge Crossbow",type:"Attack",rarity:"Legendary",cost:2,effect:"Deal 7 damage. Repeat for each Quarrel in hand. Discard all Quarrels (X).",to:[],from:["Quail Quarrel","Loki's Quarrel","Wasp Quarrel"]}
+};
+
+// Build name->id lookup and backfill from[] using to[]
+const nameToId = {};
+for (const [id, c] of Object.entries(CARDS)) nameToId[c.name] = id;
+for (const [id, c] of Object.entries(CARDS)) {
+  c.to.forEach(targetName => {
+    const tid = nameToId[targetName];
+    if (tid && !CARDS[tid].from.includes(c.name)) CARDS[tid].from.push(c.name);
+  });
+}
+// Starters evolve to all Commons of the same type
+const starters = Object.entries(CARDS).filter(([,c]) => c.rarity === 'Starter');
+for (const [sid, sc] of starters) {
+  Object.entries(CARDS).filter(([,c]) => c.rarity === 'Common' && c.type === sc.type).forEach(([cid, cc]) => {
+    if (!sc.to.includes(cc.name)) sc.to.push(cc.name);
+    if (!cc.from.includes(sc.name)) cc.from.push(sc.name);
+  });
+}
+
+// Build the 3 unified trees from card data
+const RARITY_ORDER = { Starter: 0, Common: 1, Rare: 2, Legendary: 3 };
+const TYPE_CONFIG = {
+  Attack:    { color: 'var(--attack)',    desc: 'Deal damage to enemies &mdash; arrows, quarrels, AoE, and melee strikes', count: 0 },
+  Skill:     { color: 'var(--skill)',     desc: 'Block, draw, stamina, stuns, and monster manipulation', count: 0 },
+  Influence: { color: 'var(--influence)', desc: 'Persistent effects &mdash; bombs, buffs, and arrow enhancements', count: 0 }
+};
+
+// Group cards by type and rarity
+const grouped = {};
+for (const type of ['Attack','Skill','Influence']) {
+  grouped[type] = { Starter: [], Common: [], Rare: [], Legendary: [] };
+}
+for (const [id, c] of Object.entries(CARDS)) {
+  grouped[c.type][c.rarity].push(id);
+  TYPE_CONFIG[c.type].count++;
+}
+
+// Sort within each rarity: roots first (no from), then alphabetical
+for (const type of Object.keys(grouped)) {
+  for (const rarity of Object.keys(grouped[type])) {
+    grouped[type][rarity].sort((a, b) => {
+      const ca = CARDS[a], cb = CARDS[b];
+      if (ca.from.length === 0 && cb.from.length > 0) return -1;
+      if (ca.from.length > 0 && cb.from.length === 0) return 1;
+      return ca.name.localeCompare(cb.name);
+    });
+  }
+}
+
+function cardHTML(id) {
+  const c = CARDS[id];
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+  const legendaryClass = c.rarity === 'Legendary' ? ' legendary' : '';
+  const fromIds = c.from.map(n => nameToId[n]).filter(Boolean).join(',');
+  const dataFrom = fromIds ? ` data-from="${fromIds}"` : '';
+  return `<div class="card-node ${typeClass}${legendaryClass}" data-card="${id}"${dataFrom}>
+    <div class="card-img">${img ? `<img src="${img}" alt="${c.name}" loading="lazy">` : ''}</div>
+    <div class="card-name">${c.name}</div>
+    <div class="card-meta"><span class="card-cost">${c.cost}</span><span class="card-rarity ${rarityClass}">${c.rarity}</span></div>
+  </div>`;
+}
+
+const container = document.getElementById('all-trees');
+let html = '';
+
+for (const type of ['Attack','Skill','Influence']) {
+  const cfg = TYPE_CONFIG[type];
+  const g = grouped[type];
+  const typeClass = type.toLowerCase();
+
+  html += `<div class="type-section">
+    <h2 style="color:${cfg.color}">${type} Cards</h2>
+    <div class="type-count">${cfg.count} cards</div>
+    <p class="type-desc">${cfg.desc}</p>
+  </div>`;
+  html += `<div class="tree-wrapper"><div class="flat-tree tree-${typeClass}">`;
+
+  const tiers = [];
+  if (g.Starter.length) tiers.push({ label:'starter', title:'Starter', star:true, cards:g.Starter });
+  if (g.Common.length)  tiers.push({ label:'common',  title:'Common',  star:false, cards:g.Common });
+  if (g.Rare.length)    tiers.push({ label:'rare',    title:'Rare',    star:false, cards:g.Rare });
+  if (g.Legendary.length) tiers.push({ label:'legendary', title:'Legendary', star:true, cards:g.Legendary });
+
+  tiers.forEach(tier => {
+    html += `<div class="tier-label ${tier.label}-tier">${tier.star ? '\u2605 ' : ''}${tier.title}</div>`;
+    html += `<div class="flat-tier" data-tier="${tier.label}">`;
+    tier.cards.forEach(id => { html += cardHTML(id); });
+    html += `</div><div class="flat-spacer"></div>`;
+  });
+
+  html += `</div></div>`;
+}
+
+container.innerHTML = html;
+
+// Draw connector lines
+function drawConnectors() {
+  document.querySelectorAll('.flat-tree').forEach(tree => {
+    const existing = tree.querySelector('.tree-svg');
+    if (existing) existing.remove();
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.classList.add('tree-svg');
+    svg.style.width = tree.scrollWidth + 'px';
+    svg.style.height = tree.scrollHeight + 'px';
+
+    const treeRect = tree.getBoundingClientRect();
+    tree.querySelectorAll('.card-node[data-from]').forEach(card => {
+      const fromIds = card.dataset.from.split(',');
+      const cardRect = card.getBoundingClientRect();
+      const toX = cardRect.left + cardRect.width / 2 - treeRect.left + tree.scrollLeft;
+      const toY = cardRect.top - treeRect.top + tree.scrollTop;
+
+      fromIds.forEach(fid => {
+        const fromCard = tree.querySelector(`[data-card="${fid.trim()}"]`);
+        if (!fromCard) return;
+        const fromRect = fromCard.getBoundingClientRect();
+        const fromX = fromRect.left + fromRect.width / 2 - treeRect.left + tree.scrollLeft;
+        const fromY = fromRect.bottom - treeRect.top + tree.scrollTop;
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', fromX);
+        line.setAttribute('y1', fromY);
+        line.setAttribute('x2', toX);
+        line.setAttribute('y2', toY);
+        line.dataset.from = fid.trim();
+        line.dataset.to = card.dataset.card;
+        svg.appendChild(line);
+      });
+    });
+
+    tree.style.position = 'relative';
+    tree.insertBefore(svg, tree.firstChild);
+  });
+}
+
+setTimeout(drawConnectors, 300);
+window.addEventListener('resize', () => setTimeout(drawConnectors, 100));
+
+// Detail pane
+const detailPane = document.getElementById('detailPane');
+
+function showDetail(node) {
+  const id = node.dataset.card;
+  const c = CARDS[id];
+  if (!c) return;
+  const img = IMGS[id] || '';
+  const typeClass = c.type.toLowerCase();
+  const rarityClass = c.rarity.toLowerCase();
+
+  let h = `<div class="tt-header">`;
+  h += `<div class="tt-img">${img ? `<img src="${img}" alt="${c.name}">` : ''}</div>`;
+  h += `<div class="tt-info">`;
+  h += `<div class="tt-name" style="color:var(--${typeClass})">${c.name}</div>`;
+  h += `<div class="tt-badges"><span class="tt-badge type-${typeClass}">${c.type}</span><span class="tt-badge rarity-${rarityClass}">${c.rarity}</span></div>`;
+  h += `<div class="tt-mana"><span class="tt-mana-gem">${c.cost}</span> Mana Cost</div>`;
+  h += `</div></div><div class="tt-body">`;
+  h += `<div class="tt-effect" style="border-left-color:var(--${typeClass})">${c.effect}</div>`;
+  if (c.to.length) h += `<div class="tt-transforms"><span class="tt-arrow-up">&#9650;</span> <strong>Evolves to:</strong> ${c.to.join(', ')}</div>`;
+  if (c.from.length) h += `<div class="tt-transforms"><span class="tt-arrow-down">&#9660;</span> <strong>Evolves from:</strong> ${c.from.join(', ')}</div>`;
+  h += `</div>`;
+  detailPane.innerHTML = h;
+  detailPane.classList.add('visible');
+}
+
+// Path highlight: walk up ancestors
+function getAncestors(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const fromStr = cardEl.dataset.from;
+  if (!fromStr) return ids;
+  fromStr.split(',').forEach(fid => {
+    const parent = tree.querySelector(`[data-card="${fid.trim()}"]`);
+    if (parent) getAncestors(tree, parent, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+function getDescendants(tree, cardEl, visited = new Set()) {
+  const ids = new Set();
+  const cardId = cardEl.dataset.card;
+  if (visited.has(cardId)) return ids;
+  visited.add(cardId);
+  ids.add(cardId);
+  const c = CARDS[cardId];
+  if (!c || !c.to.length) return ids;
+  c.to.forEach(name => {
+    const childId = nameToId[name];
+    if (!childId) return;
+    const child = tree.querySelector(`[data-card="${childId}"]`);
+    if (child) getDescendants(tree, child, visited).forEach(id => ids.add(id));
+  });
+  return ids;
+}
+
+document.addEventListener('mouseover', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const tree = node.closest('.flat-tree');
+  if (!tree) return;
+
+  const hoveredId = node.dataset.card;
+  const ancestorIds = getAncestors(tree, node);
+  const descendantIds = getDescendants(tree, node);
+
+  tree.querySelectorAll('.card-node').forEach(c => {
+    const id = c.dataset.card;
+    c.classList.remove('path-highlight', 'path-descendant', 'dimmed');
+    if (ancestorIds.has(id)) c.classList.add('path-highlight');
+    else if (descendantIds.has(id)) c.classList.add('path-descendant');
+    else c.classList.add('dimmed');
+  });
+  tree.querySelectorAll('.tree-svg line').forEach(line => {
+    line.classList.remove('line-highlight', 'line-descendant', 'line-dimmed');
+    const f = line.dataset.from, t = line.dataset.to;
+    const fAnc = ancestorIds.has(f), tAnc = ancestorIds.has(t);
+    const fDesc = descendantIds.has(f), tDesc = descendantIds.has(t);
+    if (fAnc && tAnc) line.classList.add('line-highlight');
+    else if (fDesc && tDesc) line.classList.add('line-descendant');
+    else line.classList.add('line-dimmed');
+  });
+  showDetail(node);
+});
+
+document.addEventListener('mouseout', e => {
+  const node = e.target.closest('.card-node');
+  if (!node) return;
+  const related = e.relatedTarget;
+  if (related && related.closest && related.closest('.card-node') === node) return;
+  const tree = node.closest('.flat-tree');
+  if (tree) {
+    tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+    tree.querySelectorAll('.tree-svg line').forEach(l => { l.classList.remove('line-highlight','line-descendant','line-dimmed'); });
+  }
+  detailPane.classList.remove('visible');
+});
+
+// Search
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  document.querySelectorAll('.card-node').forEach(node => {
+    const c = CARDS[node.dataset.card];
+    if (!q) { node.classList.remove('dimmed','search-match'); return; }
+    if (!c) { node.classList.add('dimmed'); return; }
+    const text = `${c.name} ${c.type} ${c.rarity} ${c.effect}`.toLowerCase();
+    if (text.includes(q)) { node.classList.remove('dimmed'); node.classList.add('search-match'); }
+    else { node.classList.add('dimmed'); node.classList.remove('search-match'); }
+  });
+});
+</script>
+<script src="search-enhance.js"></script>
+<script>
+createSearchEnhancer({
+  inputId: 'searchInput',
+  getItems: function() { return document.querySelectorAll('.card-node:not(.dimmed)'); },
+  matchFn: function(el, query) {
+    var c = CARDS[el.dataset.card];
+    if (!c) return false;
+    var text = (c.name + ' ' + c.type + ' ' + c.rarity + ' ' + c.effect).toLowerCase();
+    return text.includes(query);
+  }
+});
+</script>
+</body>
+</html>
