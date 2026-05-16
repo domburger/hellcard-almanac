@@ -1,17 +1,17 @@
 (function() {
   const PAGES = [
-    { id: 'home', label: 'HOME', href: 'home.html' },
+    { id: 'home', label: 'HOME', href: 'index.html' },
     { id: 'deckbuilder', label: 'BUILDER', href: 'deckbuilder.html' },
     {
       id: 'evolution-trees',
       label: 'EVOLUTIONS',
-      href: 'index.html',
+      href: 'evolutions.html',
       dropdown: [
-        { cls: 'warrior', label: 'Warrior', href: 'index.html?class=warrior' },
-        { cls: 'bruja', label: 'Bruja', href: 'index.html?class=bruja' },
-        { cls: 'tinkerer', label: 'Tinkerer', href: 'index.html?class=tinkerer' },
-        { cls: 'rogue', label: 'Rogue', href: 'index.html?class=rogue' },
-        { cls: 'mage', label: 'Mage', href: 'index.html?class=mage' }
+        { cls: 'warrior', label: 'Warrior', href: 'evolutions.html?class=warrior' },
+        { cls: 'bruja', label: 'Bruja', href: 'evolutions.html?class=bruja' },
+        { cls: 'tinkerer', label: 'Tinkerer', href: 'evolutions.html?class=tinkerer' },
+        { cls: 'rogue', label: 'Rogue', href: 'evolutions.html?class=rogue' },
+        { cls: 'mage', label: 'Mage', href: 'evolutions.html?class=mage' }
       ]
     },
     {
