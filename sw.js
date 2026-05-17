@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hellcard-v1';
+const CACHE_NAME = 'hellcard-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -6,7 +6,10 @@ const ASSETS = [
   '/header.css',
   '/header.js',
   '/search-enhance.css',
-  '/search-enhance.js'
+  '/search-enhance.js',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', e => {
