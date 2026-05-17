@@ -193,15 +193,15 @@ body {
 }
 
 /* === AD SLOTS === */
-.ad-slot {
+.ad-bottom {
   display: flex; justify-content: center; align-items: center;
-  padding: 8px 20px; background: var(--bg-panel);
-  border-bottom: 1px solid var(--border); min-height: 90px;
-  overflow: hidden;
+  padding: 20px; background: var(--bg-panel);
+  border-top: 1px solid var(--border); min-height: 100px;
+  margin-top: 32px; overflow: hidden;
 }
-.ad-slot ins { display: block; }
+.ad-bottom ins { display: block; }
 
 @media (max-width: 768px) {
-  .ad-slot { min-height: 50px; padding: 6px 12px; }
+  .ad-bottom { min-height: 50px; padding: 12px; margin-top: 20px; }
   .btn-container { display: none !important; }
 }
