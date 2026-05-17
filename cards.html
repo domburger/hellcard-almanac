@@ -317,17 +317,18 @@
     .badge { font-size: 0.65em; padding: 2px 5px; }
     .mana-cost { width: 20px; height: 20px; font-size: 0.75em; }
 
-    /* Tree view mobile */
+    /* Tree view mobile — wrap cards instead of scrolling */
     .type-section { padding: 20px 0 6px; }
     .type-section h2 { font-size: 1.3em; }
-    .tree-wrapper { padding: 0 4px 20px; overflow-x: auto; }
-    .flat-tree { align-items: flex-start; min-width: max-content; }
+    .tree-wrapper { padding: 0 4px 20px; }
+    .flat-tree { align-items: center; }
+    .flat-tier { gap: 4px; flex-wrap: wrap; justify-content: center; }
     .card-node { width: 80px; min-width: 80px; padding: 4px 3px 5px; }
     .card-img { width: 60px; height: 60px; }
     .card-node .card-name { font-size: 0.55em; }
     .card-meta { font-size: 0.5em; }
-    .flat-tier { gap: 3px; }
     .tier-label { font-size: 0.68em; padding: 5px; }
+    .tree-svg { display: none; }
 
     /* Detail pane on mobile: bottom sheet instead of fixed left */
     .detail-pane {
