@@ -3,15 +3,15 @@
     { id: 'home', label: 'HOME', href: 'index.html' },
     { id: 'deckbuilder', label: 'BUILDER', href: 'deckbuilder.html' },
     {
-      id: 'evolution-trees',
-      label: 'EVOLUTIONS',
-      href: 'evolutions.html',
+      id: 'cards',
+      label: 'CARDS',
+      href: 'cards.html',
       dropdown: [
-        { cls: 'warrior', label: 'Warrior', href: 'evolutions.html?class=warrior' },
-        { cls: 'bruja', label: 'Bruja', href: 'evolutions.html?class=bruja' },
-        { cls: 'tinkerer', label: 'Tinkerer', href: 'evolutions.html?class=tinkerer' },
-        { cls: 'rogue', label: 'Rogue', href: 'evolutions.html?class=rogue' },
-        { cls: 'mage', label: 'Mage', href: 'evolutions.html?class=mage' }
+        { cls: 'warrior', label: 'Warrior', href: 'cards.html?class=warrior' },
+        { cls: 'bruja', label: 'Bruja', href: 'cards.html?class=bruja' },
+        { cls: 'tinkerer', label: 'Tinkerer', href: 'cards.html?class=tinkerer' },
+        { cls: 'rogue', label: 'Rogue', href: 'cards.html?class=rogue' },
+        { cls: 'mage', label: 'Mage', href: 'cards.html?class=mage' }
       ]
     },
     {
@@ -24,18 +24,6 @@
         { cls: 'tinkerer', label: 'Tinkerer', href: 'starter_artifacts.html?class=tinkerer' },
         { cls: 'rogue', label: 'Rogue', href: 'starter_artifacts.html?class=rogue' },
         { cls: 'mage', label: 'Mage', href: 'starter_artifacts.html?class=mage' }
-      ]
-    },
-    {
-      id: 'cards',
-      label: 'CARDS',
-      href: 'cards.html',
-      dropdown: [
-        { cls: 'warrior', label: 'Warrior', href: 'cards.html?class=warrior' },
-        { cls: 'bruja', label: 'Bruja', href: 'cards.html?class=bruja' },
-        { cls: 'tinkerer', label: 'Tinkerer', href: 'cards.html?class=tinkerer' },
-        { cls: 'rogue', label: 'Rogue', href: 'cards.html?class=rogue' },
-        { cls: 'mage', label: 'Mage', href: 'cards.html?class=mage' }
       ]
     },
     { id: 'artifacts', label: 'ARTIFACTS', href: 'artifacts.html' },
@@ -119,10 +107,35 @@
     nav.appendChild(item);
   }
 
+  // Hamburger button
+  const hamburger = document.createElement('button');
+  hamburger.className = 'nav-hamburger';
+  hamburger.innerHTML = '&#9776;';
+  hamburger.setAttribute('aria-label', 'Toggle menu');
+  hamburger.addEventListener('click', function() {
+    nav.classList.toggle('open');
+    hamburger.innerHTML = nav.classList.contains('open') ? '&#10005;' : '&#9776;';
+  });
+
+  // Mobile dropdown toggle (tap to open on mobile)
+  nav.addEventListener('click', function(e) {
+    if (window.innerWidth > 768) return;
+    const navItem = e.target.closest('.nav-item');
+    if (!navItem) return;
+    const dd = navItem.querySelector('.nav-dropdown');
+    if (!dd) return;
+    const link = e.target.closest('.nav-link');
+    if (link && dd) {
+      e.preventDefault();
+      navItem.classList.toggle('mobile-open');
+    }
+  });
+
   const target = document.getElementById('site-header');
   if (target) {
     target.prepend(nav);
     target.prepend(banner);
+    banner.appendChild(hamburger);
 
     // Insert class bars for active dropdown pages right after the nav
     for (const child of nav.children) {

@@ -234,7 +234,7 @@
 .tbadge { display: inline-block; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 .tbadge-attack { background: #e57373; }
 .tbadge-skill { background: #64b5f6; }
-.tbadge-influence { background: #ce93d8; }
+.tbadge-influence { background: #66bb6a; }
 
 /* === ARTIFACT GRID (compact rows) === */
 .artifact-grid {
@@ -275,7 +275,7 @@
 }
 .deck-group-title.attack { color: #e57373; }
 .deck-group-title.skill { color: #64b5f6; }
-.deck-group-title.influence { color: #ce93d8; }
+.deck-group-title.influence { color: #66bb6a; }
 .deck-group-title.starter-art { color: var(--accent); }
 .deck-group-title.gen-art { color: #ffb74d; }
 
@@ -426,7 +426,7 @@
 .type-bar span { white-space: nowrap; overflow: hidden; }
 .type-bar.attack { background: rgba(229,115,115,0.3); color: #e57373; }
 .type-bar.skill { background: rgba(100,181,246,0.3); color: #64b5f6; }
-.type-bar.influence { background: rgba(206,147,216,0.3); color: #ce93d8; }
+.type-bar.influence { background: rgba(46,125,50,0.3); color: #66bb6a; }
 .type-bar.starter-r { background: rgba(120,144,156,0.3); color: #78909c; }
 .type-bar.common-r { background: rgba(158,158,158,0.3); color: #9e9e9e; }
 .type-bar.rare-r { background: rgba(126,87,194,0.3); color: #7e57c2; }
@@ -440,6 +440,23 @@
 .type-section:first-of-type { border-top: none; }
 .type-section h2 {
   font-family: 'Inter', sans-serif; font-size: 1.5em; text-align: center; margin-bottom: 4px;
+}
+
+@media (max-width: 768px) {
+  .db-class-picker { flex-wrap: wrap; padding: 8px 12px; gap: 4px; }
+  .cp-btn { padding: 4px 10px; font-size: 0.7em; }
+  .db-main { padding: 12px 12px 24px; }
+  .build-header { gap: 6px; }
+  .build-name-input { width: 100%; font-size: 0.95em; }
+  .build-actions { margin-left: 0; width: 100%; }
+  .db-tabs { overflow-x: auto; }
+  .db-tab { padding: 10px 14px; font-size: 0.78em; white-space: nowrap; }
+  .tree-wrapper { overflow-x: auto; }
+  .flat-tree { min-width: max-content; }
+  .card-node { width: 80px; min-width: 80px; }
+  .card-img { width: 60px; height: 60px; }
+  .card-node .card-name { font-size: 0.55em; }
+  .card-meta { font-size: 0.5em; }
 }
 </style>
 </head>
@@ -2871,7 +2888,7 @@ function renderDeck() {
     document.getElementById('buildStats').innerHTML +=
       '<br><span style="color:#e57373">Atk: <b>' + atkCount + '</b></span> ' +
       '<span style="color:#64b5f6">Skl: <b>' + sklCount + '</b></span> ' +
-      '<span style="color:#ce93d8">Inf: <b>' + infCount + '</b></span>';
+      '<span style="color:#66bb6a">Inf: <b>' + infCount + '</b></span>';
   }
 
   var maxCount = Math.max(1, Math.max.apply(null, Object.values(costCounts).length ? Object.values(costCounts) : [0]));
