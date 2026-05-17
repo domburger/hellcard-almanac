@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hellcard-v2';
+const CACHE_NAME = 'hellcard-v3';
 const ASSETS = [
   '/',
   '/index.html',

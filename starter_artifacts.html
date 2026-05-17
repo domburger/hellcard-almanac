@@ -18,9 +18,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Hellcard Almanac - Starters</title>
-<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
-<link rel="stylesheet" href="header.css?v=3">
-<link rel="stylesheet" href="search-enhance.css">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="header.css?v=4">
+<link rel="stylesheet" href="search-enhance.css?v=1">
 <style>
   .page-title { margin-bottom: 40px; }
 
@@ -91,7 +91,7 @@
     <input type="text" id="searchInput" placeholder="Search starters... (e.g. Scabbard, block, mana)">
   </div>
 </div>
-<script src="header.js?v=3"></script>
+<script src="header.js?v=4"></script>
 
 <div id="artifact-content"></div>
 <div class="no-results" id="noResults">No starter artifacts match your search.</div>
@@ -295,7 +295,7 @@ currentClass = getClassFromURL();
 if (typeof updateClassDropdown === 'function') updateClassDropdown(currentClass);
 buildPage();
 </script>
-<script src="search-enhance.js"></script>
+<script src="search-enhance.js?v=1"></script>
 <script>
 createSearchEnhancer({
   inputId: 'searchInput',

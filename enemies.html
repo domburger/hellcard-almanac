@@ -18,9 +18,9 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Hellcard Almanac - Enemies</title>
-<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
-<link rel="stylesheet" href="header.css?v=3">
-<link rel="stylesheet" href="search-enhance.css">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="header.css?v=4">
+<link rel="stylesheet" href="search-enhance.css?v=1">
 <style>
   .section-title.normal { color: var(--text); }
   .section-title.special { color: #e040fb; }
@@ -143,7 +143,7 @@
     <input type="text" id="searchInput" placeholder="Search enemies... (e.g. Golem, vampiric, boss)">
   </div>
 </div>
-<script src="header.js?v=3"></script>
+<script src="header.js?v=4"></script>
 
 <div class="content-area" id="enemy-content"></div>
 <div class="no-results" id="noResults">No enemies match your search.</div>
@@ -296,7 +296,7 @@ document.getElementById('searchInput').addEventListener('input', function() {
 
 buildPage();
 </script>
-<script src="search-enhance.js"></script>
+<script src="search-enhance.js?v=1"></script>
 <script>
 createSearchEnhancer({
   inputId: 'searchInput',

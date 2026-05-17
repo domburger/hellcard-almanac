@@ -18,8 +18,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>Hellcard Almanac</title>
-<link rel="icon" type="image/png" href="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248">
-<link rel="stylesheet" href="header.css?v=3">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="stylesheet" href="header.css?v=4">
 <style>
   /* === HERO === */
   .hero {
@@ -144,6 +144,17 @@
     background: var(--accent);
   }
 
+  /* === KO-FI EMBED === */
+  .kofi-section { text-align: center; }
+  .kofi-desc { color: var(--text-dim); margin-bottom: 16px; }
+  .kofi-container {
+    overflow: hidden; max-width: 400px; margin: 0 auto;
+    border-radius: 10px; height: 510px;
+  }
+  .kofi-container iframe {
+    border: none; width: 100%; height: 712px; background: transparent;
+  }
+
   @media (max-width: 600px) {
     .hero-title { font-size: 1.6em; }
     .nav-cards { grid-template-columns: 1fr; }
@@ -157,7 +168,7 @@
 
 <!-- Hero -->
 <div class="hero">
-  <img class="hero-logo" src="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248" alt="Hellcard logo">
+  <img class="hero-logo" src="icon-512.png" alt="Hellcard logo">
   <div class="hero-title">HELLCARD ALMANAC</div>
   <div class="hero-subtitle">Community Reference &amp; Deck Builder</div>
   <p class="hero-tagline">Your one-stop companion for cards, artifacts, enemies, and builds. Explore every evolution path, plan your deck, and master the dungeon.</p>
@@ -222,14 +233,14 @@
     </ul>
   </div>
 
-<div class="home-section" style="text-align:center;">
+<div class="home-section kofi-section">
   <h2>Support the Project</h2>
-  <p style="color:var(--text-dim);margin-bottom:16px;">If you find Hellcard Almanac useful, consider buying me a coffee!</p>
-  <div style="overflow:hidden;max-width:400px;margin:0 auto;border-radius:10px;height:510px;"><iframe id='kofiframe' src='https://ko-fi.com/burgi/?hidefeed=true&widget=true&embed=true&preview=true' style='border:none;width:100%;background:transparent;' height='712' title='burgi'></iframe></div>
+  <p class="kofi-desc">If you find Hellcard Almanac useful, consider buying me a coffee!</p>
+  <div class="kofi-container"><iframe id='kofiframe' src='https://ko-fi.com/burgi/?hidefeed=true&widget=true&embed=true&preview=true' title='burgi'></iframe></div>
 </div>
 </div>
 
-<script src="header.js?v=3"></script>
+<script src="header.js?v=4"></script>
 <script type='text/javascript' src='https://storage.ko-fi.com/cdn/widget/Widget_2.js'></script><script type='text/javascript'>kofiwidget2.init('Support me on Ko-fi', '#4caf50', 'C1C11ZMZ2C');kofiwidget2.draw();</script>
 <script>if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');</script>
 </body>

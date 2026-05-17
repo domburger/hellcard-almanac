@@ -40,7 +40,7 @@
 
   const banner = document.createElement('div');
   banner.className = 'site-banner';
-  banner.innerHTML = '<img src="https://static.wikia.nocookie.net/hellcard/images/e/e6/Site-logo.png/revision/latest?cb=20240917182248" alt="Hellcard"><h1>HELLCARD ALMANAC<span class="subtitle">COMMUNITY REFERENCE</span></h1>';
+  banner.innerHTML = '<img src="icon-192.png" alt="Hellcard"><h1>HELLCARD ALMANAC<span class="subtitle">COMMUNITY REFERENCE</span></h1>';
 
   const nav = document.createElement('nav');
   nav.className = 'site-nav';
