@@ -5963,6 +5963,46 @@ document.addEventListener('mouseout', e => {
   detailPane.classList.remove('visible');
 });
 
+// Touch/click handler for mobile
+let activeNode = null;
+document.addEventListener('click', e => {
+  const node = e.target.closest('.card-node');
+  if (node) {
+    if (activeNode === node) {
+      activeNode = null;
+      const tree = node.closest('.flat-tree');
+      if (tree) {
+        tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+      }
+      detailPane.classList.remove('visible');
+      return;
+    }
+    activeNode = node;
+    const tree = node.closest('.flat-tree');
+    if (tree) {
+      const ancestorIds = getAncestors(tree, node);
+      const descendantIds = getDescendants(tree, node);
+      tree.querySelectorAll('.card-node').forEach(c => {
+        const id = c.dataset.card;
+        c.classList.remove('path-highlight', 'path-descendant', 'dimmed');
+        if (ancestorIds.has(id)) c.classList.add('path-highlight');
+        else if (descendantIds.has(id)) c.classList.add('path-descendant');
+        else c.classList.add('dimmed');
+      });
+    }
+    showDetail(node);
+  } else if (!e.target.closest('.detail-pane')) {
+    if (activeNode) {
+      const tree = activeNode.closest('.flat-tree');
+      if (tree) {
+        tree.querySelectorAll('.card-node').forEach(c => { c.classList.remove('path-highlight','path-descendant','dimmed'); });
+      }
+      activeNode = null;
+      detailPane.classList.remove('visible');
+    }
+  }
+});
+
 // (Search and init handled below in unified section)
 
 // ===== UNIFIED SEARCH =====
