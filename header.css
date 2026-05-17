@@ -154,11 +154,11 @@ body {
 
 /* === MOBILE RESPONSIVE === */
 @media (max-width: 768px) {
-  .site-banner { padding: 10px 16px; gap: 10px; }
+  .site-banner { padding: 10px 16px; gap: 10px; position: relative; }
   .site-banner img { height: 28px; }
   .site-banner h1 { font-size: 1em; letter-spacing: 1px; }
 
-  .nav-hamburger { display: block; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 301; }
+  .nav-hamburger { display: flex; align-items: center; justify-content: center; position: absolute; right: 8px; top: 0; bottom: 0; z-index: 301; }
   .site-nav {
     position: relative;
     flex-direction: column; align-items: stretch;
